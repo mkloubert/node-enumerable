@@ -1,0 +1,23 @@
+{
+  "name": "node-enumerable",
+  "version": "0.0.1",
+  "description": "LINQ features written in TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkloubert/node-enumerable.git"
+  },
+  "keywords": [
+    "linq",
+    "enumerable"
+  ],
+  "author": "mkloubert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mkloubert/node-enumerable/issues"
+  },
+  "homepage": "https://github.com/mkloubert/node-enumerable#readme"
+}
