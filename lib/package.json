@@ -4,7 +4,7 @@
   "description": "LINQ features written in TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ../test/tests.js"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/mkloubert/node-enumerable/issues"
   },
-  "homepage": "https://github.com/mkloubert/node-enumerable#readme"
+  "homepage": "https://github.com/mkloubert/node-enumerable#readme",
+  "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.33",
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2"
+  }
 }
