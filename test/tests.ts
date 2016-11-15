@@ -24,6 +24,8 @@
 // DEALINGS IN THE SOFTWARE.
 
 let libs: string[] = [
+    './IEnumerable/concat',
+    './IEnumerable/contains',
     './IEnumerable/elementAt',
     './IEnumerable/elementAtOrDefault',
 ];

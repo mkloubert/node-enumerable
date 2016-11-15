@@ -30,47 +30,48 @@ import Helpers = require('../helpers');
 const MAX_ARRAY_SIZE = 100;
 const MAX_OUT_OF_RANGE_TESTS = 100;
 
-Helpers.execute((ctx) => {
-    for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
-        // fill test array
+Helpers.execute(
+    'Testing numbers...',
+    (ctx) => {
+        for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
+            if (0 === i % 10) {
+                ctx.log(`Testing with ${i} elements...`);
+            }
 
-        if (0 === i % 10) {
-            ctx.log(`Testing with ${i} elements...`);
+            // fill test array
+            let arr: any[] = [];
+            for (let j = 0; j < i; j++) {
+                arr.push(j + 1);
+            }
+
+            // in range
+            for (let j = 0; j < arr.length; j++) {
+                // strict
+                Assert.strictEqual(Enumerable.from(arr).elementAtOrDefault(j),
+                                j + 1);
+                Assert.notStrictEqual(Enumerable.from(arr).elementAtOrDefault(j),
+                                    '' + (j + 1));
+
+                // NON strict
+                Assert.equal(Enumerable.from(arr).elementAtOrDefault(j),
+                            '' + (j + 1));
+            }
+
+            // out of range ...
+            for (let j = 0; j < MAX_OUT_OF_RANGE_TESTS; j++) {
+                // ... WITHOUT default value
+                Assert.strictEqual(Enumerable.from(arr).elementAtOrDefault(arr.length + j),
+                                undefined);
+                Assert.notStrictEqual(Enumerable.from(arr).elementAtOrDefault(arr.length + j),
+                                    null);
+                Assert.equal(Enumerable.from(arr).elementAtOrDefault(arr.length + j),
+                            undefined);
+                Assert.equal(Enumerable.from(arr).elementAtOrDefault(arr.length + j),
+                            null);
+
+                // ... with default value
+                Assert.strictEqual(Enumerable.from(arr).elementAtOrDefault(arr.length + j, 'Tanja M!'),
+                                'Tanja M!');
+            }
         }
-
-        let arr: any[] = [];
-        for (let j = 0; j < i; j++) {
-            arr.push(j + 1);
-        }
-
-        // in range
-        for (let j = 0; j < arr.length; j++) {
-            // strict
-            Assert.strictEqual(Enumerable.from(arr).elementAtOrDefault(j),
-                               j + 1);
-            Assert.notStrictEqual(Enumerable.from(arr).elementAtOrDefault(j),
-                                  '' + (j + 1));
-
-            // NON strict
-            Assert.equal(Enumerable.from(arr).elementAtOrDefault(j),
-                         '' + (j + 1));
-        }
-
-        // out of range ...
-        for (let j = 0; j < MAX_OUT_OF_RANGE_TESTS; j++) {
-            // ... WITHOUT default value
-            Assert.strictEqual(Enumerable.from(arr).elementAtOrDefault(arr.length + j),
-                               undefined);
-            Assert.notStrictEqual(Enumerable.from(arr).elementAtOrDefault(arr.length + j),
-                                  null);
-            Assert.equal(Enumerable.from(arr).elementAtOrDefault(arr.length + j),
-                         undefined);
-            Assert.equal(Enumerable.from(arr).elementAtOrDefault(arr.length + j),
-                         null);
-
-            // ... with default value
-            Assert.strictEqual(Enumerable.from(arr).elementAtOrDefault(arr.length + j, 'Tanja M!'),
-                               'Tanja M!');
-        }
-    }
-});
+    });

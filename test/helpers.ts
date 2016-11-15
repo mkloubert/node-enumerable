@@ -39,15 +39,16 @@ export interface ExecutionContext {
 /**
  * Executes an action and prints the execution time.
  * 
+ * @param {String} desc The description.
  * @param {Function} func The function to execution.
  * 
  * @return {T} The result of the function.
  */
-export function execute<T>(func: (ctx: ExecutionContext) => T): T {
+export function execute<T>(desc: string, func: (ctx: ExecutionContext) => T): T {
     let ctx: ExecutionContext = {
         log: function(m) {
             if (m) {
-                console.log(`\t\t${m}`);
+                console.log(`\t\t\t${m}`);
             }
 
             return this;
@@ -56,6 +57,8 @@ export function execute<T>(func: (ctx: ExecutionContext) => T): T {
 
     let startTime = new Date();
     try {
+        console.log(`\t\t${desc}`);
+
         if (func) {
             return func(ctx);
         }
