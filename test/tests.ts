@@ -33,6 +33,7 @@ let libs: string[] = [
     './IEnumerable/concatToString',
     './IEnumerable/contains',
     './IEnumerable/count',
+    './IEnumerable/distinct',
     './IEnumerable/each',
     './IEnumerable/elementAt',
     './IEnumerable/elementAtOrDefault',
@@ -40,9 +41,11 @@ let libs: string[] = [
     './IEnumerable/forEach',
     './IEnumerable/intersect',
     './IEnumerable/joinToString',
+    './IEnumerable/max',
     './IEnumerable/notEmpty',
     './IEnumerable/reset',
     './IEnumerable/sum',
+    './IEnumerable/toArray',
     './IEnumerable/zip',
 ];
 
