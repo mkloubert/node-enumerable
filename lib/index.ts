@@ -166,6 +166,15 @@ export interface IEnumerable<T> extends Iterator<T> {
     concat(other?: Sequence<T>): IEnumerable<T>;
 
     /**
+     * Joins the elements of that sequence to one string.
+     * 
+     * @param {string} [defaultValue] The value to return if sequence is empty. Default: ''
+     * 
+     * @return {string} The string.
+     */
+    concatToString(defaultValue?: string): string;
+
+    /**
      * Checks if that sequence contains an item.
      * 
      * @param {any} item The item to search for.
@@ -760,6 +769,15 @@ export class Enumerable<T> implements IEnumerable<T> {
         let i = makeIterable<T>(other);
 
         return from(this.concatInner(i));
+    }
+
+    /** @inheritdoc */
+    public concatToString(defaultValue?: string): string {
+        if (arguments.length < 1) {
+            return this.joinToString('');
+        }
+
+        return this.joinToString('', defaultValue);
     }
 
     /**

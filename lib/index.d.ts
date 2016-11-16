@@ -25,15 +25,6 @@ export declare type Action<T> = (item: T, ctx: IItemContext<T>) => void;
  */
 export declare type EqualityComparer<T> = (x: T, y: any) => boolean;
 /**
- * Describes a function.
- *
- * @param {T} item The underlying item.
- * @param {IItemContext<T>} ctx The context.
- *
- * @return {U} The result of the function.
- */
-export declare type Func<T, U> = (item: T, ctx: IItemContext<T>) => U;
-/**
  * Describes a key selector.
  *
  * @param {K} k The original key.
@@ -142,6 +133,14 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     concat(other?: Sequence<T>): IEnumerable<T>;
     /**
+     * Joins the elements of that sequence to one string.
+     *
+     * @param {string} [defaultValue] The value to return if sequence is empty. Default: ''
+     *
+     * @return {string} The string.
+     */
+    concatToString(defaultValue?: string): string;
+    /**
      * Checks if that sequence contains an item.
      *
      * @param {any} item The item to search for.
@@ -227,6 +226,14 @@ export interface IEnumerable<T> extends Iterator<T> {
      * Gets if the 'moveNext()' can be called or not.
      */
     readonly isValid: boolean;
+    /**
+     * Joins the elements of that sequence to one string.
+     *
+     * @param {string} [separator] The separator to use. Default: ''
+     * @param {string} [defaultValue] The value to return if sequence is empty. Default: ''
+     *
+     * @return {string} The string.
+     */
     joinToString(separator?: string, defaultValue?: string): string;
     /**
      * Gets the current key.
@@ -481,6 +488,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     cast<U>(): IEnumerable<U>;
     /** @inheritdoc */
     concat(other?: Sequence<T>): IEnumerable<T>;
+    /** @inheritdoc */
+    concatToString(defaultValue?: string): string;
     /**
      * The logic for the 'concat()' method.
      *
