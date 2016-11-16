@@ -39,6 +39,15 @@ export type Aggregator<T, U> = (result: any, item: T, ctx: IItemContext<T>) => U
  */
 export type Action<T> = (item: T, ctx: IItemContext<T>) => void;
 /**
+ * Describes a function for sorting elements.
+ * 
+ * @param {T} x The current / left item.
+ * @param {any} y The other / right item.
+ * 
+ * @return {number} The sort value.
+ */
+export type Comparer<T> = (x: T, y: any) => number;
+/**
  * Describes a predicate that checks for the equality of two items.
  * 
  * @param {T} x The current / left item.
@@ -363,6 +372,52 @@ export interface IEnumerable<T> extends Iterator<T> {
     notEmpty(): IEnumerable<T>;
 
     /**
+     * Sorts the elements of that sequence in ascending order by using the values itself as keys.
+     * 
+     * @param {Comparer<T> | string} [comparer] The custom key comparer to use.
+     * 
+     * @throws The comparer is invalid.
+     * 
+     * @return {IOrderedEnumerable<T>} The new sequence.
+     */
+    order(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
+
+    /**
+     * Sorts the elements of that sequence in ascending order.
+     * 
+     * @param {Selector<T, U> | string} selector The key selector.
+     * @param {Comparer<U> | string} [comparer] The custom key comparer to use.
+     * 
+     * @throws At least one argument is invalid.
+     * 
+     * @return {IOrderedEnumerable<T>} The new sequence.
+     */
+    orderBy<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
+
+    /**
+     * Sorts the elements of that sequence in descending order.
+     * 
+     * @param {Selector<T, U> | string} selector The key selector.
+     * @param {Comparer<U> | string} [comparer] The custom key comparer to use.
+     * 
+     * @throws At least one argument is invalid.
+     * 
+     * @return {IOrderedEnumerable<T>} The new sequence.
+     */
+    orderByDescending<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
+
+    /**
+     * Sorts the elements of that sequence in descending order by using the values as keys.
+     * 
+     * @param {Comparer<T> | string} [comparer] The custom key comparer to use.
+     * 
+     * @throws The comparer is invalid.
+     * 
+     * @return {IOrderedEnumerable<T>} The new sequence.
+     */
+    orderDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
+
+    /**
      * Resets the sequence.
      * 
      * @chainable.
@@ -510,6 +565,59 @@ export interface IEnumerable<T> extends Iterator<T> {
      * @return IEnumerable<U> The new sequence.
      */
     zip<U>(other: Sequence<T>, zipper: Zipper<T, U>): IEnumerable<U>;
+}
+
+/**
+ * Describes an ordered sequence.
+ */
+export interface IOrderedEnumerable<T> extends IEnumerable<T> {
+    /**
+     * Performs a subsequent ordering of the elements in that sequence in ascending order,
+     * using the values itself as keys.
+     * 
+     * @param {Comparer<T> | string} [comparer] The custom key comparer to use.
+     * 
+     * @throws The comparer is invalid.
+     * 
+     * @return {IOrderedEnumerable<T>} The new sequence.
+     */
+    then(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
+
+    /**
+     * Performs a subsequent ordering of the elements in that sequence in ascending order, according to a key.
+     * 
+     * @param {Selector<T, U> | string} selector The key selector.
+     * @param {Comparer<U> | string} [comparer] The custom comparer to use.
+     * 
+     * @throws At least one argument is invalid.
+     * 
+     * @return {IOrderedEnumerable<T>} The new sequence.
+     */
+    thenBy<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
+
+    /**
+     * Performs a subsequent ordering of the elements in that sequence in descending order, according to a key.
+     * 
+     * @param {Selector<T, U> | string} selector The key selector.
+     * @param {Comparer<U> | string} [comparer] The custom comparer to use.
+     * 
+     * @throws At least one argument is invalid.
+     * 
+     * @return {IOrderedEnumerable<T>} The new sequence.
+     */
+    thenByDescending<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
+
+    /**
+     * Performs a subsequent ordering of the elements in that sequence in descending order,
+     * using the values as keys.
+     * 
+     * @param {Comparer<T> | string} [comparer] The custom key comparer to use.
+     * 
+     * @throws The comparer is invalid.
+     * 
+     * @return {IOrderedEnumerable<T>} The new sequence.
+     */
+    thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
 }
 
 /**
@@ -1274,7 +1382,30 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public reset(): Enumerable<T> {
+    public order(comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
+        return this.orderBy<T>(x => x);
+    }
+
+    /** @inheritdoc */
+    public orderBy<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T> {
+        return new OrderedEnumerable<T, U>(this, selector, comparer);
+    }
+
+    /** @inheritdoc */
+    public orderByDescending<U>(selector: Selector<T, U> | string, comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
+        let c = toComparerSafe(comparer);
+    
+        return this.orderBy<U>(selector,
+                               (x, y) => c(y, x));
+    }
+
+    /** @inheritdoc */
+    public orderDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
+        return this.orderByDescending<T>(x => x);
+    }
+
+    /** @inheritdoc */
+    public reset(): IEnumerable<T> {
         throw "Not supported!";
     }
 
@@ -1740,7 +1871,7 @@ export class ArrayEnumerable<T> extends Enumerable<T> {
     }
 
     /** @inheritdoc */
-    public reset(): ArrayEnumerable<T> {
+    public reset(): IEnumerable<T> {
         this._index = -1;
         this._current = null;
         this._iterator = makeIterable<T>(this._arr);
@@ -1748,6 +1879,146 @@ export class ArrayEnumerable<T> extends Enumerable<T> {
         return this;
     }
 }
+
+/**
+ * An ordered sequence.
+ */
+export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEnumerable<T> {
+    /**
+     * Stores the sequence of ordered items.
+     */
+    protected readonly _ITEMS: IEnumerable<T>;
+    /**
+     * Stores the array of items in original order.
+     */
+    protected readonly _ORIGINAL_ITEMS: T[];
+    /**
+     * Stores the comparer for the sort operation.
+     */
+    protected readonly _ORDER_COMPARER: Comparer<U>;
+    /**
+     * Stores the sort value selector.
+     */
+    protected readonly _ORDER_SELECTOR: Selector<T, U>;
+
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {IEnumerable<T>} seq The source sequence.
+     * @param {Selector<T, U> | string} selector The selector for the sort values.
+     * @param {Comparer<U> | string} comparer The comparer to use.
+     */
+    constructor(seq: IEnumerable<T>,
+                selector: Selector<T, U> | string, comparer: Comparer<U> | string) {
+        super();
+
+        let me = this;
+
+        this._ORDER_COMPARER = toComparerSafe<U>(comparer);
+        this._ORDER_SELECTOR = toSelectorSafe<T, U>(selector);
+
+        this._ORIGINAL_ITEMS = [];
+        seq.forEach(x => me._ORIGINAL_ITEMS.push(x));
+
+        let prevValue: any;
+        let value: any;
+        this._ITEMS = from(this._ORIGINAL_ITEMS.map((x, index) => {
+            let ctx = new ItemContext(seq, index, prevValue);
+            ctx.value = value;
+
+            let sortValue = {
+                sortBy: me.selector(x, ctx),
+                value: x,
+            };
+
+            prevValue = ctx.nextValue;
+            value = ctx.value;
+
+            return sortValue;
+        }).sort((x, y) => me.comparer(x.sortBy, y.sortBy))
+          .map(x => x.value));
+    }
+
+    /**
+     * Gets the comparer.
+     */
+    public get comparer(): Comparer<U> {
+        return this._ORDER_COMPARER;
+    }
+
+    /** @inheritdoc */
+    public get current(): T {
+        return this._ITEMS
+                   .current;
+    }
+
+    /** @inheritdoc */
+    public moveNext(): boolean {
+        return this._ITEMS
+                   .moveNext();
+    }
+
+    /** @inheritdoc */
+    public reset(): IEnumerable<T> {
+        return this._ITEMS
+                   .reset();
+    }
+
+    /**
+     * Gets the selector.
+     */
+    public get selector(): Selector<T, U> {
+        return this._ORDER_SELECTOR;
+    }
+
+    /** @inheritdoc */
+    public then(comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
+        return this.thenBy<T>(x => x, comparer);
+    }
+
+    /** @inheritdoc */
+    public thenBy<V>(selector: Selector<T, V> | string, comparer?: Comparer<V> | string): IOrderedEnumerable<T> {
+        let me = this;
+
+        let c = toComparerSafe<V>(comparer);
+        let s = toSelectorSafe<T, V>(selector);
+
+        return from(this._ORIGINAL_ITEMS)
+            .orderBy((x, ctx) => {
+                        return {
+                            level_0: me._ORDER_SELECTOR(x, ctx),
+                            level_1: s(x, ctx),
+                        };
+                    },
+                    (x, y) => {
+                        let comp0 = me._ORDER_COMPARER(x.level_0, y.level_0);
+                        if (0 != comp0) {
+                            return comp0;
+                        }
+                        
+                        let comp1 = c(x.level_1, y.level_1);
+                        if (0 != comp1) {
+                            return comp1;
+                        }
+                        
+                        return 0;
+                    });
+    }
+
+    /** @inheritdoc */
+    public thenByDescending<V>(selector: Selector<T, V> | string, comparer?: Comparer<V> | string): IOrderedEnumerable<T> {
+        let c = toComparerSafe<V>(comparer);
+    
+        return this.thenBy(selector,
+                           (x, y) => c(y, x));
+    }
+
+    /** @inheritdoc */
+    public thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
+        return this.thenByDescending<T>(x => x, comparer);
+    }
+}
+
 
 /**
  * Returns a value as function.
@@ -1806,6 +2077,45 @@ export function asFunc(v: any, throwException: boolean = true): Function | boole
     }
 
     return false;
+}
+
+/**
+ * Returns a value as "comparer".
+ * 
+ * @param {any} [val] The input value.
+ * 
+ * @return {Comparer<T>} The output value.
+ * 
+ * @throw val is invalid.
+ */
+export function toComparerSafe<T>(val?: any): Comparer<T> {
+    let comparer = <Function>asFunc(val);
+    if (comparer) {
+        return function() {
+            let sortValue = comparer.apply(null, arguments);
+
+            if (sortValue > 0) {
+                return 1;
+            }
+            if (sortValue < 0) {
+                return -1;
+            }
+
+            return 0;
+        };
+    }
+    
+    return function(x, y) {
+        if (x < y) {
+            return -1;
+        }
+        
+        if (x > y) {
+            return 1;
+        }
+        
+        return 0;
+    };
 }
 
 /**
