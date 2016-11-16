@@ -24,6 +24,8 @@
 // DEALINGS IN THE SOFTWARE.
 
 let libs: string[] = [
+    './IEnumerable/aggregate',
+    './IEnumerable/all',
     './IEnumerable/any',
     './IEnumerable/average',
     './IEnumerable/concat',

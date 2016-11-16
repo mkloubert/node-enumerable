@@ -66,6 +66,17 @@ export declare type Selector<T, U> = (item: T, ctx: IItemContext<T>) => U;
  */
 export declare type Sequence<T> = ArrayLike<T> | Iterator<T>;
 /**
+ * Describes a function that "zips" two elements.
+ *
+ * @param {T} item1 The first item.
+ * @param {T} item2 The second item.
+ * @param {IItemContext<T>} ctx1 The context of item1.
+ * @param {IItemContext<T>} ctx2 The context of item2.
+ *
+ * @return {U} The zipped value.
+ */
+export declare type Zipper<T, U> = (item1: T, item2: T, ctx1: IItemContext<T>, ctx2: IItemContext<T>) => U;
+/**
  * Describes a sequence.
  */
 export interface IEnumerable<T> extends Iterator<T> {
@@ -481,11 +492,11 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     each(action: Action<T>): void;
     /** @inheritdoc */
-    first(predicate?: Predciate<T> | string): T;
-    /** @inheritdoc */
     elementAt(index: number): T;
     /** @inheritdoc */
     elementAtOrDefault<U>(index: number, defaultValue?: U): T | U;
+    /** @inheritdoc */
+    first(predicate?: Predciate<T> | string): T;
     /** @inheritdoc */
     firstOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U;
     /** @inheritdoc */
@@ -531,6 +542,10 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     sequenceEqual(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true, keyComparer?: EqualityComparer<any> | string | true): boolean;
     /** @inheritdoc */
+    single(predicate?: Predciate<T> | string): T;
+    /** @inheritdoc */
+    singleOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U;
+    /** @inheritdoc */
     skip(cnt: number): IEnumerable<T>;
     /** @inheritdoc */
     skipWhile(predicate: Predciate<T> | string): IEnumerable<T>;
@@ -542,10 +557,6 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */
     protected skipWhileInner(predicate: Predciate<T>): Iterator<T>;
-    /** @inheritdoc */
-    single(predicate?: Predciate<T> | string): T;
-    /** @inheritdoc */
-    singleOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U;
     /** @inheritdoc */
     sum<U>(defaultValue?: U): number | U;
     /** @inheritdoc */
@@ -574,6 +585,17 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */
     protected whereInner(predicate: Predciate<T>): Iterator<T>;
+    /** @inheritdoc */
+    zip<U>(other: Sequence<T>, zipper: Zipper<T, U>): IEnumerable<U>;
+    /**
+     * The logic for the 'zip()' method.
+     *
+     * @param {Iterator<T>} other The other sequence.
+     * @param {Zipper<T, U>} zipper The "zipper".
+     *
+     * @return {Iterator<U>} The iterator.
+     */
+    protected zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, U>): Iterator<U>;
 }
 /**
  * A sequence based on an "array like" object.

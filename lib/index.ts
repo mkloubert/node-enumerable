@@ -90,6 +90,18 @@ export type Selector<T, U> = (item: T, ctx: IItemContext<T>) => U;
  * A sequence.
  */
 export type Sequence<T> = ArrayLike<T> | Iterator<T>;
+/**
+ * Describes a function that "zips" two elements.
+ * 
+ * @param {T} item1 The first item.
+ * @param {T} item2 The second item.
+ * @param {IItemContext<T>} ctx1 The context of item1.
+ * @param {IItemContext<T>} ctx2 The context of item2.
+ * 
+ * @return {U} The zipped value.
+ */
+export type Zipper<T, U> = (item1: T, item2: T,
+                            ctx1: IItemContext<T>, ctx2: IItemContext<T>) => U;
 
 /**
  * Describes a sequence.
@@ -623,16 +635,13 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (ctx.cancel) {
-                break;
-            }
-
+            let currentResult: any;
             if (!isFirst) {
-                result = a(result,
-                           ctx.item, ctx);
+                currentResult = a(result,
+                                  ctx.item, ctx);
             }
             else {
-                result = <any>ctx.item;
+                currentResult = <any>ctx.item;
 
                 isFirst = false;
             }
@@ -640,6 +649,8 @@ export class Enumerable<T> implements IEnumerable<T> {
             if (ctx.cancel) {
                 break;
             }
+
+            result = currentResult;
 
             prevVal = ctx.nextValue;
             value = ctx.value;
@@ -659,12 +670,14 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (!p(ctx.item, ctx)) {
-                return false;  // at least one does NOT match
-            }
+            let doesMatch = p(ctx.item, ctx);
 
             if (ctx.cancel) {
                 break;
+            }
+
+            if (!doesMatch) {
+                return false;  // at least one does NOT match
             }
 
             prevVal = ctx.nextValue;
@@ -685,12 +698,14 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (p(ctx.item, ctx)) {
-                return true;  // at least one does match
-            }
+            let doesMatch = p(ctx.item, ctx);
 
             if (ctx.cancel) {
                 break;
+            }
+
+            if (doesMatch) {
+                return true;  // at least one does NOT match
             }
 
             prevVal = ctx.nextValue;
@@ -781,12 +796,14 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (p(ctx.item, ctx)) {
-                ++cnt;
-            }
+            let doesMatch = p(ctx.item, ctx);
 
             if (ctx.cancel) {
                 break;
+            }
+
+            if (doesMatch) {
+                ++cnt;
             }
 
             prevVal = ctx.nextValue;
@@ -867,41 +884,6 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public first(predicate?: Predciate<T> | string): T {
-        let p = toPredicateSafe(predicate);
-
-        let result: T;
-        let found = false;
-        let index = -1;
-        let prevVal: any;
-        let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
-            ctx.value = value;
-
-            if (p(ctx.item, ctx)) {
-                found = true;
-                result = ctx.item;
-
-                break;
-            }
-
-            if (ctx.cancel) {
-                break;
-            }
-
-            prevVal = ctx.nextValue;
-            value = ctx.value;
-        }
-
-        if (!found) {
-            throw "No matching element found!";
-        }
-
-        return result;
-    }
-
-    /** @inheritdoc */
     public elementAt(index: number): T {
         index = toNumber(index);
         if (index < 0) {
@@ -926,6 +908,43 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public first(predicate?: Predciate<T> | string): T {
+        let p = toPredicateSafe(predicate);
+
+        let result: T;
+        let found = false;
+        let index = -1;
+        let prevVal: any;
+        let value: any;
+        while (this.moveNext()) {
+            let ctx = new ItemContext(this, ++index, prevVal);
+            ctx.value = value;
+
+            let doesMatch = p(ctx.item, ctx);
+
+            if (ctx.cancel) {
+                break;
+            }
+
+            if (doesMatch) {
+                found = true;
+                result = ctx.item;
+
+                break;
+            }
+
+            prevVal = ctx.nextValue;
+            value = ctx.value;
+        }
+
+        if (!found) {
+            throw "No matching element found!";
+        }
+
+        return result;
+    }
+
+    /** @inheritdoc */
     public firstOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U {
         let args = toOrDefaultArgs<T, U>(predicateOrDefaultValue, defaultValue,
                                          arguments.length);
@@ -939,14 +958,16 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (args.predicate(ctx.item, ctx)) {
-                found = true;
-                result = ctx.item;
+            let doesMatch = args.predicate(ctx.item, ctx);
 
+            if (ctx.cancel) {
                 break;
             }
 
-            if (ctx.cancel) {
+            if (doesMatch) {
+                found = true;
+                result = ctx.item;
+
                 break;
             }
 
@@ -990,13 +1011,15 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (p(ctx.item, ctx)) {
-                found = true;
-                result = ctx.item;
-            }
+            let doesMatch = p(ctx.item, ctx);
 
             if (ctx.cancel) {
                 break;
+            }
+
+            if (doesMatch) {
+                found = true;
+                result = ctx.item;
             }
 
             prevVal = ctx.nextValue;
@@ -1024,13 +1047,15 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (args.predicate(ctx.item, ctx)) {
-                found = true;
-                result = ctx.item;
-            }
+            let doesMatch = args.predicate(ctx.item, ctx);
 
             if (ctx.cancel) {
                 break;
+            }
+
+            if (doesMatch) {
+                found = true;
+                result = ctx.item;
             }
 
             prevVal = ctx.nextValue;
@@ -1109,11 +1134,13 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            yield selector(ctx.item, ctx);
+            let newItem = selector(ctx.item, ctx);
 
             if (ctx.cancel) {
                 break;
             }
+
+            yield newItem;
 
             prevVal = ctx.nextValue;
             value = ctx.value;
@@ -1144,6 +1171,10 @@ export class Enumerable<T> implements IEnumerable<T> {
 
             let iterator = makeIterable<U>(selector(ctx.item, ctx));
 
+            if (ctx.cancel) {
+                break;
+            }
+
             let lastResult: IteratorResult<U>;
             do
             {
@@ -1155,10 +1186,6 @@ export class Enumerable<T> implements IEnumerable<T> {
                 yield lastResult.value;
             }
             while (true);
-
-            if (ctx.cancel) {
-                break;
-            }
 
             prevVal = ctx.nextValue;
             value = ctx.value;
@@ -1203,6 +1230,87 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public single(predicate?: Predciate<T> | string): T {
+        let p = toPredicateSafe(predicate);
+
+        let result: T;
+        let found = false;
+        let index = -1;
+        let prevVal: any;
+        let value: any;
+        while (this.moveNext()) {
+            let ctx = new ItemContext(this, ++index, prevVal);
+            ctx.value = value;
+
+            let doesMatch = p(ctx.item, ctx);
+
+            if (ctx.cancel) {
+                break;
+            }
+
+            if (doesMatch) {
+                if (!found) {
+                    found = true;
+                    result = ctx.item;
+                }
+                else {
+                    throw "Sequence contains more than one matching element!";
+                }
+            }
+
+            prevVal = ctx.nextValue;
+            value = ctx.value;
+        }
+
+        if (!found) {
+            throw "No matching element found!";
+        }
+
+        return result;
+    }
+
+    /** @inheritdoc */
+    public singleOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U {
+        let args = toOrDefaultArgs(predicateOrDefaultValue, defaultValue,
+                                   arguments.length);
+
+        let result: T | U;
+        let found = false;
+        let index = -1;
+        let prevVal: any;
+        let value: any;
+        while (this.moveNext()) {
+            let ctx = new ItemContext(this, ++index, prevVal);
+            ctx.value = value;
+
+            let doesMatch = args.predicate(ctx.item, ctx);
+
+            if (ctx.cancel) {
+                break;
+            }
+
+            if (doesMatch) {
+                if (!found) {
+                    found = true;
+                    result = ctx.item;
+                }
+                else {
+                    throw "Sequence contains more than one matching element!";
+                }
+            }
+
+            prevVal = ctx.nextValue;
+            value = ctx.value;
+        }
+
+        if (!found) {
+            result = args.defaultValue;
+        }
+
+        return result;
+    }
+
+    /** @inheritdoc */
     public skip(cnt: number): IEnumerable<T> {
         return this.skipWhile((item, ctx) => ctx.index < cnt);
     }
@@ -1233,97 +1341,18 @@ export class Enumerable<T> implements IEnumerable<T> {
             if (skipItems) {
                 skipItems = predicate(ctx.item, ctx);
             }
-            
+
+            if (ctx.cancel) {
+                skipItems = false;
+            }
+
             if (!skipItems) {
                 yield ctx.item;
             }
 
-            if (ctx.cancel) {
-                break;
-            }
-
             prevVal = ctx.nextValue;
             value = ctx.value;
         }
-
-        return this;
-    }
-
-    /** @inheritdoc */
-    public single(predicate?: Predciate<T> | string): T {
-        let p = toPredicateSafe(predicate);
-
-        let result: T;
-        let found = false;
-        let index = -1;
-        let prevVal: any;
-        let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
-            ctx.value = value;
-
-            if (!found) {
-                if (p(ctx.item, ctx)) {
-                    found = true;
-                    result = ctx.item;
-                }
-            }
-            else {
-                throw "Sequence contains more than one matching element!";
-            }
-
-            if (ctx.cancel) {
-                break;
-            }
-
-            prevVal = ctx.nextValue;
-            value = ctx.value;
-        }
-
-        if (!found) {
-            throw "No matching element found!";
-        }
-
-        return result;
-    }
-
-    /** @inheritdoc */
-    public singleOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U {
-        let args = toOrDefaultArgs(predicateOrDefaultValue, defaultValue,
-                                   arguments.length);
-
-        let result: T | U;
-        let found = false;
-        let index = -1;
-        let prevVal: any;
-        let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
-            ctx.value = value;
-
-            if (!found) {
-                if (args.predicate(ctx.item, ctx)) {
-                    found = true;
-                    result = ctx.item;
-                }
-            }
-            else {
-                throw "Sequence contains more than one matching element!";
-            }
-
-            if (ctx.cancel) {
-                break;
-            }
-
-            prevVal = ctx.nextValue;
-            value = ctx.value;
-        }
-
-        if (!found) {
-            result = args.defaultValue;
-        }
-
-        return result;
     }
 
     /** @inheritdoc */
@@ -1356,6 +1385,7 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */   
     protected* takeWhileInner(predicate: Predciate<T>): Iterator<T> {
+        let alwaysMatches = false;
         let index = -1;
         let prevVal: any;
         let value: any;
@@ -1363,15 +1393,17 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (!predicate(ctx.item, ctx)) {
+            let doesMatch = predicate(ctx.item, ctx) || alwaysMatches;
+
+            if (ctx.cancel) {
+                alwaysMatches = true;
+            }
+
+            if (!doesMatch) {
                 break;
             }
             
             yield ctx.item;
-
-            if (ctx.cancel) {
-                break;
-            }
 
             prevVal = ctx.nextValue;
             value = ctx.value;
@@ -1397,20 +1429,25 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            let k: number;
+            let action: () => void;
+
             if (!ks) {
-                arr.push(ctx.item);
+                action = () => arr.push(ctx.item);
             }
             else {
-                let k = ks(ctx.key,
-                           ctx.item, ctx);
+                action = () => {
+                    let k = ks(ctx.key,
+                               ctx.item, ctx);
 
-                arr[k];
+                    arr[k];
+                };
             }
 
             if (ctx.cancel) {
                 break;
             }
+
+            action();
 
             prevVal = ctx.nextValue;
             value = ctx.value;
@@ -1445,16 +1482,68 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(this, ++index, prevVal);
             ctx.value = value;
 
-            if (predicate(ctx.item, ctx)) {
-                yield ctx.item;
-            }
+            let doesMatch = predicate(ctx.item, ctx);
 
             if (ctx.cancel) {
                 break;
             }
 
+            if (doesMatch) {
+                yield ctx.item;
+            }
+
             prevVal = ctx.nextValue;
             value = ctx.value;
+        }
+    }
+
+    /** @inheritdoc */
+    public zip<U>(other: Sequence<T>, zipper: Zipper<T, U>): IEnumerable<U> {
+        let seq = from(makeIterable<T>(other));
+        
+        if (!zipper) {
+            zipper = (item1: any, item2: any) => item1 + item2;
+        }
+
+        return from(this.zipInner<U>(seq, zipper));
+    }
+
+    /**
+     * The logic for the 'zip()' method.
+     * 
+     * @param {Iterator<T>} other The other sequence.
+     * @param {Zipper<T, U>} zipper The "zipper".
+     * 
+     * @return {Iterator<U>} The iterator.
+     */ 
+    protected* zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, U>): Iterator<U> {
+        let index = -1;
+        let prevVal1: any;
+        let prevVal2: any;
+        let value1: any;
+        let value2: any;
+        while (this.moveNext()) {
+            ++index;
+
+            let ctx1 = new ItemContext(this, index, prevVal1);
+            ctx1.value = value1;
+
+            let ctx2 = new ItemContext(other, index, prevVal2);
+            ctx2.value = value2;
+
+            let zipped = zipper(ctx1.item, ctx2.item,
+                                ctx1, ctx2);
+
+            if (ctx1.cancel || ctx2.cancel) {
+                break;
+            }
+
+            yield zipped;
+
+            prevVal1 = ctx1.nextValue;
+            prevVal2 = ctx2.nextValue;
+            value1 = ctx1.value;
+            value2 = ctx2.value;
         }
     }
 }
