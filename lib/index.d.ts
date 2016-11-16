@@ -265,6 +265,12 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     moveNext(): boolean;
     /**
+     * Removes all non-empty items.
+     *
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    notEmpty(): IEnumerable<T>;
+    /**
      * Resets the sequence.
      *
      * @chainable.
@@ -517,6 +523,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     moveNext(): boolean;
     /** @inheritdoc */
     next(): IteratorResult<T>;
+    /** @inheritdoc */
+    notEmpty(): IEnumerable<T>;
     /** @inheritdoc */
     reset(): Enumerable<T>;
     /** @inheritdoc */

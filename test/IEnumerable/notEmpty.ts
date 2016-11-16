@@ -23,28 +23,25 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-let libs: string[] = [
-    './IEnumerable/aggregate',
-    './IEnumerable/all',
-    './IEnumerable/any',
-    './IEnumerable/average',
-    './IEnumerable/concat',
-    './IEnumerable/contains',
-    './IEnumerable/count',
-    './IEnumerable/elementAt',
-    './IEnumerable/elementAtOrDefault',
-    './IEnumerable/notEmpty',
-    './IEnumerable/reset',
-    './IEnumerable/sum',
-];
+import Assert = require('assert');
+import Enumerable = require('../../lib');
+import Helpers = require('../helpers');
 
-console.log('Starting tests...');
+Helpers.execute(
+    'Testing numbers...',
+    (ctx) => {
+        let arr = [0, 1, undefined, 2, null, '', 3];
 
-for (let i = 0; i < libs.length; i++) {
-    let l = libs[i];
+        let seq = Enumerable.from(arr)
+                            .notEmpty();
 
-    console.log('\t' + l);
-    require(l);
-}
+        let cnt = 0;
+        while (seq.moveNext()) {
+            ++cnt;
+        }
 
-console.log('Tests finished.');
+        Assert.strictEqual(cnt, 3);
+        Assert.notStrictEqual(cnt, '3');
+        Assert.notStrictEqual('' + cnt, 3);
+        Assert.strictEqual('' + cnt, '3');
+    });
