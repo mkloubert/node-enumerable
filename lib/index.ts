@@ -186,7 +186,7 @@ export interface IEnumerable<T> extends Iterator<T> {
      * @param {EqualityComparer<T> | string | true} [comparer] The custom equality comparer to use.
      *                                                         If (true), the methods also checks for matching data type (=== operator).
      * 
-     * @return {IEnumerable<U>} The new sequence.
+     * @return {IEnumerable<T>} The new sequence.
      */
     distinct(comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
 
@@ -429,7 +429,7 @@ export interface IEnumerable<T> extends Iterator<T> {
      * @param {EqualityComparer<T> | string | true} [comparer] The custom equality comparer to use.
      *                                                         If (true), the methods also checks for matching data type (=== operator).
      * 
-     * @return {IEnumerable<U>} The new sequence.
+     * @return {IEnumerable<T>} The new sequence.
      */
     union(other?: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
 
