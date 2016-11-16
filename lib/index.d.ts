@@ -132,6 +132,14 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     contains(item: any, comparer?: EqualityComparer<T> | string | true): boolean;
     /**
+     * Counts the elements of that sequence.
+     *
+     * @param {Predciate<T> | string} [predicate] The custom predicate to use.
+     *
+     * @return {Number} The number of elements.
+     */
+    count(predicate?: Predciate<T> | string): number;
+    /**
      * Gets the current item / element.
      */
     readonly current: T;
@@ -456,6 +464,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     protected concatInner(other: Iterator<T>): Iterator<T>;
     /** @inheritdoc */
     contains(item: any, comparer?: EqualityComparer<T> | string | true): boolean;
+    /** @inheritdoc */
+    count(predicate?: Predciate<T> | string): number;
     /** @inheritdoc */
     readonly current: T;
     /** @inheritdoc */

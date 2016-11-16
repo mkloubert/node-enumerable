@@ -167,6 +167,15 @@ export interface IEnumerable<T> extends Iterator<T> {
     contains(item: any, comparer?: EqualityComparer<T> | string | true): boolean;
 
     /**
+     * Counts the elements of that sequence.
+     * 
+     * @param {Predciate<T> | string} [predicate] The custom predicate to use.
+     * 
+     * @return {Number} The number of elements.
+     */
+    count(predicate?: Predciate<T> | string): number;
+
+    /**
      * Gets the current item / element.
      */
     readonly current: T;
@@ -693,17 +702,17 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public average<U>(defaultValue?: U): number | U {
-        let count: number = 0;
-        let sum =  this.aggregate<number, number>((result, item, ctx) => {
+        let cnt = 1;
+        let sum = this.aggregate<number, boolean>((result, item, ctx) => {
             let x = toNumber(result);
             let y = toNumber(item);
 
-            count = ctx.index + 1;
+            cnt = ctx.index + 1;
             return x + y;
-        }, 0);
+        }, false);
 
-        if (0 !== count) {
-            return sum / count;
+        if (false !== sum) {
+            return <number>sum / cnt;
         }
 
         return defaultValue;
@@ -758,6 +767,33 @@ export class Enumerable<T> implements IEnumerable<T> {
         let equalityComparer = toEqualityComparerSafe<T>(comparer);
 
         return this.any(x => equalityComparer(x, item));
+    }
+
+    /** @inheritdoc */
+    public count(predicate?: Predciate<T> | string): number {
+        let p = toPredicateSafe(predicate);
+
+        let cnt = 0;
+        let index = -1;
+        let prevVal: any;
+        let value: any;
+        while (this.moveNext()) {
+            let ctx = new ItemContext(this, ++index, prevVal);
+            ctx.value = value;
+
+            if (p(ctx.item, ctx)) {
+                ++cnt;
+            }
+
+            if (ctx.cancel) {
+                break;
+            }
+
+            prevVal = ctx.nextValue;
+            value = ctx.value;
+        }
+
+        return cnt;
     }
 
     /** @inheritdoc */

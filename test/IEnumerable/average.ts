@@ -23,24 +23,40 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-let libs: string[] = [
-    './IEnumerable/any',
-    './IEnumerable/average',
-    './IEnumerable/concat',
-    './IEnumerable/contains',
-    './IEnumerable/count',
-    './IEnumerable/elementAt',
-    './IEnumerable/elementAtOrDefault',
-    './IEnumerable/sum',
-];
+import Assert = require('assert');
+import Enumerable = require('../../lib');
+import Helpers = require('../helpers');
 
-console.log('Starting tests...');
+const MAX_ARRAY_SIZE = 100;
 
-for (let i = 0; i < libs.length; i++) {
-    let l = libs[i];
+Helpers.execute(
+    'Testing numbers...',
+    (ctx) => {
+        for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
+            if (0 === i % 10) {
+                ctx.log(`Testing with ${i} elements...`);
+            }
 
-    console.log('\t' + l);
-    require(l);
-}
+            // fill test array
+            let arr: any[] = [];
+            for (let j = 0; j < i; j++) {
+                arr.push(j);
+            }
 
-console.log('Tests finished.');
+            let av = Enumerable.from(arr)
+                               .average(MAX_ARRAY_SIZE + 1);
+
+            let expectedAverage = MAX_ARRAY_SIZE + 1;
+            if (arr.length > 0) {
+                let sum = 0;
+                arr.forEach(x => sum += x);
+
+                expectedAverage = sum / arr.length;
+            }
+
+            Assert.strictEqual(av, expectedAverage);
+            Assert.notStrictEqual('' + av, expectedAverage);
+            Assert.notStrictEqual(av, '' + expectedAverage);
+            Assert.strictEqual('' + av, '' + expectedAverage);
+        }
+    });

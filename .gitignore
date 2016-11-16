@@ -2,4 +2,6 @@
 **/*.js
 /node_modules
 /lib/node_modules
+/test/**/*.d.ts
 /pushall.sh
+/*.d.ts
