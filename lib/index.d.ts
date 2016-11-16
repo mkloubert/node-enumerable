@@ -25,6 +25,15 @@ export declare type Action<T> = (item: T, ctx: IItemContext<T>) => void;
  */
 export declare type EqualityComparer<T> = (x: T, y: any) => boolean;
 /**
+ * Describes a function.
+ *
+ * @param {T} item The underlying item.
+ * @param {IItemContext<T>} ctx The context.
+ *
+ * @return {U} The result of the function.
+ */
+export declare type Func<T, U> = (item: T, ctx: IItemContext<T>) => U;
+/**
  * Describes a key selector.
  *
  * @param {K} k The original key.
@@ -218,6 +227,7 @@ export interface IEnumerable<T> extends Iterator<T> {
      * Gets if the 'moveNext()' can be called or not.
      */
     readonly isValid: boolean;
+    joinToString(separator?: string, defaultValue?: string): string;
     /**
      * Gets the current key.
      */
@@ -509,6 +519,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     forEach(action: Action<T>): void;
     /** @inheritdoc */
     readonly isValid: boolean;
+    /** @inheritdoc */
+    joinToString(separator?: string, defaultValue?: string): string;
     /** @inheritdoc */
     readonly key: number;
     /** @inheritdoc */

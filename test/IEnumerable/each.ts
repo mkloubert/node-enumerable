@@ -23,31 +23,4 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-let libs: string[] = [
-    './IEnumerable/aggregate',
-    './IEnumerable/all',
-    './IEnumerable/any',
-    './IEnumerable/average',
-    './IEnumerable/concat',
-    './IEnumerable/contains',
-    './IEnumerable/count',
-    './IEnumerable/each',
-    './IEnumerable/elementAt',
-    './IEnumerable/elementAtOrDefault',
-    './IEnumerable/forEach',
-    './IEnumerable/joinToString',
-    './IEnumerable/notEmpty',
-    './IEnumerable/reset',
-    './IEnumerable/sum',
-];
-
-console.log('Starting tests...');
-
-for (let i = 0; i < libs.length; i++) {
-    let l = libs[i];
-
-    console.log('\t' + l);
-    require(l);
-}
-
-console.log('Tests finished.');
+// s. './forEach'

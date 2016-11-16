@@ -47,7 +47,6 @@ export type Action<T> = (item: T, ctx: IItemContext<T>) => void;
  * @return {boolean} Are equal or not.
  */
 export type EqualityComparer<T> = (x: T, y: any) => boolean;
-
 /**
  * Describes a key selector.
  * 
@@ -58,7 +57,6 @@ export type EqualityComparer<T> = (x: T, y: any) => boolean;
  * @return {U} The "new" key.
  */
 export type KeySelector<K, T, U> = (key: K, item: T, ctx: IItemContext<T>) => U;
-
 /**
  * Describes a selector that projects items to a list of new items.
  * 
@@ -263,6 +261,16 @@ export interface IEnumerable<T> extends Iterator<T> {
      * Gets if the 'moveNext()' can be called or not.
      */
     readonly isValid: boolean;
+
+    /**
+     * Joins the elements of that sequence to one string.
+     * 
+     * @param {string} [separator] The separator to use. Default: ''
+     * @param {string} [defaultValue] The value to return if sequence is empty. Default: ''
+     * 
+     * @return {string} The string.
+     */
+    joinToString(separator?: string, defaultValue?: string): string;
 
     /**
      * Gets the current key.
@@ -635,7 +643,6 @@ export class Enumerable<T> implements IEnumerable<T> {
         let result: U | V = defaultValue;
 
         let index = -1;
-        let isFirst = true;
         let prevVal: any;
         let value: any;
         while (this.moveNext()) {
@@ -643,14 +650,12 @@ export class Enumerable<T> implements IEnumerable<T> {
             ctx.value = value;
 
             let currentResult: any;
-            if (!isFirst) {
+            if (0 !== index) {
                 currentResult = a(result,
                                   ctx.item, ctx);
             }
             else {
                 currentResult = <any>ctx.item;
-
-                isFirst = false;
             }
 
             if (ctx.cancel) {
@@ -998,6 +1003,34 @@ export class Enumerable<T> implements IEnumerable<T> {
     public get isValid(): boolean {
         return !this._current ||
                !this._current.done;
+    }
+
+    /** @inheritdoc */
+    public joinToString(separator?: string, defaultValue?: string): string {
+        if (arguments.length < 2) {
+            if (arguments.length < 1) {
+                separator = '';
+            }
+
+            defaultValue = '';
+        }
+
+        let result = defaultValue;
+
+        let index = -1;
+        while (this.moveNext()) {
+            ++index;
+            let item = this.current;
+
+            if (0 !== index) {
+                result += separator + item;
+            }
+            else {
+                result = '' + item;
+            }
+        }
+
+        return result;
     }
 
     /** @inheritdoc */
