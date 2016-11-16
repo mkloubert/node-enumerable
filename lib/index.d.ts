@@ -127,11 +127,11 @@ export interface IEnumerable<T> extends Iterator<T> {
     /**
      * Concats the items of that sequence with another.
      *
-     * @param {Sequence<T>} [other] The other sequence.
+     * @param {Sequence<T>} other The other sequence.
      *
      * @return {IEnumerable<U>} The new sequence.
      */
-    concat(other?: Sequence<T>): IEnumerable<T>;
+    concat(other: Sequence<T>): IEnumerable<T>;
     /**
      * Joins the elements of that sequence to one string.
      *
@@ -199,6 +199,16 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     elementAtOrDefault<U>(index: number, defaultValue?: U): T | U;
     /**
+     * Produces the difference between that sequence and another.
+     *
+     * @param {Sequence<T>} other The items to except.
+     * @param {EqualityComparer<T> | string | true} [comparer] The custom equality comparer to use.
+     *                                                         If (true), the methods also checks for matching data type (=== operator).
+     *
+     * {IEnumerable<T>} The new sequence.
+     */
+    except(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
+    /**
      * Returns the first item of the sequence.
      *
      * @param {Predciate<T> | string} [predicate] The custom predicate to use.
@@ -223,18 +233,28 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     forEach(action: Action<T>): void;
     /**
+     * Produces the set intersection of that sequence and another.
+     *
+     * @param {Sequence<T>} other The other sequence.
+     * @param {EqualityComparer<T> | string | true} [comparer] The custom equality comparer to use.
+     *                                                         If (true), the methods also checks for matching data type (=== operator).
+     *
+     * {IEnumerable<T>} The new sequence.
+     */
+    intersect(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
+    /**
      * Gets if the 'moveNext()' can be called or not.
      */
     readonly isValid: boolean;
     /**
      * Joins the elements of that sequence to one string.
      *
-     * @param {string} [separator] The separator to use. Default: ''
+     * @param {string} separator The separator to use. Default: ''
      * @param {string} [defaultValue] The value to return if sequence is empty. Default: ''
      *
      * @return {string} The string.
      */
-    joinToString(separator?: string, defaultValue?: string): string;
+    joinToString(separator: string, defaultValue?: string): string;
     /**
      * Gets the current key.
      */
@@ -395,13 +415,13 @@ export interface IEnumerable<T> extends Iterator<T> {
     /**
      * Produces the set union of that sequence and another.
      *
-     * @param {Sequence<T>} [other] The other sequence.
+     * @param {Sequence<T>} other The other sequence.
      * @param {EqualityComparer<T> | string | true} [comparer] The custom equality comparer to use.
      *                                                         If (true), the methods also checks for matching data type (=== operator).
      *
      * @return {IEnumerable<T>} The new sequence.
      */
-    union(other?: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
+    union(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
     /**
      * Filters the items of that sequence.
      *
@@ -410,6 +430,16 @@ export interface IEnumerable<T> extends Iterator<T> {
      * @return {IEnumerable<T>} The new sequence.
      */
     where(predicate: Predciate<T> | string): IEnumerable<T>;
+    /**
+     * Applies a specified function to the corresponding elements of that sequence and another,
+     * producing a sequence of the results.
+     *
+     * @param {Sequence<T>} other The other sequence.
+     * @param {Zipper<T, U>} zipper The selector for the combined result items of the elements of the two sequences.
+     *
+     * @return IEnumerable<U> The new sequence.
+     */
+    zip<U>(other: Sequence<T>, zipper: Zipper<T, U>): IEnumerable<U>;
 }
 /**
  * Describes the context of an item.
@@ -487,7 +517,7 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     cast<U>(): IEnumerable<U>;
     /** @inheritdoc */
-    concat(other?: Sequence<T>): IEnumerable<T>;
+    concat(other: Sequence<T>): IEnumerable<T>;
     /** @inheritdoc */
     concatToString(defaultValue?: string): string;
     /**
@@ -521,15 +551,37 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     elementAtOrDefault<U>(index: number, defaultValue?: U): T | U;
     /** @inheritdoc */
+    except(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
+    /**
+     * The logic for the 'except()' method.
+     *
+     * @param {ArrayLike<T>} itemsToExcept The items to except.
+     * @param {EqualityComparer<T>} equalityComparer The equality comparer.
+     *
+     * @return {Iterator<T>} The iterator.
+     */
+    protected exceptInner(itemsToExcept: ArrayLike<T>, equalityComparer: EqualityComparer<T>): Iterator<T>;
+    /** @inheritdoc */
     first(predicate?: Predciate<T> | string): T;
     /** @inheritdoc */
     firstOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U;
     /** @inheritdoc */
     forEach(action: Action<T>): void;
     /** @inheritdoc */
+    intersect(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
+    /**
+     * The logic for the 'intersect()' method.
+     *
+     * @param {T[]} other The other items.
+     * @param {IEnumerable<T>} equalityComparer The equality comparer.
+     *
+     * @return {Iterator<T>} The iterator.
+     */
+    protected intersectInner(other: IEnumerable<T>, equalityComparer: EqualityComparer<T>): Iterator<T>;
+    /** @inheritdoc */
     readonly isValid: boolean;
     /** @inheritdoc */
-    joinToString(separator?: string, defaultValue?: string): string;
+    joinToString(separator: string, defaultValue?: string): string;
     /** @inheritdoc */
     readonly key: number;
     /** @inheritdoc */
@@ -603,7 +655,7 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     toArray(keySelector?: KeySelector<number, T, number> | string | true): ArrayLike<T>;
     /** @inheritdoc */
-    union(other?: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
+    union(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
     /** @inheritdoc */
     where(predicate: Predciate<T> | string): IEnumerable<T>;
     /**

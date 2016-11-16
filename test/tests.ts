@@ -36,11 +36,14 @@ let libs: string[] = [
     './IEnumerable/each',
     './IEnumerable/elementAt',
     './IEnumerable/elementAtOrDefault',
+    './IEnumerable/except',
     './IEnumerable/forEach',
+    './IEnumerable/intersect',
     './IEnumerable/joinToString',
     './IEnumerable/notEmpty',
     './IEnumerable/reset',
     './IEnumerable/sum',
+    './IEnumerable/zip',
 ];
 
 console.log('Starting tests...');

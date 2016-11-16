@@ -46,7 +46,7 @@ Helpers.execute(
             }
 
             let str = Enumerable.from(arr)
-                                .joinToString();
+                                .joinToString('');
 
             let expectedValue = '';
             for (let j = 0; j < arr.length; j++) {
