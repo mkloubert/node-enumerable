@@ -479,6 +479,15 @@ export interface IEnumerable<T> extends Iterator<T> {
     orderDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
 
     /**
+     * Adds all elements of that sequence to an array.
+     * 
+     * @param {ArrayLike<T>} arr The target array.
+     * 
+     * @chainable.
+     */
+    pushToArray(arr: T[]): IEnumerable<T>;
+
+    /**
      * Resets the sequence.
      * 
      * @chainable.
@@ -608,7 +617,17 @@ export interface IEnumerable<T> extends Iterator<T> {
      * 
      * @return {ArrayLike<T>} The new array.
      */
-    toArray(keySelector?: KeySelector<any, T, number> | string | true): ArrayLike<T>;
+    toArray(keySelector?: KeySelector<any, T, number> | string | true): T[];
+
+    /**
+     * Creates a new list from that sequence.
+     * 
+     * @param {boolean} [isReadOnly] The new should be readonly or not. Default: (false).
+     * @param {EqualityComparer<T> | string} [comparer] The comparer for the items.
+     * 
+     * @return {IList<T>} The new list.
+     */
+    toList(isReadOnly?: boolean, comparer?: EqualityComparer<T> | string): IList<T>;
 
     /**
      * Converts the items of that sequence to a new "lookup" object.
@@ -770,6 +789,117 @@ export interface IOrderedEnumerable<T> extends IEnumerable<T> {
  * Describes a lookup object.
  */
 export interface ILookup<T, TKey extends string | number> extends IEnumerable<IGrouping<T, TKey>>, Object {
+}
+
+/**
+ * Describes a collection.
+ */
+export interface ICollection<T> extends IEnumerable<T> {
+    /**
+     * Adds an item.
+     * 
+     * @param {T} item The item to add.
+     */
+    add(item: T): void;
+
+    /**
+     * Adds a list of items.
+     * 
+     * @param {T} ...items The items to add.
+     */
+    addRange(...items: T[]): void;
+
+    /**
+     * Clears the collection.
+     */
+    clear(item: T): void;
+
+    /**
+     * Checks if the collection contains an item.
+     * 
+     * @param {T} item The item to search for.
+     * 
+     * @return {boolean} Contains item or not.
+     */
+    containsItem(item: T): boolean;
+
+    /**
+     * Gets if the collection is readonly or not.
+     */
+    readonly isReadonly: boolean;
+
+    /**
+     * Gets the number of items of the collection.
+     */
+    readonly length: number;
+
+    /**
+     * Removes the first occurrence of an item.
+     * 
+     * @param {T} item The item to remove.
+     * 
+     * @return {boolean} Item has been removed or not or not.
+     */
+    remove(item: T): boolean;
+
+    /**
+     * Removes the all items that match a condition.
+     * 
+     * @param {Predciate<T> | string} predicate The predicate to use.
+     * 
+     * @return {number} The number of removed items.
+     */
+    removeAll(predicate: Predciate<T> | string): number;
+}
+
+/**
+ * Describes a list.
+ */
+export interface IList<T> extends ICollection<T> {
+    /**
+     * Returns an item at a specific position.
+     * 
+     * @param {number} index The zero based index.
+     * 
+     * @return {T} The item.
+     */
+    getItem(index: number): T;
+
+    /**
+     * Returns the index of the first occurrence of an item.
+     * 
+     * @param {T} item The item to search for.
+     * 
+     * @return {number} The zero based index or -1 if NOT found.
+     */
+    indexOf(item: T): number;
+
+    /**
+     * Inserts an item at a specific position.
+     * 
+     * @param {number} index The zero based index.
+     * @param {T} item The item to insert.
+     */
+    insert(index: number, item: T): void;
+
+    /**
+     * Removes an item at a specific position.
+     * 
+     * @param {number} index The zero based index.
+     * 
+     * @return {boolean} Item has been remove or not.
+     */
+    removeAt(index: number): boolean;
+
+    /**
+     * Sets an item at a specific position.
+     * 
+     * @param {number} index The zero based index.
+     * @param {T} item The item to set,
+     * 
+     * @chainable
+     */
+    setItem(index: number, item: T): IList<T>;
 }
 
 interface IOrDefaultArgs<T, U> {
@@ -1804,6 +1934,17 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public pushToArray(arr: T[]): IEnumerable<T> {
+        while (this.moveNext()) {
+            if (arr) {
+                arr.push(this.current);
+            }
+        }
+
+        return this;
+    }
+
+    /** @inheritdoc */
     public reset(): IEnumerable<T> {
         throw "Not supported!";
     }
@@ -2158,7 +2299,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public toArray(keySelector?: KeySelector<number, T, number> | string | true): ArrayLike<T> {
+    public toArray(keySelector?: KeySelector<number, T, number> | string | true): T[] {
         if (true === keySelector) {
             keySelector = (key) => parseInt(('' + key).trim());
         }
@@ -2199,6 +2340,11 @@ export class Enumerable<T> implements IEnumerable<T> {
         }
 
         return arr;
+    }
+
+    /** @inheritdoc */
+    public toList(isReadOnly?: boolean, comparer?: EqualityComparer<T> | string): IList<T> {
+        return new List<T>(this, comparer, isReadOnly);
     }
 
     /** @inheritdoc */
@@ -2388,6 +2534,239 @@ export class ArrayEnumerable<T> extends Enumerable<T> {
         this._iterator = makeIterable<T>(this._arr);
 
         return this;
+    }
+}
+
+/**
+ * A collection.
+ */
+export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> {
+    /**
+     * Stores the equality comparer for the items.
+     */
+    protected _comparer: EqualityComparer<T>;
+    /**
+     * Stores the if the collection has changed while the last iteration.
+     */
+    protected _hasChanged: boolean;
+    /**
+     * Stores if the collection is readonly or not.
+     */
+    protected _isReadOnly: boolean;
+    
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {Sequence<T>} [seq] The initial data.
+     * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
+     * @param {boolean} [isReadOnly] Collection is readonly or not.
+     */
+    constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string, isReadOnly: boolean = false) {
+        let arr: T[] = [];
+        from(seq).forEach(x => arr.push(x));
+
+        super(arr);
+
+        this._comparer = toEqualityComparerSafe<T>(comparer);
+        this._isReadOnly = !!isReadOnly;
+        this._hasChanged = false;
+    }
+
+    /** @inheritdoc */
+    public add(item: T): void {
+        this.markAsChanged(x => {
+            let a = <T[]>x._arr;
+            a.push(item);
+        });
+    }
+
+    /** @inheritdoc */
+    public addRange(...items: T[]): void {
+        if (items) {
+            for (let i = 0; i < items.length; i++) {
+                this.add(items[i]);
+            }
+        }
+    }
+
+    /** @inheritdoc */
+    public clear(): void {
+        this.markAsChanged(x => {
+            x._arr = [];
+        });
+    }
+
+    /** @inheritdoc */
+    public containsItem(item: T): boolean {
+        for (let i = 0; i < this._arr.length; i++) {
+            let x = this._arr[i];
+            if (this._comparer(x, item)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** @inheritdoc */
+    public getItem(index: number): T {
+        return this._arr[index];
+    }
+
+    /** @inheritdoc */
+    public get isReadonly(): boolean {
+        return this._isReadOnly;
+    }
+
+    /** @inheritdoc */
+    public get length(): number {
+        return this._arr.length;
+    }
+
+    /**
+     * Invokes a function and marks the collection as changed since last iteration.
+     * 
+     * @param {(coll: Collection<T>) => TResult} [func] The optional function to invoke.
+     * 
+     * @return {TResult} The result of the function.
+     */
+    protected markAsChanged<TResult>(func?: (coll: Collection<T>) => TResult): TResult {
+        let result: TResult;
+        if (func) {
+            result = func(this);
+        }
+
+        this._hasChanged = true;
+
+        return result;
+    }
+
+    /** @inheritdoc */
+    public moveNext(): boolean {
+        if (this._index > -1 && this._hasChanged) {
+            throw "Cannot move because collection has changed!";
+        }
+
+        return super.moveNext();
+    }
+
+    /** @inheritdoc */
+    public remove(item: T): boolean {
+        let me = this;
+
+        let itemRemoved = false;
+        return this.removeAll((x, ctx) => {
+            if (itemRemoved) {
+                ctx.cancel = true;
+                return;
+            }
+
+            return itemRemoved = me._comparer(x, item);
+        }) > 0;
+    }
+
+    /** @inheritdoc */
+    public removeAll(predicate: Predciate<T> | string): number {
+        let p = toPredicateSafe(predicate);
+
+        let prevVal: any;
+        let value: any;
+        let removedItems = 0;
+        for (let i = 0; i < this._arr.length; i++) {
+            let item = this._arr[i];
+
+            let ctx = new ItemContext(this, i, prevVal);
+
+            let doRemove = p(item, ctx);
+
+            if (ctx.cancel) {
+                break;
+            }
+
+            if (doRemove) {
+                this.markAsChanged(x => {
+                    let a = <T[]>x._arr;
+                    a.splice(i, 1);
+
+                    ++removedItems;
+                });
+            }
+        }
+
+        return removedItems;
+    }
+
+    /** @inheritdoc */
+    public reset(): IEnumerable<T> {
+        let result = super.reset();
+        this._hasChanged = false;
+
+        return result;
+    }
+
+    /** @inheritdoc */
+    public setItem(index: number, item: T): IList<T> {
+        return this.markAsChanged((x: List<T>) => {
+            let a = <T[]>x._arr;
+            a[index] = item;
+            
+            return x;
+        });
+    }
+}
+
+/**
+ * A list.
+ */
+export class List<T> extends Collection<T> implements IList<T> {
+    /** @inheritdoc */
+    public indexOf(item: T): number {
+        for (let i = 0; i < this._arr.length; i++) {
+            if (this._comparer(this._arr[i], item)) {
+                return i;  // found
+            }
+        }
+
+        return -1;
+    }
+
+    /** @inheritdoc */
+    public insert(index: number, item: T): void {
+        let me = this;
+        
+        this.markAsChanged((list: List<T>) => {
+            let a = <T[]>list._arr;
+            a.splice(index, 0, item);
+        });
+    }
+
+    /** @inheritdoc */
+    public removeAt(index: number): boolean {
+        if (index >= 0 && index < this._arr.length) {
+            return this.markAsChanged((x: List<T>) => {
+                let a = <T[]>x._arr;
+                a.splice(index, 1);
+
+                return true;
+            });
+        }
+
+        return false;
+    }
+}
+
+/**
+ * A readonly collection.
+ */
+export class ReadOnlyCollectio<T> extends Collection<T> {
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {Sequence<T>} [seq] The initial data.
+     * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
+     */
+    constructor(arr?: Sequence<T>, comparer?: EqualityComparer<T> | string) {
+        super(from(arr).toArray(), comparer, true);
     }
 }
 

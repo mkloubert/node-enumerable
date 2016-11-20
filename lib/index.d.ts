@@ -408,6 +408,14 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     orderDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
     /**
+     * Adds all elements of that sequence to an array.
+     *
+     * @param {ArrayLike<T>} arr The target array.
+     *
+     * @chainable.
+     */
+    pushToArray(arr: T[]): IEnumerable<T>;
+    /**
      * Resets the sequence.
      *
      * @chainable.
@@ -523,7 +531,16 @@ export interface IEnumerable<T> extends Iterator<T> {
      *
      * @return {ArrayLike<T>} The new array.
      */
-    toArray(keySelector?: KeySelector<any, T, number> | string | true): ArrayLike<T>;
+    toArray(keySelector?: KeySelector<any, T, number> | string | true): T[];
+    /**
+     * Creates a new list from that sequence.
+     *
+     * @param {boolean} [isReadOnly] The new should be readonly or not. Default: (false).
+     * @param {EqualityComparer<T> | string} [comparer] The comparer for the items.
+     *
+     * @return {IList<T>} The new list.
+     */
+    toList(isReadOnly?: boolean, comparer?: EqualityComparer<T> | string): IList<T>;
     /**
      * Converts the items of that sequence to a new "lookup" object.
      *
@@ -665,6 +682,104 @@ export interface IOrderedEnumerable<T> extends IEnumerable<T> {
  * Describes a lookup object.
  */
 export interface ILookup<T, TKey extends string | number> extends IEnumerable<IGrouping<T, TKey>>, Object {
+}
+/**
+ * Describes a collection.
+ */
+export interface ICollection<T> extends IEnumerable<T> {
+    /**
+     * Adds an item.
+     *
+     * @param {T} item The item to add.
+     */
+    add(item: T): void;
+    /**
+     * Adds a list of items.
+     *
+     * @param {T} ...items The items to add.
+     */
+    addRange(...items: T[]): void;
+    /**
+     * Clears the collection.
+     */
+    clear(item: T): void;
+    /**
+     * Checks if the collection contains an item.
+     *
+     * @param {T} item The item to search for.
+     *
+     * @return {boolean} Contains item or not.
+     */
+    containsItem(item: T): boolean;
+    /**
+     * Gets if the collection is readonly or not.
+     */
+    readonly isReadonly: boolean;
+    /**
+     * Gets the number of items of the collection.
+     */
+    readonly length: number;
+    /**
+     * Removes the first occurrence of an item.
+     *
+     * @param {T} item The item to remove.
+     *
+     * @return {boolean} Item has been removed or not or not.
+     */
+    remove(item: T): boolean;
+    /**
+     * Removes the all items that match a condition.
+     *
+     * @param {Predciate<T> | string} predicate The predicate to use.
+     *
+     * @return {number} The number of removed items.
+     */
+    removeAll(predicate: Predciate<T> | string): number;
+}
+/**
+ * Describes a list.
+ */
+export interface IList<T> extends ICollection<T> {
+    /**
+     * Returns an item at a specific position.
+     *
+     * @param {number} index The zero based index.
+     *
+     * @return {T} The item.
+     */
+    getItem(index: number): T;
+    /**
+     * Returns the index of the first occurrence of an item.
+     *
+     * @param {T} item The item to search for.
+     *
+     * @return {number} The zero based index or -1 if NOT found.
+     */
+    indexOf(item: T): number;
+    /**
+     * Inserts an item at a specific position.
+     *
+     * @param {number} index The zero based index.
+     * @param {T} item The item to insert.
+     */
+    insert(index: number, item: T): void;
+    /**
+     * Removes an item at a specific position.
+     *
+     * @param {number} index The zero based index.
+     *
+     * @return {boolean} Item has been remove or not.
+     */
+    removeAt(index: number): boolean;
+    /**
+     * Sets an item at a specific position.
+     *
+     * @param {number} index The zero based index.
+     * @param {T} item The item to set,
+     *
+     * @chainable
+     */
+    setItem(index: number, item: T): IList<T>;
 }
 /**
  * A basic sequence.
@@ -833,6 +948,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     orderDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
     /** @inheritdoc */
+    pushToArray(arr: T[]): IEnumerable<T>;
+    /** @inheritdoc */
     reset(): IEnumerable<T>;
     /** @inheritdoc */
     reverse(): IOrderedEnumerable<T>;
@@ -897,7 +1014,9 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      */
     protected takeWhileInner(predicate: Predciate<T>): Iterator<T>;
     /** @inheritdoc */
-    toArray(keySelector?: KeySelector<number, T, number> | string | true): ArrayLike<T>;
+    toArray(keySelector?: KeySelector<number, T, number> | string | true): T[];
+    /** @inheritdoc */
+    toList(isReadOnly?: boolean, comparer?: EqualityComparer<T> | string): IList<T>;
     /** @inheritdoc */
     toLookup<TKey extends string | number>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
     /** @inheritdoc */
@@ -971,6 +1090,86 @@ export declare class ArrayEnumerable<T> extends Enumerable<T> {
     readonly canReset: boolean;
     /** @inheritdoc */
     reset(): IEnumerable<T>;
+}
+/**
+ * A collection.
+ */
+export declare class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> {
+    /**
+     * Stores the equality comparer for the items.
+     */
+    protected _comparer: EqualityComparer<T>;
+    /**
+     * Stores the if the collection has changed while the last iteration.
+     */
+    protected _hasChanged: boolean;
+    /**
+     * Stores if the collection is readonly or not.
+     */
+    protected _isReadOnly: boolean;
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {Sequence<T>} [seq] The initial data.
+     * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
+     * @param {boolean} [isReadOnly] Collection is readonly or not.
+     */
+    constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string, isReadOnly?: boolean);
+    /** @inheritdoc */
+    add(item: T): void;
+    /** @inheritdoc */
+    addRange(...items: T[]): void;
+    /** @inheritdoc */
+    clear(): void;
+    /** @inheritdoc */
+    containsItem(item: T): boolean;
+    /** @inheritdoc */
+    getItem(index: number): T;
+    /** @inheritdoc */
+    readonly isReadonly: boolean;
+    /** @inheritdoc */
+    readonly length: number;
+    /**
+     * Invokes a function and marks the collection as changed since last iteration.
+     *
+     * @param {(coll: Collection<T>) => TResult} [func] The optional function to invoke.
+     *
+     * @return {TResult} The result of the function.
+     */
+    protected markAsChanged<TResult>(func?: (coll: Collection<T>) => TResult): TResult;
+    /** @inheritdoc */
+    moveNext(): boolean;
+    /** @inheritdoc */
+    remove(item: T): boolean;
+    /** @inheritdoc */
+    removeAll(predicate: Predciate<T> | string): number;
+    /** @inheritdoc */
+    reset(): IEnumerable<T>;
+    /** @inheritdoc */
+    setItem(index: number, item: T): IList<T>;
+}
+/**
+ * A list.
+ */
+export declare class List<T> extends Collection<T> implements IList<T> {
+    /** @inheritdoc */
+    indexOf(item: T): number;
+    /** @inheritdoc */
+    insert(index: number, item: T): void;
+    /** @inheritdoc */
+    removeAt(index: number): boolean;
+}
+/**
+ * A readonly collection.
+ */
+export declare class ReadOnlyCollectio<T> extends Collection<T> {
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {Sequence<T>} [seq] The initial data.
+     * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
+     */
+    constructor(arr?: Sequence<T>, comparer?: EqualityComparer<T> | string);
 }
 /**
  * An ordered sequence.
