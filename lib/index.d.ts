@@ -259,6 +259,18 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     groupBy<U>(keySelector: Selector<T, U> | string, keyEqualityComparer?: EqualityComparer<U> | string): IEnumerable<IGrouping<T, U>>;
     /**
+     * Correlates the elements of that sequence and another based on matching keys and groups them.
+     *
+     * @param {Sequence<TInner>} inner The other sequence.
+     * @param {Selector<T, TKey> | string} outerKeySelector The key selector for the items of that sequence.
+     * @param {Selector<TInner, TKey> | string} innerKeySelector The key selector for the items of the other sequence.
+     * @param {Zipper<T, IEnumerable<TInner>, TResult> | string} resultSelector 	The function that provides the result value for two matching elements.
+     * @param {EqualityComparer<TKey> | string} [comparer] The custom key comparer.
+     *
+     * @return {IEnumerable<TResult>} The sequence with the joined items.
+     */
+    groupJoin<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, IEnumerable<TInner>, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
+    /**
      * Produces the set intersection of that sequence and another.
      *
      * @param {Sequence<T>} other The other sequence.
@@ -656,8 +668,6 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     cast<U>(): IEnumerable<U>;
     /** @inheritdoc */
     concat(other: Sequence<T>): IEnumerable<T>;
-    /** @inheritdoc */
-    concatToString(defaultValue?: string): string;
     /**
      * The logic for the 'concat()' method.
      *
@@ -666,6 +676,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */
     protected concatInner(other: Iterator<T>): Iterator<T>;
+    /** @inheritdoc */
+    concatToString(defaultValue?: string): string;
     /** @inheritdoc */
     contains(item: any, comparer?: EqualityComparer<T> | string | true): boolean;
     /** @inheritdoc */
@@ -718,6 +730,20 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     groupBy<U>(keySelector: Selector<T, U> | string, keyEqualityComparer?: EqualityComparer<U> | string): IEnumerable<IGrouping<T, U>>;
     /** @inheritdoc */
+    groupJoin<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, IEnumerable<TInner>, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
+    /**
+     * The logic for the 'groupJoin()' method.
+     *
+     * @param {Sequence<TInner>} inner The other sequence.
+     * @param {Selector<T, TKey>} outerKeySelector The key selector for the items of that sequence.
+     * @param {Selector<TInner, TKey>} innerKeySelector The key selector for the items of the other sequence.
+     * @param {Zipper<T, IEnumerable<TInner>, TResult>} resultSelector 	The function that provides the result value for two matching elements.
+     * @param {EqualityComparer<TKey>} [comparer] The custom key comparer.
+     *
+     * @return {Iterator<T>} The iterator.
+     */
+    protected groupJoinInner<TInner, TKey, TResult>(inner: IEnumerable<TInner>, outerKeySelector: Selector<T, TKey>, innerKeySelector: Selector<TInner, TKey>, resultSelector: Zipper<T, IEnumerable<TInner>, TResult>, keyEqualityComparer?: EqualityComparer<TKey>): Iterator<TResult>;
+    /** @inheritdoc */
     intersect(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
     /**
      * The logic for the 'intersect()' method.
@@ -732,6 +758,17 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     readonly isValid: boolean;
     /** @inheritdoc */
     join<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, TInner, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
+    /**
+     * The logic for the 'join()' method.
+     *
+     * @param {Sequence<TInner>} inner The other sequence.
+     * @param {Selector<T, TKey>} outerKeySelector The key selector for the items of that sequence.
+     * @param {Selector<TInner, TKey>} innerKeySelector The key selector for the items of the other sequence.
+     * @param {Zipper<T, TInner, TResult>} resultSelector 	The function that provides the result value for two matching elements.
+     * @param {EqualityComparer<TKey>} [comparer] The custom key comparer.
+     *
+     * @return {Iterator<T>} The iterator.
+     */
     protected joinInner<TInner, TKey, TResult>(inner: IEnumerable<TInner>, outerKeySelector: Selector<T, TKey>, innerKeySelector: Selector<TInner, TKey>, resultSelector: Zipper<T, TInner, TResult>, keyEqualityComparer?: EqualityComparer<TKey>): Iterator<TResult>;
     /** @inheritdoc */
     joinToString(separator: string, defaultValue?: string): string;
@@ -840,6 +877,21 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     protected zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, T, U>): Iterator<U>;
 }
 /**
+ * A wrapper for another sequence.
+ */
+export declare class WrappedEnumerable<T> extends Enumerable<T> {
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {IEnumerable<T>} seq The sequence to wrap.
+     */
+    constructor(seq: IEnumerable<T>);
+    /** @inheritdoc */
+    readonly canReset: boolean;
+    /** @inheritdoc */
+    reset(): IEnumerable<T>;
+}
+/**
  * A sequence based on an "array like" object.
  */
 export declare class ArrayEnumerable<T> extends Enumerable<T> {
@@ -902,7 +954,7 @@ export declare class OrderedEnumerable<T, U> extends Enumerable<T> implements IO
 /**
  * A grouping of elements.
  */
-export declare class Grouping<T, U> extends Enumerable<T> implements IGrouping<T, U> {
+export declare class Grouping<T, U> extends WrappedEnumerable<T> implements IGrouping<T, U> {
     /**
      * Stores the "group" value.
      */
