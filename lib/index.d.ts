@@ -1112,17 +1112,12 @@ export declare class Collection<T> extends ArrayEnumerable<T> implements ICollec
      */
     protected _hasChanged: boolean;
     /**
-     * Stores if the collection is readonly or not.
-     */
-    protected _isReadOnly: boolean;
-    /**
      * Initializes a new instance of that class.
      *
      * @param {Sequence<T>} [seq] The initial data.
      * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
-     * @param {boolean} [isReadOnly] Collection is readonly or not.
      */
-    constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string, isReadOnly?: boolean);
+    constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string);
     /** @inheritdoc */
     add(item: T): void;
     /** @inheritdoc */
@@ -1157,6 +1152,12 @@ export declare class Collection<T> extends ArrayEnumerable<T> implements ICollec
     reset(): IEnumerable<T>;
     /** @inheritdoc */
     setItem(index: number, item: T): IList<T>;
+    /**
+     * Throws if collection is read-only.
+     *
+     * @throws "Collection is read-only!"
+     */
+    protected throwIfReadOnly(): void;
 }
 /**
  * A list.
@@ -1172,7 +1173,7 @@ export declare class List<T> extends Collection<T> implements IList<T> {
 /**
  * A readonly collection / list.
  */
-export declare class ReadOnlyCollectio<T> extends List<T> {
+export declare class ReadOnlyCollection<T> extends List<T> {
     /**
      * Initializes a new instance of that class.
      *
@@ -1180,6 +1181,8 @@ export declare class ReadOnlyCollectio<T> extends List<T> {
      * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
      */
     constructor(arr?: Sequence<T>, comparer?: EqualityComparer<T> | string);
+    /** @inheritdoc */
+    readonly isReadonly: boolean;
 }
 /**
  * An ordered sequence.

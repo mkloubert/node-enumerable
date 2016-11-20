@@ -2353,7 +2353,11 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public toList(isReadOnly?: boolean, comparer?: EqualityComparer<T> | string): IList<T> {
-        return new List<T>(this, comparer, isReadOnly);
+        if (isReadOnly) {
+            return new ReadOnlyCollection<T>(this, comparer);
+        }
+
+        return new List<T>(this, comparer);
     }
 
     /** @inheritdoc */
@@ -2558,31 +2562,27 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
      * Stores the if the collection has changed while the last iteration.
      */
     protected _hasChanged: boolean;
-    /**
-     * Stores if the collection is readonly or not.
-     */
-    protected _isReadOnly: boolean;
     
     /**
      * Initializes a new instance of that class.
      * 
      * @param {Sequence<T>} [seq] The initial data.
      * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
-     * @param {boolean} [isReadOnly] Collection is readonly or not.
      */
-    constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string, isReadOnly: boolean = false) {
+    constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string) {
         let arr: T[] = [];
         from(seq).forEach(x => arr.push(x));
 
         super(arr);
 
         this._comparer = toEqualityComparerSafe<T>(comparer);
-        this._isReadOnly = !!isReadOnly;
         this._hasChanged = false;
     }
 
     /** @inheritdoc */
     public add(item: T): void {
+        this.throwIfReadOnly();
+
         this.markAsChanged(x => {
             let a = <T[]>x._arr;
             a.push(item);
@@ -2600,6 +2600,8 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
 
     /** @inheritdoc */
     public clear(): void {
+        this.throwIfReadOnly();
+
         this.markAsChanged(x => {
             x._arr = [];
         });
@@ -2624,7 +2626,7 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
 
     /** @inheritdoc */
     public get isReadonly(): boolean {
-        return this._isReadOnly;
+        return false;
     }
 
     /** @inheritdoc */
@@ -2661,6 +2663,8 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
 
     /** @inheritdoc */
     public push(...items: T[]): number {
+        this.throwIfReadOnly();
+
         let beforeLength = this._arr.length;
         this.addRange
             .apply(this, arguments);
@@ -2685,6 +2689,8 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
 
     /** @inheritdoc */
     public removeAll(predicate: Predciate<T> | string): number {
+        this.throwIfReadOnly();
+
         let p = toPredicateSafe(predicate);
 
         let prevVal: any;
@@ -2724,12 +2730,23 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
 
     /** @inheritdoc */
     public setItem(index: number, item: T): IList<T> {
+        this.throwIfReadOnly();
+
         return this.markAsChanged((x: List<T>) => {
             let a = <T[]>x._arr;
             a[index] = item;
             
             return x;
         });
+    }
+
+    /**
+     * Throws if collection is read-only.
+     * 
+     * @throws "Collection is read-only!"
+     */
+    protected throwIfReadOnly(): void {
+        throw "Collection is read-only!";
     }
 }
 
@@ -2751,6 +2768,7 @@ export class List<T> extends Collection<T> implements IList<T> {
     /** @inheritdoc */
     public insert(index: number, item: T): void {
         let me = this;
+        me.throwIfReadOnly();
         
         this.markAsChanged((list: List<T>) => {
             let a = <T[]>list._arr;
@@ -2760,6 +2778,8 @@ export class List<T> extends Collection<T> implements IList<T> {
 
     /** @inheritdoc */
     public removeAt(index: number): boolean {
+        this.throwIfReadOnly();
+
         if (index >= 0 && index < this._arr.length) {
             return this.markAsChanged((x: List<T>) => {
                 let a = <T[]>x._arr;
@@ -2776,7 +2796,7 @@ export class List<T> extends Collection<T> implements IList<T> {
 /**
  * A readonly collection / list.
  */
-export class ReadOnlyCollectio<T> extends List<T> {
+export class ReadOnlyCollection<T> extends List<T> {
     /**
      * Initializes a new instance of that class.
      * 
@@ -2784,7 +2804,12 @@ export class ReadOnlyCollectio<T> extends List<T> {
      * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
      */
     constructor(arr?: Sequence<T>, comparer?: EqualityComparer<T> | string) {
-        super(from(arr).toArray(), comparer, true);
+        super(from(arr).toArray(), comparer);
+    }
+
+    /** @inheritdoc */
+    public get isReadonly(): boolean {
+        return true;
     }
 }
 
