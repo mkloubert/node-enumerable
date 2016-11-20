@@ -27,8 +27,6 @@ import Assert = require('assert');
 import Enumerable = require('../../lib');
 import Helpers = require('../helpers');
 
-const MAX_ARRAY_SIZE = 100;
-
 Helpers.execute(
     'Testing strings...',
     (ctx) => {

@@ -252,12 +252,12 @@ export interface IEnumerable<T> extends Iterator<T> {
     /**
      * Groups the elements of the sequence.
      *
-     * @param {Selector<T, U> | string} keySelector The function that provides the key for an element.
-     * @param {EqualityComparer<U> | string} [keyEqualityComparer] The optional equality comparer for the keys.
+     * @param {Selector<T, TKey> | string} keySelector The function that provides the key for an element.
+     * @param {EqualityComparer<TKey> | string} [keyEqualityComparer] The optional equality comparer for the keys.
      *
-     * @return {IEnumerable<IGrouping<T, U>>} The list of groupings.
+     * @return {IEnumerable<IGrouping<T, TKey>>} The list of groupings.
      */
-    groupBy<U>(keySelector: Selector<T, U> | string, keyEqualityComparer?: EqualityComparer<U> | string): IEnumerable<IGrouping<T, U>>;
+    groupBy<TKey>(keySelector: Selector<T, TKey> | string, keyEqualityComparer?: EqualityComparer<TKey> | string): IEnumerable<IGrouping<T, TKey>>;
     /**
      * Correlates the elements of that sequence and another based on matching keys and groups them.
      *
@@ -511,6 +511,15 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     toArray(keySelector?: KeySelector<any, T, number> | string | true): ArrayLike<T>;
     /**
+     * Converts the items of that sequence to a new "lookup" object.
+     *
+     * @param {KeySelector<any, T, number> | string} [keySelector] The custom index / key selector.
+     *                                                             If (true), the value from 'key' property is used as index.
+     *
+     * @return {ArrayLike<T>} The new array.
+     */
+    toLookup<TKey extends string | number>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
+    /**
      * Produces the set union of that sequence and another.
      *
      * @param {Sequence<T>} other The other sequence.
@@ -542,11 +551,11 @@ export interface IEnumerable<T> extends Iterator<T> {
 /**
  * A grouping of items.
  */
-export interface IGrouping<T, U> extends IEnumerable<T> {
+export interface IGrouping<T, TKey> extends IEnumerable<T> {
     /**
      * Gets the value that represents the group.
      */
-    readonly group: U;
+    readonly group: TKey;
 }
 /**
  * Describes the context of an item.
@@ -637,6 +646,11 @@ export interface IOrderedEnumerable<T> extends IEnumerable<T> {
      * @return {IOrderedEnumerable<T>} The new sequence.
      */
     thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
+}
+/**
+ * Describes a lookup object.
+ */
+export interface ILookup<T, TKey extends string | number> extends IEnumerable<IGrouping<T, TKey>>, Object {
 }
 /**
  * A basic sequence.
@@ -734,7 +748,7 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     forEach(action: Action<T>): void;
     /** @inheritdoc */
-    groupBy<U>(keySelector: Selector<T, U> | string, keyEqualityComparer?: EqualityComparer<U> | string): IEnumerable<IGrouping<T, U>>;
+    groupBy<TKey>(keySelector: Selector<T, TKey> | string, keyEqualityComparer?: EqualityComparer<TKey> | string): IEnumerable<IGrouping<T, TKey>>;
     /** @inheritdoc */
     groupJoin<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, IEnumerable<TInner>, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
     /**
@@ -861,6 +875,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     toArray(keySelector?: KeySelector<number, T, number> | string | true): ArrayLike<T>;
     /** @inheritdoc */
+    toLookup<TKey extends string | number>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
+    /** @inheritdoc */
     union(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
     /** @inheritdoc */
     where(predicate: Predciate<T> | string): IEnumerable<T>;
@@ -897,7 +913,21 @@ export declare class WrappedEnumerable<T> extends Enumerable<T> {
     /** @inheritdoc */
     readonly canReset: boolean;
     /** @inheritdoc */
+    readonly current: T;
+    /** @inheritdoc */
+    readonly isValid: boolean;
+    /** @inheritdoc */
+    readonly key: any;
+    /** @inheritdoc */
+    moveNext(): boolean;
+    /** @inheritdoc */
+    next(): IteratorResult<T>;
+    /** @inheritdoc */
     reset(): IEnumerable<T>;
+    /**
+     * Gets the wrapped sequence.
+     */
+    readonly sequence: IEnumerable<T>;
 }
 /**
  * A sequence based on an "array like" object.
@@ -976,6 +1006,17 @@ export declare class Grouping<T, U> extends WrappedEnumerable<T> implements IGro
     constructor(grp: U, seq: IEnumerable<T>);
     /** @inheritdoc */
     readonly group: U;
+}
+/**
+ * A lookup object.
+ */
+export declare class Lookup<T, TKey extends string | number> extends WrappedEnumerable<IGrouping<T, TKey>> implements ILookup<T, TKey> {
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {IEnumerable<IGrouping<T, U>>} seq The sequence with the elements.
+     */
+    constructor(seq: IEnumerable<IGrouping<T, TKey>>);
 }
 /**
  * Returns a value as function.
