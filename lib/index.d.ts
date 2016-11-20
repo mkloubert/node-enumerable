@@ -358,6 +358,14 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     notEmpty(): IEnumerable<T>;
     /**
+     * Filters the items of a specific type.
+     *
+     * @param {string} type The name of the target type.
+     *
+     * @return {IEnumerable<U>} The new sequence.
+     */
+    ofType<U>(type: string): IEnumerable<U>;
+    /**
      * Sorts the elements of that sequence in ascending order by using the values itself as keys.
      *
      * @param {Comparer<T> | string} [comparer] The custom key comparer to use.
@@ -469,6 +477,12 @@ export interface IEnumerable<T> extends Iterator<T> {
      * @return {IEnumerable<T>} The new sequence.
      */
     skip(cnt: number): IEnumerable<T>;
+    /**
+     * Takes all items BUT the last one.
+     *
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    skipLast(): IEnumerable<T>;
     /**
      * Skips items while a condition matches.
      *
@@ -809,6 +823,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     notEmpty(): IEnumerable<T>;
     /** @inheritdoc */
+    ofType<U>(type: string): IEnumerable<U>;
+    /** @inheritdoc */
     order(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
     /** @inheritdoc */
     orderBy<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
@@ -848,6 +864,14 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     singleOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U;
     /** @inheritdoc */
     skip(cnt: number): IEnumerable<T>;
+    /** @inheritdoc */
+    skipLast(): IEnumerable<T>;
+    /**
+     * The logic for the 'skipLast()' method.
+     *
+     * @return {Iterator<T>} The iterator.
+     */
+    protected skipLastInner(): Iterator<T>;
     /** @inheritdoc */
     skipWhile(predicate: Predciate<T> | string): IEnumerable<T>;
     /**

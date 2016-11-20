@@ -27,7 +27,7 @@ import Assert = require('assert');
 import Enumerable = require('../../lib');
 import Helpers = require('../helpers');
 
-let compareItems = (x: any, y: any): number => {
+function compareItems(x: any, y: any): number {
     if (x > y) {
         return 1;
     }
@@ -71,4 +71,46 @@ Helpers.execute(
         Assert.equal('' + actual.length, expected.length);
         Assert.equal('' + actual.length, '' + expected.length);
         Assert.strictEqual('' + actual.length, '' + expected.length);
+    });
+
+Helpers.execute(
+    'Testing strings (with comparer)...',
+    (ctx) => {
+        let arr: string[] = ["grape", "passionfruit", "banana", "mango", 
+                             "orange", "raspberry", "apple", "blueberry"];
+
+        let expected = arr.sort((x, y) => {
+            let comp0 = compareItems(x.length, y.length);
+            if (0 !== comp0) {
+                return -comp0;
+            } 
+
+            return -compareItems(x, y);
+        });
+
+        let seq1 = Enumerable.from(arr)
+                             .orderBy(x => x.length)
+                             .thenBy(x => x, (x, y) => -compareItems(x, y));
+
+        let sequences = [
+            seq1,
+        ];
+
+        for (let i = 0; i < sequences.length; i++) {
+            let seq = sequences[i];
+
+            let actual: string[] = [];
+            while (seq.moveNext()) {
+                actual.push(seq.current);
+            }
+
+            Assert.strictEqual(actual.length, expected.length);
+            Assert.equal(actual.length, expected.length);
+            Assert.notStrictEqual(actual.length, '' + expected.length);
+            Assert.notStrictEqual('' + actual.length, expected.length);
+            Assert.equal(actual.length, '' + expected.length);
+            Assert.equal('' + actual.length, expected.length);
+            Assert.equal('' + actual.length, '' + expected.length);
+            Assert.strictEqual('' + actual.length, '' + expected.length);
+        }
     });

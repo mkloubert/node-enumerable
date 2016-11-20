@@ -424,6 +424,15 @@ export interface IEnumerable<T> extends Iterator<T> {
     notEmpty(): IEnumerable<T>;
 
     /**
+     * Filters the items of a specific type.
+     * 
+     * @param {string} type The name of the target type.
+     * 
+     * @return {IEnumerable<U>} The new sequence.
+     */
+    ofType<U>(type: string): IEnumerable<U>;
+
+    /**
      * Sorts the elements of that sequence in ascending order by using the values itself as keys.
      * 
      * @param {Comparer<T> | string} [comparer] The custom key comparer to use.
@@ -547,6 +556,13 @@ export interface IEnumerable<T> extends Iterator<T> {
      * @return {IEnumerable<T>} The new sequence.
      */
     skip(cnt: number): IEnumerable<T>;
+
+    /**
+     * Takes all items BUT the last one.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    skipLast(): IEnumerable<T>;
 
     /**
      * Skips items while a condition matches.
@@ -1736,6 +1752,35 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public ofType<U>(type: string): IEnumerable<U> {
+        if (!type) {
+            type = '';
+        }
+        type = ('' + type).trim();
+
+        let doesClassExist = false;
+        if (type) {
+            try {
+                doesClassExist = eval('typeof ' + type + ' !== "undefined"');
+            }
+            catch (e) {
+                doesClassExist = false;
+            }
+        }
+
+        let evalExpr = 'false';
+        if (doesClassExist) {
+            evalExpr = 'x instanceof ' + type;
+        }
+
+        return <any>this.where(x => {
+            return typeof x === type ||
+                   !type ||
+                   eval(evalExpr);
+        });
+    }
+
+    /** @inheritdoc */
     public order(comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
         return this.orderBy<T>(x => x, comparer);
     }
@@ -1979,6 +2024,40 @@ export class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     public skip(cnt: number): IEnumerable<T> {
         return this.skipWhile((item, ctx) => ctx.index < cnt);
+    }
+
+    /** @inheritdoc */
+    public skipLast(): IEnumerable<T> {
+        return from(this.skipLastInner());
+    }
+
+    /**
+     * The logic for the 'skipLast()' method.
+     * 
+     * @return {Iterator<T>} The iterator.
+     */ 
+    protected* skipLastInner(): Iterator<T> {
+        let hasRemainingItems: boolean;
+        let isFirst = true;
+        let item: T;
+
+        do
+        {
+            hasRemainingItems = this.moveNext();
+            if (!hasRemainingItems) {
+                continue;
+            }
+
+            if (!isFirst) {
+                yield item;
+            }
+            else {
+                isFirst = false;
+            }
+
+            item = this.current;
+        }
+        while (hasRemainingItems);
     }
 
     /** @inheritdoc */

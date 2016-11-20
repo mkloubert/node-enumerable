@@ -43,21 +43,35 @@ Helpers.execute(
                 arr.push(j);
             }
 
-            let sum = Enumerable.from(arr)
-                                .sum(-1);
+            let seq = Enumerable.from(arr)
+                                .skipLast();
 
-            let expectedSum = -1;
-            if (arr.length > 0) {
-                expectedSum = 0;
-                arr.forEach(x => expectedSum += x);
+            let expected = arr.filter((x, index) => index < (arr.length - 1));
+
+            let actual: any[] = [];
+            while (seq.moveNext()) {
+                actual.push(seq.current);
             }
 
-            Assert.strictEqual(sum, expectedSum);
-            Assert.notStrictEqual('' + sum, expectedSum);
-            Assert.notStrictEqual(sum, '' + expectedSum);
-            Assert.equal('' + sum, expectedSum);
-            Assert.equal(sum, '' + expectedSum);
-            Assert.strictEqual('' + sum, '' + expectedSum);
-            Assert.equal('' + sum, '' + expectedSum);
+            Assert.strictEqual(actual.length, expected.length);
+            Assert.equal(actual.length, expected.length);
+            Assert.equal(actual.length, '' + expected.length);
+            Assert.equal('' + actual.length, expected.length);
+            Assert.notStrictEqual(actual.length, '' + expected.length);
+            Assert.notStrictEqual('' + actual.length, expected.length);
+            Assert.strictEqual('' + actual.length, '' + expected.length);
+
+            for (let j = 0; j < actual.length; j++) {
+                let a = actual[j];
+                let e = expected[j];
+
+                Assert.strictEqual(a, e);
+                Assert.equal(a, e);
+                Assert.equal(a, '' + e);
+                Assert.equal('' + a, e);
+                Assert.notStrictEqual(a, '' + e);
+                Assert.notStrictEqual('' + a, e);
+                Assert.strictEqual('' + a, '' + e);
+            }
         }
     });
