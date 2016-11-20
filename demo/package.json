@@ -1,0 +1,18 @@
+{
+  "name": "node-enumerable-demo",
+  "version": "1.0.0",
+  "description": "Demo for node-enumerable",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/mkloubert/node-enumerable",
+  "author": "mkloubert",
+  "license": "GPL3",
+  "devDependencies": {
+    "@types/electron": "^1.4.25",
+    "@types/jquery": "^2.0.33",
+    "@types/node": "^6.0.46",
+    "electron": "^1.4.5"
+  }
+}
