@@ -285,6 +285,10 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     readonly isValid: boolean;
     /**
+     * Gets the current key.
+     */
+    readonly itemKey: any;
+    /**
      * Correlates the elements of that sequence and another based on matching keys.
      *
      * @param {Sequence<TInner>} inner The other sequence.
@@ -305,10 +309,6 @@ export interface IEnumerable<T> extends Iterator<T> {
      * @return {string} The string.
      */
     joinToString(separator: string, defaultValue?: string): string;
-    /**
-     * Gets the current key.
-     */
-    readonly key: any;
     /**
      * Returns the last item of the sequence.
      *
@@ -791,6 +791,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     readonly isValid: boolean;
     /** @inheritdoc */
+    readonly itemKey: number;
+    /** @inheritdoc */
     join<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, TInner, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
     /**
      * The logic for the 'join()' method.
@@ -806,8 +808,6 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     protected joinInner<TInner, TKey, TResult>(inner: IEnumerable<TInner>, outerKeySelector: Selector<T, TKey>, innerKeySelector: Selector<TInner, TKey>, resultSelector: Zipper<T, TInner, TResult>, keyEqualityComparer?: EqualityComparer<TKey>): Iterator<TResult>;
     /** @inheritdoc */
     joinToString(separator: string, defaultValue?: string): string;
-    /** @inheritdoc */
-    readonly key: number;
     /** @inheritdoc */
     last(predicate?: Predciate<T> | string): T;
     /** @inheritdoc */
@@ -941,7 +941,7 @@ export declare class WrappedEnumerable<T> extends Enumerable<T> {
     /** @inheritdoc */
     readonly isValid: boolean;
     /** @inheritdoc */
-    readonly key: any;
+    readonly itemKey: any;
     /** @inheritdoc */
     moveNext(): boolean;
     /** @inheritdoc */

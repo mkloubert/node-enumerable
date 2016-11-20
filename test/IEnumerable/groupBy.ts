@@ -67,7 +67,7 @@ Helpers.execute(
             let grouping = groups.current;
 
             let g: Group = {
-                key: grouping.key,
+                key: grouping.itemKey,
                 values: [],
             };
 

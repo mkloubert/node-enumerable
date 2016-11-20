@@ -52,7 +52,7 @@ Helpers.execute(
             let cntEven = 0;
             while (seqEven.moveNext()) {
                 let item = seqEven.current;
-                let index = seqEven.key;
+                let index = seqEven.itemKey;
                 ++cntEven;
 
                 Assert.strictEqual(item, arrEven[index]);
@@ -71,7 +71,7 @@ Helpers.execute(
             let cntOdd = 0;
             while (seqOdd.moveNext()) {
                 let item = seqOdd.current;
-                let index = seqOdd.key;
+                let index = seqOdd.itemKey;
                 ++cntOdd;
 
                 Assert.strictEqual(item, arrOdd[index]);

@@ -44,7 +44,7 @@ Helpers.execute(
             ++cnt;
 
             let x = seq.current;
-            let index = seq.key;
+            let index = seq.itemKey;
 
             Assert.strictEqual(x, expected[index]);
             Assert.equal(x, expected[index]);
@@ -77,7 +77,7 @@ Helpers.execute(
                 ++cnt;
 
                 let x = seq.current;
-                let index = seq.key;
+                let index = seq.itemKey;
 
                 Assert.strictEqual(x, expected[index]);
                 Assert.equal(x, expected[index]);

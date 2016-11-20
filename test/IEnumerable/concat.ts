@@ -64,13 +64,13 @@ Helpers.execute(
                 while (seq.moveNext()) {
                     ++k;
 
-                    Assert.strictEqual(seq.key, k);
-                    Assert.notStrictEqual('' + seq.key, k);
-                    Assert.notStrictEqual(seq.key, '' + k);
-                    Assert.equal('' + seq.key, k);
-                    Assert.equal(seq.key, '' + k);
-                    Assert.strictEqual('' + seq.key, '' + k);
-                    Assert.equal('' + seq.key, '' + k);
+                    Assert.strictEqual(seq.itemKey, k);
+                    Assert.notStrictEqual('' + seq.itemKey, k);
+                    Assert.notStrictEqual(seq.itemKey, '' + k);
+                    Assert.equal('' + seq.itemKey, k);
+                    Assert.equal(seq.itemKey, '' + k);
+                    Assert.strictEqual('' + seq.itemKey, '' + k);
+                    Assert.equal('' + seq.itemKey, '' + k);
 
                     Assert.strictEqual(seq.current, fullArray[k]);
                     Assert.notStrictEqual('' + seq.current, fullArray[k]);

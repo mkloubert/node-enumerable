@@ -42,7 +42,7 @@ Helpers.execute(
 
         while (seq.moveNext()) {
             let item = seq.current;
-            let index = seq.key;
+            let index = seq.itemKey;
 
             Assert.strictEqual(item, expected[index]);
             Assert.equal(item, expected[index]);
@@ -64,7 +64,7 @@ Helpers.execute(
 
         while (seq.moveNext()) {
             let item = seq.current;
-            let index = seq.key;
+            let index = seq.itemKey;
 
             Assert.strictEqual(item, expected[index]);
             Assert.notStrictEqual('' + item, expected[index]);

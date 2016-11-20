@@ -339,6 +339,11 @@ export interface IEnumerable<T> extends Iterator<T> {
     readonly isValid: boolean;
 
     /**
+     * Gets the current key.
+     */
+    readonly itemKey: any;
+
+    /**
      * Correlates the elements of that sequence and another based on matching keys.
      * 
      * @param {Sequence<TInner>} inner The other sequence.
@@ -363,11 +368,6 @@ export interface IEnumerable<T> extends Iterator<T> {
      * @return {string} The string.
      */
     joinToString(separator: string, defaultValue?: string): string;
-
-    /**
-     * Gets the current key.
-     */
-    readonly key: any;
 
     /**
      * Returns the last item of the sequence.
@@ -803,7 +803,7 @@ class ItemContext<T> implements IItemContext<T> {
     }
 
     public get key(): any {
-        return this._sequence.key;
+        return this._sequence.itemKey;
     }
 
     public get previousValue(): any {
@@ -1512,6 +1512,11 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public get itemKey(): number {
+        return this._index;
+    }
+
+    /** @inheritdoc */
     public join<TInner, TKey, TResult>(inner: Sequence<TInner>,
                                        outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string,
                                        resultSelector: Zipper<T, TInner, TResult> | string,
@@ -1630,11 +1635,6 @@ export class Enumerable<T> implements IEnumerable<T> {
         }
 
         return result;
-    }
-
-    /** @inheritdoc */
-    public get key(): number {
-        return this._index;
     }
 
     /** @inheritdoc */
@@ -1926,7 +1926,7 @@ export class Enumerable<T> implements IEnumerable<T> {
                 return false;
             }
 
-            if (!kc(this.key, seq.key)) {
+            if (!kc(this.itemKey, seq.itemKey)) {
                 // different keys
                 return false;
             }
@@ -2329,8 +2329,8 @@ export class WrappedEnumerable<T> extends Enumerable<T> {
     }
 
     /** @inheritdoc */
-    public get key(): any {
-        return this.sequence.key;
+    public get itemKey(): any {
+        return this.sequence.itemKey;
     }
 
     /** @inheritdoc */
