@@ -834,6 +834,15 @@ export interface ICollection<T> extends IEnumerable<T> {
     readonly length: number;
 
     /**
+     * Alias for 'addRange'().
+     * 
+     * @param {T} ...items The items to add.
+     * 
+     * @return {number} The number of added items.
+     */
+    push(...items: T[]): number;
+
+    /**
      * Removes the first occurrence of an item.
      * 
      * @param {T} item The item to remove.
@@ -2651,6 +2660,15 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
     }
 
     /** @inheritdoc */
+    public push(...items: T[]): number {
+        let beforeLength = this._arr.length;
+        this.addRange
+            .apply(this, arguments);
+
+        return this._arr.length - beforeLength;
+    }
+
+    /** @inheritdoc */
     public remove(item: T): boolean {
         let me = this;
 
@@ -2756,9 +2774,9 @@ export class List<T> extends Collection<T> implements IList<T> {
 }
 
 /**
- * A readonly collection.
+ * A readonly collection / list.
  */
-export class ReadOnlyCollectio<T> extends Collection<T> {
+export class ReadOnlyCollectio<T> extends List<T> {
     /**
      * Initializes a new instance of that class.
      * 
