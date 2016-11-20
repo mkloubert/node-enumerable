@@ -23,41 +23,45 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import FS = require('fs');
-import Path = require('path');
+import Assert = require('assert');
+import Enumerable = require('../../lib');
+import Helpers = require('../helpers');
 
-let libs: string[] = [
-    './IEnumerable',
-];
-
-console.log('Starting tests...');
-
-for (let i = 0; i < libs.length; i++) {
-    let dir = libs[i];
-    if (!Path.isAbsolute(dir)) {
-        dir = Path.join(__dirname, dir);
+let compareItems = (x: any, y: any): number => {
+    if (x > y) {
+        return 1;
     }
 
-    let jsFiles = FS.readdirSync(dir).filter(x => {
-        if (x.length >= 3) {
-            if ('.js' === x.substr(x.length - 3)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }).map(x => {
-        return Path.join(dir, x);
-    }).filter(x => {
-        return FS.lstatSync(x).isFile();
-    });
-
-    for (let j = 0; j < jsFiles.length; j++) {
-        let jf = jsFiles[j];
-
-        console.log('\t' + jf);
-        require(jf);
+    if (x < y) {
+        return -1;
     }
+
+    return 0;
 }
 
-console.log('Tests finished.');
+Helpers.execute(
+    'Testing strings...',
+    (ctx) => {
+        let arr: string[] = ["grape", "passionfruit", "banana", "mango", 
+                             "orange", "raspberry", "apple", "blueberry"];
+
+        let expected = arr.sort((x, y) => {
+            return compareItems(x, y);
+        });
+
+        let seq = Enumerable.from(arr).orderBy(x => x);
+
+        let actual: string[] = [];
+        while (seq.moveNext()) {
+            actual.push(seq.current);
+        }
+
+        Assert.strictEqual(actual.length, expected.length);
+        Assert.equal(actual.length, expected.length);
+        Assert.notStrictEqual(actual.length, '' + expected.length);
+        Assert.notStrictEqual('' + actual.length, expected.length);
+        Assert.equal(actual.length, '' + expected.length);
+        Assert.equal('' + actual.length, expected.length);
+        Assert.equal('' + actual.length, '' + expected.length);
+        Assert.strictEqual('' + actual.length, '' + expected.length);
+    });

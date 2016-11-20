@@ -25,9 +25,9 @@
 
 import Enumerable = require('./lib');
 
-let test = Enumerable.from([1, 2, '3']);
+let test = Enumerable.from(["grape", "passionfruit", "banana", "mango", 
+                            "orange", "raspberry", "apple", "blueberry"]);
 
-console.log(test.elementAtOrDefault(4, 'wurst'));
-
-test.union([4, 5, 3, 6], true)
+test.orderBy(x => x.length)
+    .thenBy(x => x)
     .forEach(x => console.log(x + ' ' + typeof x));

@@ -101,14 +101,14 @@ export type Sequence<T> = ArrayLike<T> | Iterator<T>;
  * Describes a function that "zips" two elements.
  * 
  * @param {T} item1 The first item.
- * @param {T} item2 The second item.
+ * @param {U} item2 The second item.
  * @param {IItemContext<T>} ctx1 The context of item1.
- * @param {IItemContext<T>} ctx2 The context of item2.
+ * @param {IItemContext<U>} ctx2 The context of item2.
  * 
- * @return {U} The zipped value.
+ * @return {V} The zipped value.
  */
-export type Zipper<T, U> = (item1: T, item2: T,
-                            ctx1: IItemContext<T>, ctx2: IItemContext<T>) => U;
+export type Zipper<T, U, V> = (item1: T, item2: U,
+                               ctx1: IItemContext<T>, ctx2: IItemContext<U>) => V;
 
 /**
  * Describes a sequence.
@@ -209,6 +209,15 @@ export interface IEnumerable<T> extends Iterator<T> {
     readonly current: T;
 
     /**
+     * Returns the elements of the sequence or a sequence with default values if the current sequence is empty.
+     * 
+     * @param {T} ...args One or more element for a "default sequence",
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    defaultIfEmpty(...args: T[]): IEnumerable<T>;
+
+    /**
      * Removes duplicates.
      * 
      * @param {EqualityComparer<T> | string | true} [comparer] The custom equality comparer to use.
@@ -287,6 +296,17 @@ export interface IEnumerable<T> extends Iterator<T> {
     forEach(action: Action<T>): void;
 
     /**
+     * Groups the elements of the sequence.
+     * 
+     * @param {Selector<T, U> | string} keySelector The function that provides the key for an element.
+     * @param {EqualityComparer<U> | string} [keyEqualityComparer] The optional equality comparer for the keys.
+     * 
+     * @return {IEnumerable<IGrouping<T, U>>} The list of groupings.
+     */
+    groupBy<U>(keySelector: Selector<T, U> | string,
+               keyEqualityComparer?: EqualityComparer<U> | string): IEnumerable<IGrouping<T, U>>;
+
+    /**
      * Produces the set intersection of that sequence and another.
      * 
      * @param {Sequence<T>} other The other sequence.
@@ -301,6 +321,22 @@ export interface IEnumerable<T> extends Iterator<T> {
      * Gets if the 'moveNext()' can be called or not.
      */
     readonly isValid: boolean;
+
+    /**
+     * Correlates the elements of that sequence and another based on matching keys.
+     * 
+     * @param {Sequence<TInner>} inner The other sequence.
+     * @param {Selector<T, TKey> | string} outerKeySelector The key selector for the items of that sequence.
+     * @param {Selector<TInner, TKey> | string} innerKeySelector The key selector for the items of the other sequence.
+     * @param {Zipper<T, TInner, TResult> | string} resultSelector 	The function that provides the result value for two matching elements.
+     * @param {EqualityComparer<TKey> | string} [comparer] The custom key comparer.
+     * 
+     * @return {IEnumerable<TResult>} The sequence with the joined items.
+     */
+    join<TInner, TKey, TResult>(inner: Sequence<TInner>,
+                                outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string,
+                                resultSelector: Zipper<T, TInner, TResult> | string,
+                                comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
 
     /**
      * Joins the elements of that sequence to one string.
@@ -564,7 +600,67 @@ export interface IEnumerable<T> extends Iterator<T> {
      * 
      * @return IEnumerable<U> The new sequence.
      */
-    zip<U>(other: Sequence<T>, zipper: Zipper<T, U>): IEnumerable<U>;
+    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U>): IEnumerable<U>;
+}
+
+/**
+ * A grouping of items.
+ */
+export interface IGrouping<T, U> extends IEnumerable<T> {
+    /**
+     * Gets the value that represents the group.
+     */
+    readonly group: U;
+}
+
+/**
+ * Describes the context of an item.
+ */
+export interface IItemContext<T> {
+    /**
+     * Cancel operation or not.
+     */
+    cancel: boolean;
+
+    /**
+     * Gets the current zero-based index.
+     */
+    readonly index: number;
+
+    /**
+     * Gets if the that item is the first one or not.
+     */
+    readonly isFirst: boolean;
+
+    /**
+     * Gets the item.
+     */
+    readonly item: T;
+
+    /**
+     * Gets the current key.
+     */
+    readonly key: any;
+
+    /**
+     * Gets or sets the value for the next item.
+     */
+    nextValue: any;
+    
+    /**
+     * Gets the value of the previous item.
+     */
+    readonly previousValue: any;
+
+    /**
+     * Gets the underlying sequence.
+     */
+    readonly sequence: IEnumerable<T>;
+
+    /**
+     * Gets or sets the value for the current item and the upcoming ones.
+     */
+    value: any;
 }
 
 /**
@@ -620,56 +716,6 @@ export interface IOrderedEnumerable<T> extends IEnumerable<T> {
     thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
 }
 
-/**
- * Describes the context of an item.
- */
-export interface IItemContext<T> {
-    /**
-     * Cancel operation or not.
-     */
-    cancel: boolean;
-
-    /**
-     * Gets the current zero-based index.
-     */
-    readonly index: number;
-
-    /**
-     * Gets if the that item is the first one or not.
-     */
-    readonly isFirst: boolean;
-
-    /**
-     * Gets the item.
-     */
-    readonly item: T;
-
-    /**
-     * Gets the current key.
-     */
-    readonly key: any;
-
-    /**
-     * Gets or sets the value for the next item.
-     */
-    nextValue: any;
-    
-    /**
-     * Gets the value of the previous item.
-     */
-    readonly previousValue: any;
-
-    /**
-     * Gets the underlying sequence.
-     */
-    readonly sequence: IEnumerable<T>;
-
-    /**
-     * Gets or sets the value for the current item and the upcoming ones.
-     */
-    value: any;
-}
-
 interface IOrDefaultArgs<T, U> {
     defaultValue?: U;
     predicate: Predciate<T>;
@@ -723,10 +769,6 @@ function isArrayLike(val: any): boolean {
             typeof val === "object" &&
             val.hasOwnProperty("length") && 
             typeof val.length === "number");
-}
-
-function isFunc(val: any) {
-
 }
 
 function* makeIterable<T>(val?: any): Iterator<T> {
@@ -990,6 +1032,34 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public defaultIfEmpty(...args: T[]): IEnumerable<T> {
+        return from(this.defaultIfEmptyInner(args));
+    }
+
+    /**
+     * The logic for the 'defaultIfEmpty()' method.
+     * 
+     * @param {T[]} args The arguments for the "default" sequence.
+     * 
+     * @return {Iterator<T>} The iterator.
+     */  
+    protected* defaultIfEmptyInner(args: T[]): Iterator<T> {
+        if (this.moveNext()) {
+            do {
+                yield this.current;
+            }
+            while (this.moveNext());
+        }
+        else {
+            if (args) {
+                for (let i = 0; i < args.length; i++) {
+                    yield args[i];
+                }
+            }
+        }
+    }
+
+    /** @inheritdoc */
     public distinct(comparer?: EqualityComparer<T> | string | true): IEnumerable<T> {
         let ec = toEqualityComparerSafe(comparer);
 
@@ -1195,6 +1265,57 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public groupBy<U>(keySelector: Selector<T, U> | string,
+                      keyEqualityComparer?: EqualityComparer<U> | string): IEnumerable<IGrouping<T, U>> {
+
+        let ks = toSelectorSafe<T, U>(keySelector);
+        let ksec = toEqualityComparerSafe<U>(keyEqualityComparer);
+
+        let groupings: { key: U, items: T[] }[] = [];
+        let index = -1;
+        let prevVal: any;
+        let value: any;
+        while (this.moveNext()) {
+            let ctx = new ItemContext(this, ++index, prevVal);
+            ctx.value = value;
+
+            let key = ks(ctx.item, ctx);
+
+            if (ctx.cancel) {
+                break;
+            }
+            
+            // find existing group
+            let grp: { key: U, items: T[] };
+            for (let i = 0; i < groupings.length; i++) {
+                let g = groupings[i];
+
+                if (ksec(key, g.key)) {
+                    grp = g;  // found
+                    break;
+                }
+            }
+
+            if (!grp) {
+                grp = {
+                    key: key,
+                    items: []
+                };
+
+                groupings.push(grp);
+            }
+
+            grp.items.push(ctx.item);
+
+            prevVal = ctx.nextValue;
+            value = ctx.value;
+        }
+
+        return from(groupings).select(x => new Grouping<T, U>(x.key,
+                                                              from(x.items)));
+    }
+
+    /** @inheritdoc */
     public intersect(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T> {
         let equalityComparer = toEqualityComparerSafe(comparer);
         let o = from(makeIterable<T>(other)).distinct();
@@ -1236,6 +1357,92 @@ export class Enumerable<T> implements IEnumerable<T> {
     public get isValid(): boolean {
         return !this._current ||
                !this._current.done;
+    }
+
+    /** @inheritdoc */
+    public join<TInner, TKey, TResult>(inner: Sequence<TInner>,
+                                       outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string,
+                                       resultSelector: Zipper<T, TInner, TResult> | string,
+                                       comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult> {
+
+        let i = from(inner);
+        let oks = toSelectorSafe<T, TKey>(outerKeySelector);
+        let iks = toSelectorSafe<TInner, TKey>(innerKeySelector);
+        let rs = <Zipper<T, TInner, TResult>>asFunc(resultSelector);
+        let c = toEqualityComparerSafe<TKey>(comparer);
+
+        return from(this.joinInner<TInner, TKey, TResult>(i,
+                                                          oks, iks,
+                                                          rs,
+                                                          c));
+    }
+
+    protected* joinInner<TInner, TKey, TResult>(inner: IEnumerable<TInner>,
+                                                outerKeySelector: Selector<T, TKey>, innerKeySelector: Selector<TInner, TKey>,
+                                                resultSelector: Zipper<T, TInner, TResult>,
+                                                keyEqualityComparer?: EqualityComparer<TKey>): Iterator<TResult> {
+        
+        let createGroupsForSequence = function<U>(seq: IEnumerable<U>, keySelector: Selector<U, TKey>) {
+            return from(seq.groupBy(keySelector)
+                           .select(x => {
+                                       return {
+                                           group: x.group,
+                                           values: x.toArray(),
+                                       };
+                                   })
+                           .toArray());
+        };
+
+        let outerGroups = createGroupsForSequence(this, outerKeySelector);
+        let innerGroups = createGroupsForSequence(inner, innerKeySelector);
+
+        let index = -1;
+        let prevValIG: any;
+        let prevValOG: any;
+        let valueIG: any;
+        let valueOG: any;
+        while (outerGroups.moveNext()) {
+            let og = outerGroups.current;
+            let ogValues = from(og.values);
+
+            innerGroups.reset();
+
+            let matchingInnerGroups = innerGroups.where(ig => keyEqualityComparer(og.group, ig.group));
+            while (matchingInnerGroups.moveNext()) {
+                let ig = matchingInnerGroups.current;
+                let igValues = from(ig.values);
+
+                ogValues.reset();
+                while(ogValues.moveNext()) {
+                    igValues.reset();
+
+                    while(igValues.moveNext()) {
+                        ++index;
+
+                        let ctxOG = new ItemContext<T>(ogValues, index, prevValOG);
+                        ctxOG.value = valueOG;
+
+                        let ctxIG = new ItemContext<TInner>(igValues, index, prevValIG);
+                        ctxIG.value = valueIG;
+
+                        let joinedItem = resultSelector(ogValues.current, igValues.current,
+                                                        ctxOG, ctxIG);
+
+                        if (ctxOG.cancel || ctxIG.cancel) {
+                            return;
+                        }
+
+                        yield joinedItem;
+
+                        prevValIG = ctxIG.nextValue;
+                        prevValOG = ctxOG.nextValue;
+
+                        valueIG = ctxIG.value;
+                        valueOG = ctxOG.value;
+                    }
+                }
+            }
+        }
     }
 
     /** @inheritdoc */
@@ -1795,7 +2002,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public zip<U>(other: Sequence<T>, zipper: Zipper<T, U>): IEnumerable<U> {
+    public zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U>): IEnumerable<U> {
         let seq = from(makeIterable<T>(other));
         
         if (!zipper) {
@@ -1813,7 +2020,7 @@ export class Enumerable<T> implements IEnumerable<T> {
      * 
      * @return {Iterator<U>} The iterator.
      */ 
-    protected* zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, U>): Iterator<U> {
+    protected* zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, T, U>): Iterator<U> {
         let index = -1;
         let prevVal1: any;
         let prevVal2: any;
@@ -1885,10 +2092,6 @@ export class ArrayEnumerable<T> extends Enumerable<T> {
  */
 export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEnumerable<T> {
     /**
-     * Stores the sequence of ordered items.
-     */
-    protected readonly _ITEMS: IEnumerable<T>;
-    /**
      * Stores the array of items in original order.
      */
     protected readonly _ORIGINAL_ITEMS: T[];
@@ -1910,6 +2113,7 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
      */
     constructor(seq: IEnumerable<T>,
                 selector: Selector<T, U> | string, comparer: Comparer<U> | string) {
+
         super();
 
         let me = this;
@@ -1922,12 +2126,12 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
 
         let prevValue: any;
         let value: any;
-        this._ITEMS = from(this._ORIGINAL_ITEMS.map((x, index) => {
+        this._iterator = from(this._ORIGINAL_ITEMS.map((x, index) => {
             let ctx = new ItemContext(seq, index, prevValue);
             ctx.value = value;
 
             let sortValue = {
-                sortBy: me.selector(x, ctx),
+                sortBy: me._ORDER_SELECTOR(x, ctx),
                 value: x,
             };
 
@@ -1935,7 +2139,7 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
             value = ctx.value;
 
             return sortValue;
-        }).sort((x, y) => me.comparer(x.sortBy, y.sortBy))
+        }).sort((x, y) => me._ORDER_COMPARER(x.sortBy, y.sortBy))
           .map(x => x.value));
     }
 
@@ -1944,24 +2148,6 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
      */
     public get comparer(): Comparer<U> {
         return this._ORDER_COMPARER;
-    }
-
-    /** @inheritdoc */
-    public get current(): T {
-        return this._ITEMS
-                   .current;
-    }
-
-    /** @inheritdoc */
-    public moveNext(): boolean {
-        return this._ITEMS
-                   .moveNext();
-    }
-
-    /** @inheritdoc */
-    public reset(): IEnumerable<T> {
-        return this._ITEMS
-                   .reset();
     }
 
     /**
@@ -2016,6 +2202,33 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
     /** @inheritdoc */
     public thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
         return this.thenByDescending<T>(x => x, comparer);
+    }
+}
+
+/**
+ * A grouping of elements.
+ */
+export class Grouping<T, U> extends Enumerable<T> implements IGrouping<T, U> {
+    /**
+     * Stores the "group" value.
+     */
+    protected _group: U;
+
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {U} grp The value that represents the group.
+     * @param {IEnumerable<T>} seq The sequence with the elements.
+     */
+    constructor(grp: U, seq: IEnumerable<T>) {
+        super(seq);
+
+        this._group = grp;
+    }
+
+    /** @inheritdoc */
+    public get group(): U {
+        return this._group;
     }
 }
 

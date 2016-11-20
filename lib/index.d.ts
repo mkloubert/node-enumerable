@@ -78,13 +78,13 @@ export declare type Sequence<T> = ArrayLike<T> | Iterator<T>;
  * Describes a function that "zips" two elements.
  *
  * @param {T} item1 The first item.
- * @param {T} item2 The second item.
+ * @param {U} item2 The second item.
  * @param {IItemContext<T>} ctx1 The context of item1.
- * @param {IItemContext<T>} ctx2 The context of item2.
+ * @param {IItemContext<U>} ctx2 The context of item2.
  *
- * @return {U} The zipped value.
+ * @return {V} The zipped value.
  */
-export declare type Zipper<T, U> = (item1: T, item2: T, ctx1: IItemContext<T>, ctx2: IItemContext<T>) => U;
+export declare type Zipper<T, U, V> = (item1: T, item2: U, ctx1: IItemContext<T>, ctx2: IItemContext<U>) => V;
 /**
  * Describes a sequence.
  */
@@ -172,6 +172,14 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     readonly current: T;
     /**
+     * Returns the elements of the sequence or a sequence with default values if the current sequence is empty.
+     *
+     * @param {T} ...args One or more element for a "default sequence",
+     *
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    defaultIfEmpty(...args: T[]): IEnumerable<T>;
+    /**
      * Removes duplicates.
      *
      * @param {EqualityComparer<T> | string | true} [comparer] The custom equality comparer to use.
@@ -242,6 +250,15 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     forEach(action: Action<T>): void;
     /**
+     * Groups the elements of the sequence.
+     *
+     * @param {Selector<T, U> | string} keySelector The function that provides the key for an element.
+     * @param {EqualityComparer<U> | string} [keyEqualityComparer] The optional equality comparer for the keys.
+     *
+     * @return {IEnumerable<IGrouping<T, U>>} The list of groupings.
+     */
+    groupBy<U>(keySelector: Selector<T, U> | string, keyEqualityComparer?: EqualityComparer<U> | string): IEnumerable<IGrouping<T, U>>;
+    /**
      * Produces the set intersection of that sequence and another.
      *
      * @param {Sequence<T>} other The other sequence.
@@ -255,6 +272,18 @@ export interface IEnumerable<T> extends Iterator<T> {
      * Gets if the 'moveNext()' can be called or not.
      */
     readonly isValid: boolean;
+    /**
+     * Correlates the elements of that sequence and another based on matching keys.
+     *
+     * @param {Sequence<TInner>} inner The other sequence.
+     * @param {Selector<T, TKey> | string} outerKeySelector The key selector for the items of that sequence.
+     * @param {Selector<TInner, TKey> | string} innerKeySelector The key selector for the items of the other sequence.
+     * @param {Zipper<T, TInner, TResult> | string} resultSelector 	The function that provides the result value for two matching elements.
+     * @param {EqualityComparer<TKey> | string} [comparer] The custom key comparer.
+     *
+     * @return {IEnumerable<TResult>} The sequence with the joined items.
+     */
+    join<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, TInner, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
     /**
      * Joins the elements of that sequence to one string.
      *
@@ -490,7 +519,57 @@ export interface IEnumerable<T> extends Iterator<T> {
      *
      * @return IEnumerable<U> The new sequence.
      */
-    zip<U>(other: Sequence<T>, zipper: Zipper<T, U>): IEnumerable<U>;
+    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U>): IEnumerable<U>;
+}
+/**
+ * A grouping of items.
+ */
+export interface IGrouping<T, U> extends IEnumerable<T> {
+    /**
+     * Gets the value that represents the group.
+     */
+    readonly group: U;
+}
+/**
+ * Describes the context of an item.
+ */
+export interface IItemContext<T> {
+    /**
+     * Cancel operation or not.
+     */
+    cancel: boolean;
+    /**
+     * Gets the current zero-based index.
+     */
+    readonly index: number;
+    /**
+     * Gets if the that item is the first one or not.
+     */
+    readonly isFirst: boolean;
+    /**
+     * Gets the item.
+     */
+    readonly item: T;
+    /**
+     * Gets the current key.
+     */
+    readonly key: any;
+    /**
+     * Gets or sets the value for the next item.
+     */
+    nextValue: any;
+    /**
+     * Gets the value of the previous item.
+     */
+    readonly previousValue: any;
+    /**
+     * Gets the underlying sequence.
+     */
+    readonly sequence: IEnumerable<T>;
+    /**
+     * Gets or sets the value for the current item and the upcoming ones.
+     */
+    value: any;
 }
 /**
  * Describes an ordered sequence.
@@ -540,47 +619,6 @@ export interface IOrderedEnumerable<T> extends IEnumerable<T> {
      * @return {IOrderedEnumerable<T>} The new sequence.
      */
     thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
-}
-/**
- * Describes the context of an item.
- */
-export interface IItemContext<T> {
-    /**
-     * Cancel operation or not.
-     */
-    cancel: boolean;
-    /**
-     * Gets the current zero-based index.
-     */
-    readonly index: number;
-    /**
-     * Gets if the that item is the first one or not.
-     */
-    readonly isFirst: boolean;
-    /**
-     * Gets the item.
-     */
-    readonly item: T;
-    /**
-     * Gets the current key.
-     */
-    readonly key: any;
-    /**
-     * Gets or sets the value for the next item.
-     */
-    nextValue: any;
-    /**
-     * Gets the value of the previous item.
-     */
-    readonly previousValue: any;
-    /**
-     * Gets the underlying sequence.
-     */
-    readonly sequence: IEnumerable<T>;
-    /**
-     * Gets or sets the value for the current item and the upcoming ones.
-     */
-    value: any;
 }
 /**
  * A basic sequence.
@@ -635,6 +673,16 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     readonly current: T;
     /** @inheritdoc */
+    defaultIfEmpty(...args: T[]): IEnumerable<T>;
+    /**
+     * The logic for the 'defaultIfEmpty()' method.
+     *
+     * @param {T[]} args The arguments for the "default" sequence.
+     *
+     * @return {Iterator<T>} The iterator.
+     */
+    protected defaultIfEmptyInner(args: T[]): Iterator<T>;
+    /** @inheritdoc */
     distinct(comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
     /**
      * The logic for the 'distinct()' method.
@@ -668,6 +716,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     forEach(action: Action<T>): void;
     /** @inheritdoc */
+    groupBy<U>(keySelector: Selector<T, U> | string, keyEqualityComparer?: EqualityComparer<U> | string): IEnumerable<IGrouping<T, U>>;
+    /** @inheritdoc */
     intersect(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
     /**
      * The logic for the 'intersect()' method.
@@ -680,6 +730,9 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     protected intersectInner(other: IEnumerable<T>, equalityComparer: EqualityComparer<T>): Iterator<T>;
     /** @inheritdoc */
     readonly isValid: boolean;
+    /** @inheritdoc */
+    join<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, TInner, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
+    protected joinInner<TInner, TKey, TResult>(inner: IEnumerable<TInner>, outerKeySelector: Selector<T, TKey>, innerKeySelector: Selector<TInner, TKey>, resultSelector: Zipper<T, TInner, TResult>, keyEqualityComparer?: EqualityComparer<TKey>): Iterator<TResult>;
     /** @inheritdoc */
     joinToString(separator: string, defaultValue?: string): string;
     /** @inheritdoc */
@@ -775,7 +828,7 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      */
     protected whereInner(predicate: Predciate<T>): Iterator<T>;
     /** @inheritdoc */
-    zip<U>(other: Sequence<T>, zipper: Zipper<T, U>): IEnumerable<U>;
+    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U>): IEnumerable<U>;
     /**
      * The logic for the 'zip()' method.
      *
@@ -784,7 +837,7 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      *
      * @return {Iterator<U>} The iterator.
      */
-    protected zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, U>): Iterator<U>;
+    protected zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, T, U>): Iterator<U>;
 }
 /**
  * A sequence based on an "array like" object.
@@ -810,10 +863,6 @@ export declare class ArrayEnumerable<T> extends Enumerable<T> {
  */
 export declare class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEnumerable<T> {
     /**
-     * Stores the sequence of ordered items.
-     */
-    protected readonly _ITEMS: IEnumerable<T>;
-    /**
      * Stores the array of items in original order.
      */
     protected readonly _ORIGINAL_ITEMS: T[];
@@ -837,12 +886,6 @@ export declare class OrderedEnumerable<T, U> extends Enumerable<T> implements IO
      * Gets the comparer.
      */
     readonly comparer: Comparer<U>;
-    /** @inheritdoc */
-    readonly current: T;
-    /** @inheritdoc */
-    moveNext(): boolean;
-    /** @inheritdoc */
-    reset(): IEnumerable<T>;
     /**
      * Gets the selector.
      */
@@ -855,6 +898,24 @@ export declare class OrderedEnumerable<T, U> extends Enumerable<T> implements IO
     thenByDescending<V>(selector: Selector<T, V> | string, comparer?: Comparer<V> | string): IOrderedEnumerable<T>;
     /** @inheritdoc */
     thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
+}
+/**
+ * A grouping of elements.
+ */
+export declare class Grouping<T, U> extends Enumerable<T> implements IGrouping<T, U> {
+    /**
+     * Stores the "group" value.
+     */
+    protected _group: U;
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {U} grp The value that represents the group.
+     * @param {IEnumerable<T>} seq The sequence with the elements.
+     */
+    constructor(grp: U, seq: IEnumerable<T>);
+    /** @inheritdoc */
+    readonly group: U;
 }
 /**
  * Returns a value as function.
