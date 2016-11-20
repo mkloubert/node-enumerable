@@ -567,9 +567,9 @@ export interface IEnumerable<T> extends Iterator<T> {
  */
 export interface IGrouping<T, TKey> extends IEnumerable<T> {
     /**
-     * Gets the value that represents the group.
+     * Gets the value that represents the key / group.
      */
-    readonly group: TKey;
+    readonly key: TKey;
 }
 /**
  * Describes the context of an item.
@@ -1016,20 +1016,20 @@ export declare class OrderedEnumerable<T, U> extends Enumerable<T> implements IO
 /**
  * A grouping of elements.
  */
-export declare class Grouping<T, U> extends WrappedEnumerable<T> implements IGrouping<T, U> {
+export declare class Grouping<T, TKey> extends WrappedEnumerable<T> implements IGrouping<T, TKey> {
     /**
-     * Stores the "group" value.
+     * Stores the "key"/"group" value.
      */
-    protected _group: U;
+    protected _key: TKey;
     /**
      * Initializes a new instance of that class.
      *
-     * @param {U} grp The value that represents the group.
+     * @param {TKey} key The value that represents the group.
      * @param {IEnumerable<T>} seq The sequence with the elements.
      */
-    constructor(grp: U, seq: IEnumerable<T>);
+    constructor(key: TKey, seq: IEnumerable<T>);
     /** @inheritdoc */
-    readonly group: U;
+    readonly key: TKey;
 }
 /**
  * A lookup object.

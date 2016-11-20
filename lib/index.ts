@@ -658,9 +658,9 @@ export interface IEnumerable<T> extends Iterator<T> {
  */
 export interface IGrouping<T, TKey> extends IEnumerable<T> {
     /**
-     * Gets the value that represents the group.
+     * Gets the value that represents the key / group.
      */
-    readonly group: TKey;
+    readonly key: TKey;
 }
 
 /**
@@ -1409,7 +1409,7 @@ export class Enumerable<T> implements IEnumerable<T> {
             return from(seq.groupBy(keySelector)
                            .select(x => {
                                        return {
-                                           group: x.group,
+                                           key: x.key,
                                            values: from(x.toArray()),
                                        };
                                    })
@@ -1431,8 +1431,8 @@ export class Enumerable<T> implements IEnumerable<T> {
             ogValues.reset();
 
             innerGroups.reset();
-            let matchingInnerGroups = innerGroups.where(ig => keyEqualityComparer(og.group, ig.group))
-                                                 .select(ig => new Grouping<TInner, TKey>(ig.group, ig.values));
+            let matchingInnerGroups = innerGroups.where(ig => keyEqualityComparer(og.key, ig.key))
+                                                 .select(ig => new Grouping<TInner, TKey>(ig.key, ig.values));
             
             while (ogValues.moveNext()) {
                 ++ogIndex;
@@ -1554,7 +1554,7 @@ export class Enumerable<T> implements IEnumerable<T> {
             return from(seq.groupBy(keySelector)
                            .select(x => {
                                        return {
-                                           group: x.group,
+                                           key: x.key,
                                            values: x.toArray(),
                                        };
                                    })
@@ -1575,7 +1575,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
             innerGroups.reset();
 
-            let matchingInnerGroups = innerGroups.where(ig => keyEqualityComparer(og.group, ig.group));
+            let matchingInnerGroups = innerGroups.where(ig => keyEqualityComparer(og.key, ig.key));
             while (matchingInnerGroups.moveNext()) {
                 let ig = matchingInnerGroups.current;
                 let igValues = from(ig.values);
@@ -2507,27 +2507,27 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
 /**
  * A grouping of elements.
  */
-export class Grouping<T, U> extends WrappedEnumerable<T> implements IGrouping<T, U> {
+export class Grouping<T, TKey> extends WrappedEnumerable<T> implements IGrouping<T, TKey> {
     /**
-     * Stores the "group" value.
+     * Stores the "key"/"group" value.
      */
-    protected _group: U;
+    protected _key: TKey;
 
     /**
      * Initializes a new instance of that class.
      * 
-     * @param {U} grp The value that represents the group.
+     * @param {TKey} key The value that represents the group.
      * @param {IEnumerable<T>} seq The sequence with the elements.
      */
-    constructor(grp: U, seq: IEnumerable<T>) {
+    constructor(key: TKey, seq: IEnumerable<T>) {
         super(seq);
 
-        this._group = grp;
+        this._key = key;
     }
 
     /** @inheritdoc */
-    public get group(): U {
-        return this._group;
+    public get key(): TKey {
+        return this._key;
     }
 }
 
@@ -2550,7 +2550,7 @@ export class Lookup<T, TKey extends string | number> extends WrappedEnumerable<I
             while (seq.moveNext()) {
                 let g = seq.current;
 
-                me[<any>g.group] = g;
+                me[<any>g.key] = g;
                 groupings.push(g);
             }
         }
