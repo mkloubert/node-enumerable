@@ -573,11 +573,11 @@ export interface IEnumerable<T> extends Iterator<T> {
      * producing a sequence of the results.
      *
      * @param {Sequence<T>} other The other sequence.
-     * @param {Zipper<T, U>} zipper The selector for the combined result items of the elements of the two sequences.
+     * @param {Zipper<T, U> | string} zipper The selector for the combined result items of the elements of the two sequences.
      *
      * @return IEnumerable<U> The new sequence.
      */
-    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U>): IEnumerable<U>;
+    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U>;
 }
 /**
  * A grouping of items.
@@ -1040,7 +1040,7 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      */
     protected whereInner(predicate: Predciate<T>): Iterator<T>;
     /** @inheritdoc */
-    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U>): IEnumerable<U>;
+    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U>;
     /**
      * The logic for the 'zip()' method.
      *
@@ -1274,7 +1274,7 @@ export declare function asFunc(v: any, throwException?: boolean): Function | boo
  *
  * @return {Comparer<T>} The output value.
  *
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export declare function toComparerSafe<T>(val?: any): Comparer<T>;
 /**
@@ -1284,7 +1284,7 @@ export declare function toComparerSafe<T>(val?: any): Comparer<T>;
  *
  * @return {EqualityComparer<T>} The output value.
  *
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export declare function toEqualityComparerSafe<T>(val?: any): EqualityComparer<T>;
 /**
@@ -1294,7 +1294,7 @@ export declare function toEqualityComparerSafe<T>(val?: any): EqualityComparer<T
  *
  * @return {ManySelector<T, U>} The output value.
  *
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export declare function toManySelectorSafe<T, U>(val?: any): ManySelector<T, U>;
 /**
@@ -1304,7 +1304,7 @@ export declare function toManySelectorSafe<T, U>(val?: any): ManySelector<T, U>;
  *
  * @return {Predciate<T>} The output value.
  *
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export declare function toPredicateSafe<T>(val?: any): Predciate<T>;
 /**
@@ -1314,9 +1314,19 @@ export declare function toPredicateSafe<T>(val?: any): Predciate<T>;
  *
  * @return {Selector<T, U>} The output value.
  *
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export declare function toSelectorSafe<T, U>(val?: any): Selector<T, U>;
+/**
+ * Returns a value as "zippper".
+ *
+ * @param {any} [val] The input value.
+ *
+ * @return {Zipper<T, U, V>} The output value.
+ *
+ * @throws val is invalid.
+ */
+export declare function toZipperSafe<T, U, V>(val?: any): Zipper<T, U, V>;
 /**
  * Creates a new sequence.
  *

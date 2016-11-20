@@ -665,11 +665,11 @@ export interface IEnumerable<T> extends Iterator<T> {
      * producing a sequence of the results.
      * 
      * @param {Sequence<T>} other The other sequence.
-     * @param {Zipper<T, U>} zipper The selector for the combined result items of the elements of the two sequences.
+     * @param {Zipper<T, U> | string} zipper The selector for the combined result items of the elements of the two sequences.
      * 
      * @return IEnumerable<U> The new sequence.
      */
-    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U>): IEnumerable<U>;
+    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U>;
 }
 
 /**
@@ -2409,14 +2409,11 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U>): IEnumerable<U> {
+    public zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U> {
         let seq = from(makeIterable<T>(other));
-        
-        if (!zipper) {
-            zipper = (item1: any, item2: any) => item1 + item2;
-        }
+        let z = toZipperSafe<T, T, U>(zipper);
 
-        return from(this.zipInner<U>(seq, zipper));
+        return from(this.zipInner<U>(seq, z));
     }
 
     /**
@@ -3048,7 +3045,7 @@ export function asFunc(v: any, throwException: boolean = true): Function | boole
  * 
  * @return {Comparer<T>} The output value.
  * 
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export function toComparerSafe<T>(val?: any): Comparer<T> {
     let comparer = <Function>asFunc(val);
@@ -3087,7 +3084,7 @@ export function toComparerSafe<T>(val?: any): Comparer<T> {
  * 
  * @return {EqualityComparer<T>} The output value.
  * 
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export function toEqualityComparerSafe<T>(val?: any): EqualityComparer<T> {
     if (true === val) {
@@ -3111,7 +3108,7 @@ export function toEqualityComparerSafe<T>(val?: any): EqualityComparer<T> {
  * 
  * @return {ManySelector<T, U>} The output value.
  * 
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export function toManySelectorSafe<T, U>(val?: any): ManySelector<T, U> {
     let selector = <Function>asFunc(val);
@@ -3151,7 +3148,7 @@ function toOrDefaultArgs<T, U>(predicateOrDefaultValue: any, defaultValue: U, ar
  * 
  * @return {Predciate<T>} The output value.
  * 
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export function toPredicateSafe<T>(val?: any): Predciate<T> {
     let predicate = <Function>asFunc(val);
@@ -3173,7 +3170,7 @@ export function toPredicateSafe<T>(val?: any): Predciate<T> {
  * 
  * @return {Selector<T, U>} The output value.
  * 
- * @throw val is invalid.
+ * @throws val is invalid.
  */
 export function toSelectorSafe<T, U>(val?: any): Selector<T, U> {
     let selector = <Function>asFunc(val);
@@ -3186,6 +3183,28 @@ export function toSelectorSafe<T, U>(val?: any): Selector<T, U> {
     }
     
     return (x: T) => <U>(<any>x);
+}
+
+/**
+ * Returns a value as "zippper".
+ * 
+ * @param {any} [val] The input value.
+ * 
+ * @return {Zipper<T, U, V>} The output value.
+ * 
+ * @throws val is invalid.
+ */
+export function toZipperSafe<T, U, V>(val?: any): Zipper<T, U, V> {
+    let selector = <Function>asFunc(val);
+    if (selector) {
+        let func = <Function>selector;
+
+        return function() {
+            return func.apply(null, arguments);
+        };
+    }
+    
+    return (item1: any, item2: any) => item1 + item2;
 }
 
 /**

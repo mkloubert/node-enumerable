@@ -35,18 +35,35 @@ Helpers.execute(
 
         let expected: any[] = ["Marcel Kloubert", "Bill Gates", "Albert Einstein"];
 
-        let seq = Enumerable.from(arr1)
-                            .zip(arr2, (firstname, lastname) => {
-                                           return firstname + ' ' + lastname; 
-                                       });
+        Helpers.executeForSequences(arr1, (seq) => {
+            let zippers = [
+                (x: string, y: string) => x + ' ' + y,
+                '(x, y) => x + " " + y',
+            ];
 
-        while (seq.moveNext()) {
-            let item = seq.current;
-            let index = seq.itemKey;
+            for (let i = 0; i < zippers.length; i++) {
+                let z = zippers[i];
 
-            Assert.strictEqual(item, expected[index]);
-            Assert.equal(item, expected[index]);
-        }
+                let zipped = seq.zip(arr2, z);
+
+                while (zipped.moveNext()) {
+                    let item = zipped.current;
+                    let index = zipped.itemKey;
+
+                    Assert.strictEqual(item, expected[index]);
+                    Assert.equal('' + item, expected[index]);
+                    Assert.equal(item, '' + expected[index]);
+                    Assert.strictEqual('' + item, '' + expected[index]);
+                    Assert.equal(item, expected[index]);
+                }
+
+                if (!seq.canReset) {
+                    break;
+                }
+
+                seq.reset();
+            }
+        });
     });
 
 Helpers.execute(
@@ -57,21 +74,35 @@ Helpers.execute(
 
         let expected: any[] = [115, 81, 37601];
 
-        let seq = Enumerable.from(arr1)
-                            .zip(arr2, (x, y) => {
-                                           return x * y; 
-                                       });
+        Helpers.executeForSequences(arr1, (seq) => {
+            let zippers = [
+                (x: number, y: number) => x * y,
+                '(x, y) => x * y',
+            ];
 
-        while (seq.moveNext()) {
-            let item = seq.current;
-            let index = seq.itemKey;
+            for (let i = 0; i < zippers.length; i++) {
+                let z = zippers[i];
 
-            Assert.strictEqual(item, expected[index]);
-            Assert.notStrictEqual('' + item, expected[index]);
-            Assert.notStrictEqual(item, '' + expected[index]);
-            Assert.equal('' + item, expected[index]);
-            Assert.equal(item, '' + expected[index]);
-            Assert.strictEqual('' + item, '' + expected[index]);
-            Assert.equal(item, expected[index]);
-        }
+                let zipped = seq.zip(arr2, z);
+
+                while (zipped.moveNext()) {
+                    let item = zipped.current;
+                    let index = zipped.itemKey;
+
+                    Assert.strictEqual(item, expected[index]);
+                    Assert.notStrictEqual('' + item, expected[index]);
+                    Assert.notStrictEqual(item, '' + expected[index]);
+                    Assert.equal('' + item, expected[index]);
+                    Assert.equal(item, '' + expected[index]);
+                    Assert.strictEqual('' + item, '' + expected[index]);
+                    Assert.equal(item, expected[index]);
+                }
+
+                if (!seq.canReset) {
+                    break;
+                }
+
+                seq.reset();
+            }
+        });
     });

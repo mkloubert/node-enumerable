@@ -23,6 +23,37 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import Enumerable = require('../lib');
+
+/**
+ * A result of a "sequence execution".
+ */
+export interface SequenceExecutionResult<T, TResult> {
+    /**
+     * The zero-based index.
+     */
+    index: number;
+
+    /**
+     * The result value.
+     */
+    result: TResult;
+
+    /**
+     * The underlying sequence.
+     */
+    sequence: Enumerable.IEnumerable<T>;
+}
+
+/**
+ * A function for execution logic for a sequence.
+ * 
+ * @param {Enumerable.IEnumerable<T>} seq The underlying sequence.
+ * @param {number} index The zero based index.
+ * 
+ * @return {TResult} The result of the execution.
+ */
+export type SequenceFunc<T, TResult> = (seq: Enumerable.IEnumerable<T>, index: number) => TResult;
 
 /**
  * An execution context.
@@ -34,6 +65,22 @@ export interface ExecutionContext {
      * @param {any} [msg] The message to log.
      */
     log(msg?: any): ExecutionContext;
+}
+
+/**
+ * Creates a list of sequences from items.
+ * 
+ * @param {Enumerable.Sequence<T>} [items] The items for the sequences.
+ * 
+ * @return {Enumerable.IEnumerable<T>[]} The created sequences.
+ */
+export function createSequences<T>(items?: Enumerable.Sequence<T>): Enumerable.IEnumerable<T>[] {
+    return [
+        Enumerable.from(items),
+        new Enumerable.Collection<T>(items),
+        new Enumerable.List<T>(items),
+        new Enumerable.ReadOnlyCollection<T>(items),
+    ];
 }
 
 /**
@@ -68,4 +115,34 @@ export function execute<T>(desc: string, func: (ctx: ExecutionContext) => T): T 
 
         console.log(`\t\tFinished after ${(endTime.getTime() - startTime.getTime()) / 1000.0} seconds`);
     }
+}
+
+/**
+ * Creates a function for sequences for items.
+ * 
+ * @param {Enumerable.Sequence<T>} items The Items.
+ * @param {SequenceFunc<T, TResult>} func The function to to invoke.
+ * 
+ * @return {SequenceExecutionResult<T, TResult>[]} The result of the executions. 
+ */
+export function executeForSequences<T, TResult>(items: Enumerable.Sequence<T>, func: SequenceFunc<T, TResult>): SequenceExecutionResult<T, TResult>[] {
+    let results: SequenceExecutionResult<T, TResult>[] = [];
+
+    let sequences = createSequences(items);
+    for (let i = 0; i < sequences.length; i++) {
+        let seq = sequences[i];
+
+        let r: TResult;
+        if (func) {
+            r = func(seq, i);
+        }
+
+        results.push({
+            index: i,
+            result: r,
+            sequence: seq,
+        });
+    }
+
+    return results;
 }
