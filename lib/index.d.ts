@@ -406,6 +406,12 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     reset(): IEnumerable<T>;
     /**
+     * Reverses the order of the sequence.
+     *
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    reverse(): IOrderedEnumerable<T>;
+    /**
      * Projects the items of that sequence to new items.
      *
      * @param {Selector<T, U> | string} The selector to use.
@@ -798,6 +804,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     orderDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
     /** @inheritdoc */
     reset(): IEnumerable<T>;
+    /** @inheritdoc */
+    reverse(): IOrderedEnumerable<T>;
     /** @inheritdoc */
     select<U>(selector: Selector<T, U> | string): IEnumerable<U>;
     /**

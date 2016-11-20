@@ -477,6 +477,13 @@ export interface IEnumerable<T> extends Iterator<T> {
     reset(): IEnumerable<T>;
 
     /**
+     * Reverses the order of the sequence.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    reverse(): IOrderedEnumerable<T>;
+
+    /**
      * Projects the items of that sequence to new items.
      * 
      * @param {Selector<T, U> | string} The selector to use.
@@ -1713,7 +1720,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public order(comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
-        return this.orderBy<T>(x => x);
+        return this.orderBy<T>(x => x, comparer);
     }
 
     /** @inheritdoc */
@@ -1731,12 +1738,27 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public orderDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
-        return this.orderByDescending<T>(x => x);
+        return this.orderByDescending<T>(x => x, comparer);
     }
 
     /** @inheritdoc */
     public reset(): IEnumerable<T> {
         throw "Not supported!";
+    }
+
+    /** @inheritdoc */
+    public reverse(): IOrderedEnumerable<T> {
+        return this.order((x, y) => {
+            if (x > y) {
+                return -1;
+            }
+
+            if (x < y) {
+                return 1;
+            }
+
+            return 0;
+        });
     }
 
     /** @inheritdoc */
