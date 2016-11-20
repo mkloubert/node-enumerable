@@ -1186,17 +1186,17 @@ export declare class ReadOnlyCollectio<T> extends List<T> {
  */
 export declare class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEnumerable<T> {
     /**
-     * Stores the array of items in original order.
-     */
-    protected readonly _ORIGINAL_ITEMS: T[];
-    /**
      * Stores the comparer for the sort operation.
      */
-    protected readonly _ORDER_COMPARER: Comparer<U>;
+    protected _orderComparer: Comparer<U>;
+    /**
+     * Stores the array of items in original order.
+     */
+    protected _originalItems: T[];
     /**
      * Stores the sort value selector.
      */
-    protected readonly _ORDER_SELECTOR: Selector<T, U>;
+    protected _orderSelector: Selector<T, U>;
     /**
      * Initializes a new instance of that class.
      *

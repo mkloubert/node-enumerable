@@ -2793,17 +2793,17 @@ export class ReadOnlyCollectio<T> extends List<T> {
  */
 export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEnumerable<T> {
     /**
-     * Stores the array of items in original order.
-     */
-    protected readonly _ORIGINAL_ITEMS: T[];
-    /**
      * Stores the comparer for the sort operation.
      */
-    protected readonly _ORDER_COMPARER: Comparer<U>;
+    protected _orderComparer: Comparer<U>;
+    /**
+     * Stores the array of items in original order.
+     */
+    protected _originalItems: T[];
     /**
      * Stores the sort value selector.
      */
-    protected readonly _ORDER_SELECTOR: Selector<T, U>;
+    protected _orderSelector: Selector<T, U>;
 
     /**
      * Initializes a new instance of that class.
@@ -2819,20 +2819,20 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
 
         let me = this;
 
-        this._ORDER_COMPARER = toComparerSafe<U>(comparer);
-        this._ORDER_SELECTOR = toSelectorSafe<T, U>(selector);
+        this._orderComparer = toComparerSafe<U>(comparer);
+        this._orderSelector = toSelectorSafe<T, U>(selector);
 
-        this._ORIGINAL_ITEMS = [];
-        seq.forEach(x => me._ORIGINAL_ITEMS.push(x));
+        this._originalItems = [];
+        seq.forEach(x => me._originalItems.push(x));
 
         let prevValue: any;
         let value: any;
-        this._iterator = from(this._ORIGINAL_ITEMS.map((x, index) => {
+        this._iterator = from(this._originalItems.map((x, index) => {
             let ctx = new ItemContext(seq, index, prevValue);
             ctx.value = value;
 
             let sortValue = {
-                sortBy: me._ORDER_SELECTOR(x, ctx),
+                sortBy: me.selector(x, ctx),
                 value: x,
             };
 
@@ -2840,7 +2840,7 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
             value = ctx.value;
 
             return sortValue;
-        }).sort((x, y) => me._ORDER_COMPARER(x.sortBy, y.sortBy))
+        }).sort((x, y) => me.comparer(x.sortBy, y.sortBy))
           .map(x => x.value));
     }
 
@@ -2848,14 +2848,14 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
      * Gets the comparer.
      */
     public get comparer(): Comparer<U> {
-        return this._ORDER_COMPARER;
+        return this._orderComparer;
     }
 
     /**
      * Gets the selector.
      */
     public get selector(): Selector<T, U> {
-        return this._ORDER_SELECTOR;
+        return this._orderSelector;
     }
 
     /** @inheritdoc */
@@ -2870,15 +2870,15 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
         let c = toComparerSafe<V>(comparer);
         let s = toSelectorSafe<T, V>(selector);
 
-        return from(this._ORIGINAL_ITEMS)
+        return from(this._originalItems)
             .orderBy((x, ctx) => {
                         return {
-                            level_0: me._ORDER_SELECTOR(x, ctx),
+                            level_0: me.selector(x, ctx),
                             level_1: s(x, ctx),
                         };
                     },
                     (x, y) => {
-                        let compLevel0 = me._ORDER_COMPARER(x.level_0, y.level_0);
+                        let compLevel0 = me.comparer(x.level_0, y.level_0);
                         if (0 !== compLevel0) {
                             return compLevel0;
                         }
