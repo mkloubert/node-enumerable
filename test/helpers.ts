@@ -1,4 +1,4 @@
-/// <reference types="node" />
+/// <reference path="../node.d.ts" />
 
 // The MIT License (MIT)
 // 
