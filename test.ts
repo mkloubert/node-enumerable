@@ -28,6 +28,7 @@ import Enumerable = require('./lib');
 let test = Enumerable.from(["grape", "passionfruit", "banana", "mango", 
                             "orange", "raspberry", "apple", "blueberry"]);
 
-test.orderBy(x => x.length)
-    .thenBy(x => x)
-    .forEach(x => console.log(x + ' ' + typeof x));
+for (let x of test.orderBy(x => x.length)
+                  .thenBy(x => x)) {
+    console.log(x + ' ' + typeof x);
+}
