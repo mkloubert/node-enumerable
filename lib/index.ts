@@ -145,6 +145,11 @@ export interface IEnumerable<T> extends Iterator<T> {
     any(predicate?: Predciate<T> | string): boolean;
 
     /**
+     * Returns a sequence of that elements that can be resetted.
+     */
+    asResettable(): IEnumerable<T>;
+
+    /**
      * Computes the average of that sequence.
      * 
      * @param {U} [defaultValue] The custom value that is returned if sequence has no items.
@@ -641,6 +646,15 @@ export interface IEnumerable<T> extends Iterator<T> {
                                            keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
 
     /**
+     * Creates a new set collection from that sequence.
+     * 
+     * @param {EqualityComparer<T> | string} [comparer] The comparer for the items.
+     * 
+     * @return {IList<T>} The new set.
+     */
+    toSet(comparer?: EqualityComparer<T> | string): ISet<T>;
+
+    /**
      * Produces the set union of that sequence and another.
      * 
      * @param {Sequence<T>} other The other sequence.
@@ -838,7 +852,7 @@ export interface ICollection<T> extends IEnumerable<T> {
      * 
      * @param {T} ...items The items to add.
      * 
-     * @return {number} The number of added items.
+     * @return {number} The new length of the collection.
      */
     push(...items: T[]): number;
 
@@ -859,6 +873,103 @@ export interface ICollection<T> extends IEnumerable<T> {
      * @return {number} The number of removed items.
      */
     removeAll(predicate: Predciate<T> | string): number;
+}
+
+/**
+ * Describes a set of items.
+ */
+export interface ISet<T> extends ICollection<T> {
+    /**
+     * Adds an item.
+     * 
+     * @param {T} item The item to add.
+     * 
+     * @return {boolean} Item was added or not.
+     */
+    add(item: T): boolean;
+
+    /**
+     * Modifies the current set so that it contains only elements that are also in a specified sequence.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @chainable
+     */
+    intersectWith(other: Sequence<T>): ISet<T>;
+
+    /**
+     * Determines whether the current set is a proper (strict) subset of a specified sequence.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @return {boolean} Is a proper (strict) subset or not.
+     */
+    isProperSubsetOf(other: Sequence<T>): boolean;
+
+    /**
+     * Determines whether the current set is a proper (strict) superset of a specified sequence.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @return {boolean} Is a proper (strict) superset or not.
+     */
+    isProperSupersetOf(other: Sequence<T>): boolean;
+
+    /**
+     * Determines whether a set is a subset of a specified sequence.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @return {boolean} Is a subset or not.
+     */
+    isSubsetOf(other: Sequence<T>): boolean;
+
+    /**
+     * Determines whether the current set is a superset of a specified sequence.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @return {boolean} Is a superset or not.
+     */
+    isSupersetOf(other: Sequence<T>): boolean;
+
+    /**
+     * Determines whether the current set overlaps with the specified sequence.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @return {boolean} Do overlap or not.
+     */
+    overlaps(other: Sequence<T>): boolean;
+
+    /**
+     * Determines whether the current set and the specified sequence contain the same elements.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @return {boolean} Do overlap or not.
+     */
+    setEquals(other: Sequence<T>): boolean;
+
+    /**
+     * Modifies the current set so that it contains only elements that are present either in the current set or in the
+     * specified sequence, but not both.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @chainable
+     */
+    symmetricExceptWith(other: Sequence<T>): ISet<T>;
+
+    /**
+     * Modifies the current set so that it contains all elements that are present in the current set, in the
+     * specified sequence, or in both.
+     * 
+     * @param {Sequence<T>} The other sequence.
+     * 
+     * @chainable
+     */
+    unionWith(other: Sequence<T>): ISet<T>;
 }
 
 /**
@@ -1112,6 +1223,11 @@ export class Enumerable<T> implements IEnumerable<T> {
         }
 
         return false;
+    }
+
+    /** @inheritdoc */
+    public asResettable(): IEnumerable<T> {
+        return from(this.toArray());
     }
 
     /** @inheritdoc */
@@ -2368,6 +2484,11 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public toSet(comparer?: EqualityComparer<T> | string): ISet<T> {
+        return new HashSet<T>(this, comparer);
+    }
+
+    /** @inheritdoc */
     public union(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T> {
         return this.concat(other)
                    .distinct(comparer);
@@ -2470,6 +2591,15 @@ export class WrappedEnumerable<T> extends Enumerable<T> {
     }
 
     /** @inheritdoc */
+    public asResettable(): IEnumerable<T> {
+        if (this.canReset) {
+            return this;
+        }
+
+        return new WrappedEnumerable(this.sequence.asResettable());
+    }
+
+    /** @inheritdoc */
     public get canReset(): boolean {
         return this.sequence.canReset;
     }
@@ -2530,6 +2660,11 @@ export class ArrayEnumerable<T> extends Enumerable<T> {
         super(makeIterable<T>(arr));
 
         this._arr = arr || [];
+    }
+
+    /** @inheritdoc */
+    public asResettable(): IEnumerable<T> {
+        return this;
     }
 
     /** @inheritdoc */
@@ -2662,11 +2797,10 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
     public push(...items: T[]): number {
         this.throwIfReadOnly();
 
-        let beforeLength = this._arr.length;
         this.addRange
             .apply(this, arguments);
 
-        return this._arr.length - beforeLength;
+        return this._arr.length;
     }
 
     /** @inheritdoc */
@@ -2744,6 +2878,209 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
      */
     protected throwIfReadOnly(): void {
         throw "Collection is read-only!";
+    }
+}
+
+/**
+ * A set of items.
+ */
+export class HashSet<T> extends Collection<T> implements ISet<T> {
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {Sequence<T>} [seq] The initial data.
+     * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
+     */
+    constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string) {
+        super(seq, comparer);
+
+        this._arr = from(this._arr).distinct(this._comparer)
+                                   .toArray();
+        this._hasChanged = false;
+    }
+
+    /** @inheritdoc */
+    public add(item: T): boolean {
+        return this.addIfNotPresent(item);
+    }
+
+    /**
+     * Adds an item if not in collection yet.
+     * 
+     * @param {T} item The item to add.
+     * 
+     * @return {boolean} Item was added or not.
+     */
+    protected addIfNotPresent(item: T): boolean {
+        let a = <T[]>this._arr;
+        
+        for (let i = 0; i < a.length; i++) {
+            let t = a[i];
+            if (this._comparer(t, item)) {
+                return false;  // already in collection
+            }
+        }
+        
+        super.add(item);
+        return true;
+    }
+
+    /** @inheritdoc */
+    public intersectWith(other: Sequence<T>): ISet<T> {
+        this.throwIfReadOnly();
+
+        return this.markAsChanged((ht: HashSet<T>) => {
+            ht._arr = from(ht._arr).intersect(other, ht._comparer)
+                                   .toArray();
+
+            return ht;
+        });
+    }
+
+    /** @inheritdoc */
+    public isProperSubsetOf(other: Sequence<T>): boolean {
+        let otherHS = from(other).toSet(this._comparer);
+        
+        if (this.length < 1) {
+            return otherHS.length > 0;
+        }
+
+        if (this.length < otherHS.length) {
+            for (let i = 0; i < this._arr.length; i++) {
+                let t = this._arr[i];
+
+                if (!otherHS.containsItem(t)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        return false;
+    }
+
+    /** @inheritdoc */
+    public isProperSupersetOf(other: Sequence<T>): boolean {
+        if (this.length < 1) {
+            return false;
+        }
+
+        let otherHS = from(other).toSet(this._comparer);
+
+        if (otherHS.length < 1) {
+            return true;
+        }
+
+        while (otherHS.moveNext()) {
+            let o = otherHS.current;
+
+            if (!this.containsItem(o)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /** @inheritdoc */
+    public isSubsetOf(other: Sequence<T>): boolean {
+        if (this.length < 1) {
+            return true;
+        }
+
+        let otherHS = from(other).toSet(this._comparer);
+
+        for (let i = 0; i < this._arr.length; i++) {
+            let t = this._arr[i];
+
+            if (!otherHS.containsItem(t)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /** @inheritdoc */
+    public isSupersetOf(other: Sequence<T>): boolean {
+        if (this.length < 1) {
+            return true;
+        }
+
+        let otherHS = from(other).toSet(this._comparer);
+        if (otherHS.length < 1) {
+            return true;
+        }
+
+        while (otherHS.moveNext()) {
+            let o = otherHS.current;
+
+            if (!this.containsItem(o)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /** @inheritdoc */
+    public overlaps(other: Sequence<T>): boolean {
+        return from(this._arr).intersect(other, this._comparer)
+                              .any();
+    }
+
+    /** @inheritdoc */
+    public setEquals(other: Sequence<T>): boolean {
+        let otherHS = from(other).toSet(this._comparer);
+        if (this.length === otherHS.length) {
+            while (otherHS.moveNext()) {
+                let o = otherHS.current;
+
+                if (!this.containsItem(o)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /** @inheritdoc */
+    public symmetricExceptWith(other: Sequence<T>): ISet<T> {
+        this.throwIfReadOnly();
+
+        return this.markAsChanged((ht: HashSet<T>) => {
+            if (ht.length < 1) {
+                ht.unionWith(other);
+            }
+            else {
+                let seq = from(other);
+                while (seq.moveNext()) {
+                    let o = seq.current;
+
+                    if (!ht.remove(o)) {
+                        ht.addIfNotPresent(o);
+                    }
+                }
+            }
+
+            return ht;
+        });
+    }
+
+    /** @inheritdoc */
+    public unionWith(other: Sequence<T>): ISet<T> {
+        this.throwIfReadOnly();
+
+        return this.markAsChanged((ht: HashSet<T>) => {
+            ht._arr = from(ht._arr).union(other, ht._comparer)
+                                   .toArray();
+
+            return ht;
+        });
     }
 }
 

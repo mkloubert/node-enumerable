@@ -116,6 +116,10 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     any(predicate?: Predciate<T> | string): boolean;
     /**
+     * Returns a sequence of that elements that can be resetted.
+     */
+    asResettable(): IEnumerable<T>;
+    /**
      * Computes the average of that sequence.
      *
      * @param {U} [defaultValue] The custom value that is returned if sequence has no items.
@@ -551,6 +555,14 @@ export interface IEnumerable<T> extends Iterator<T> {
      */
     toLookup<TKey extends string | number>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
     /**
+     * Creates a new set collection from that sequence.
+     *
+     * @param {EqualityComparer<T> | string} [comparer] The comparer for the items.
+     *
+     * @return {IList<T>} The new set.
+     */
+    toSet(comparer?: EqualityComparer<T> | string): ISet<T>;
+    /**
      * Produces the set union of that sequence and another.
      *
      * @param {Sequence<T>} other The other sequence.
@@ -724,7 +736,7 @@ export interface ICollection<T> extends IEnumerable<T> {
      *
      * @param {T} ...items The items to add.
      *
-     * @return {number} The number of added items.
+     * @return {number} The new length of the collection.
      */
     push(...items: T[]): number;
     /**
@@ -743,6 +755,93 @@ export interface ICollection<T> extends IEnumerable<T> {
      * @return {number} The number of removed items.
      */
     removeAll(predicate: Predciate<T> | string): number;
+}
+/**
+ * Describes a set of items.
+ */
+export interface ISet<T> extends ICollection<T> {
+    /**
+     * Adds an item.
+     *
+     * @param {T} item The item to add.
+     *
+     * @return {boolean} Item was added or not.
+     */
+    add(item: T): boolean;
+    /**
+     * Modifies the current set so that it contains only elements that are also in a specified sequence.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @chainable
+     */
+    intersectWith(other: Sequence<T>): ISet<T>;
+    /**
+     * Determines whether the current set is a proper (strict) subset of a specified sequence.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @return {boolean} Is a proper (strict) subset or not.
+     */
+    isProperSubsetOf(other: Sequence<T>): boolean;
+    /**
+     * Determines whether the current set is a proper (strict) superset of a specified sequence.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @return {boolean} Is a proper (strict) superset or not.
+     */
+    isProperSupersetOf(other: Sequence<T>): boolean;
+    /**
+     * Determines whether a set is a subset of a specified sequence.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @return {boolean} Is a subset or not.
+     */
+    isSubsetOf(other: Sequence<T>): boolean;
+    /**
+     * Determines whether the current set is a superset of a specified sequence.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @return {boolean} Is a superset or not.
+     */
+    isSupersetOf(other: Sequence<T>): boolean;
+    /**
+     * Determines whether the current set overlaps with the specified sequence.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @return {boolean} Do overlap or not.
+     */
+    overlaps(other: Sequence<T>): boolean;
+    /**
+     * Determines whether the current set and the specified sequence contain the same elements.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @return {boolean} Do overlap or not.
+     */
+    setEquals(other: Sequence<T>): boolean;
+    /**
+     * Modifies the current set so that it contains only elements that are present either in the current set or in the
+     * specified sequence, but not both.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @chainable
+     */
+    symmetricExceptWith(other: Sequence<T>): ISet<T>;
+    /**
+     * Modifies the current set so that it contains all elements that are present in the current set, in the
+     * specified sequence, or in both.
+     *
+     * @param {Sequence<T>} The other sequence.
+     *
+     * @chainable
+     */
+    unionWith(other: Sequence<T>): ISet<T>;
 }
 /**
  * Describes a list.
@@ -817,6 +916,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     all(predicate: Predciate<T> | string): boolean;
     /** @inheritdoc */
     any(predicate?: Predciate<T> | string): boolean;
+    /** @inheritdoc */
+    asResettable(): IEnumerable<T>;
     /** @inheritdoc */
     average<U>(defaultValue?: U): number | U;
     /** @inheritdoc */
@@ -1028,6 +1129,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     toLookup<TKey extends string | number>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
     /** @inheritdoc */
+    toSet(comparer?: EqualityComparer<T> | string): ISet<T>;
+    /** @inheritdoc */
     union(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
     /** @inheritdoc */
     where(predicate: Predciate<T> | string): IEnumerable<T>;
@@ -1062,6 +1165,8 @@ export declare class WrappedEnumerable<T> extends Enumerable<T> {
      */
     constructor(seq: IEnumerable<T>);
     /** @inheritdoc */
+    asResettable(): IEnumerable<T>;
+    /** @inheritdoc */
     readonly canReset: boolean;
     /** @inheritdoc */
     readonly current: T;
@@ -1094,6 +1199,8 @@ export declare class ArrayEnumerable<T> extends Enumerable<T> {
      * @param {ArrayLike<T>} [arr] The underlying "array".
      */
     constructor(arr?: ArrayLike<T>);
+    /** @inheritdoc */
+    asResettable(): IEnumerable<T>;
     /** @inheritdoc */
     readonly canReset: boolean;
     /** @inheritdoc */
@@ -1158,6 +1265,46 @@ export declare class Collection<T> extends ArrayEnumerable<T> implements ICollec
      * @throws "Collection is read-only!"
      */
     protected throwIfReadOnly(): void;
+}
+/**
+ * A set of items.
+ */
+export declare class HashSet<T> extends Collection<T> implements ISet<T> {
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {Sequence<T>} [seq] The initial data.
+     * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
+     */
+    constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string);
+    /** @inheritdoc */
+    add(item: T): boolean;
+    /**
+     * Adds an item if not in collection yet.
+     *
+     * @param {T} item The item to add.
+     *
+     * @return {boolean} Item was added or not.
+     */
+    protected addIfNotPresent(item: T): boolean;
+    /** @inheritdoc */
+    intersectWith(other: Sequence<T>): ISet<T>;
+    /** @inheritdoc */
+    isProperSubsetOf(other: Sequence<T>): boolean;
+    /** @inheritdoc */
+    isProperSupersetOf(other: Sequence<T>): boolean;
+    /** @inheritdoc */
+    isSubsetOf(other: Sequence<T>): boolean;
+    /** @inheritdoc */
+    isSupersetOf(other: Sequence<T>): boolean;
+    /** @inheritdoc */
+    overlaps(other: Sequence<T>): boolean;
+    /** @inheritdoc */
+    setEquals(other: Sequence<T>): boolean;
+    /** @inheritdoc */
+    symmetricExceptWith(other: Sequence<T>): ISet<T>;
+    /** @inheritdoc */
+    unionWith(other: Sequence<T>): ISet<T>;
 }
 /**
  * A list.
