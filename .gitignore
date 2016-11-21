@@ -1,5 +1,6 @@
 **/*.map
 **/*.js
+!lib/enumerable.js
 /node_modules
 /demo/node_modules
 /lib/node_modules
