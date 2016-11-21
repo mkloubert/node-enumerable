@@ -88,7 +88,7 @@ export declare type Zipper<T, U, V> = (item1: T, item2: U, ctx1: IItemContext<T>
 /**
  * Describes a sequence.
  */
-export interface IEnumerable<T> extends Iterator<T> {
+export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
     /**
      * Aggregates all itms of the sequence to one item.
      *
@@ -1016,6 +1016,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     readonly isValid: boolean;
     /** @inheritdoc */
     readonly itemKey: number;
+    /** @inheritdoc */
+    [Symbol.iterator](): Iterator<T>;
     /** @inheritdoc */
     join<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, TInner, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
     /**

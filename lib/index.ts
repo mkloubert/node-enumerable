@@ -113,7 +113,7 @@ export type Zipper<T, U, V> = (item1: T, item2: U,
 /**
  * Describes a sequence.
  */
-export interface IEnumerable<T> extends Iterator<T> {
+export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
     /**
      * Aggregates all itms of the sequence to one item.
      * 
@@ -1769,6 +1769,11 @@ export class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     public get itemKey(): number {
         return this._index;
+    }
+
+    /** @inheritdoc */
+    public [Symbol.iterator](): Iterator<T> {
+        return this;
     }
 
     /** @inheritdoc */
