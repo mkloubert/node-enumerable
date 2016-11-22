@@ -1236,6 +1236,35 @@ export declare class ArrayEnumerable<T> extends Enumerable<T> {
     [Symbol.iterator](): IEnumerator<T>;
 }
 /**
+ * A grouping of elements.
+ */
+export declare class Grouping<T, TKey> extends WrappedEnumerable<T> implements IGrouping<T, TKey> {
+    /**
+     * Stores the "key"/"group" value.
+     */
+    protected _key: TKey;
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {TKey} key The value that represents the group.
+     * @param {IEnumerable<T>} seq The sequence with the elements.
+     */
+    constructor(key: TKey, seq: IEnumerable<T>);
+    /** @inheritdoc */
+    readonly key: TKey;
+}
+/**
+ * A lookup object.
+ */
+export declare class Lookup<T, TKey extends string | number> extends WrappedEnumerable<IGrouping<T, TKey>> implements ILookup<T, TKey> {
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {IEnumerable<IGrouping<T, U>>} [seq] The sequence with the elements.
+     */
+    constructor(seq?: IEnumerable<IGrouping<T, TKey>>);
+}
+/**
  * A collection.
  */
 export declare class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> {
@@ -1397,114 +1426,6 @@ export declare class OrderedEnumerable<T, U> extends Enumerable<T> implements IO
     /** @inheritdoc */
     thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
 }
-/**
- * A grouping of elements.
- */
-export declare class Grouping<T, TKey> extends WrappedEnumerable<T> implements IGrouping<T, TKey> {
-    /**
-     * Stores the "key"/"group" value.
-     */
-    protected _key: TKey;
-    /**
-     * Initializes a new instance of that class.
-     *
-     * @param {TKey} key The value that represents the group.
-     * @param {IEnumerable<T>} seq The sequence with the elements.
-     */
-    constructor(key: TKey, seq: IEnumerable<T>);
-    /** @inheritdoc */
-    readonly key: TKey;
-}
-/**
- * A lookup object.
- */
-export declare class Lookup<T, TKey extends string | number> extends WrappedEnumerable<IGrouping<T, TKey>> implements ILookup<T, TKey> {
-    /**
-     * Initializes a new instance of that class.
-     *
-     * @param {IEnumerable<IGrouping<T, U>>} [seq] The sequence with the elements.
-     */
-    constructor(seq?: IEnumerable<IGrouping<T, TKey>>);
-}
-/**
- * Returns a value as function.
- *
- * @param any v The value to convert. Can be a function or a string that is handled as lambda expression.
- * @param {Boolean} [throwException] Throw an exception if value is no valid function or not.
- *
- * @throws Value is no valid function / lambda expression.
- *
- * @return {Function} Value as function or (false) if value is invalid.
- *
- * @throws Input value is invalid.
- */
-export declare function asFunc(v: any, throwException?: boolean): Function | boolean;
-/**
- * Returns a value as "comparer".
- *
- * @param {any} [val] The input value.
- * @param {any} [obj] The underlying object.
- *
- * @return {Comparer<T>} The output value.
- *
- * @throws val is invalid.
- */
-export declare function toComparerSafe<T>(val?: any, obj?: any): Comparer<T>;
-/**
- * Returns a value as "equality comparer".
- *
- * @param {any} [val] The input value.
- * @param {any} [obj] The underlying object.
- *
- * @return {EqualityComparer<T>} The output value.
- *
- * @throws val is invalid.
- */
-export declare function toEqualityComparerSafe<T>(val?: any, obj?: any): EqualityComparer<T>;
-/**
- * Returns a value as "many item selector".
- *
- * @param {any} [val] The input value.
- * @param {any} [obj] The underlying object.
- *
- * @return {ManySelector<T, U>} The output value.
- *
- * @throws val is invalid.
- */
-export declare function toManySelectorSafe<T, U>(val?: any, obj?: any): ManySelector<T, U>;
-/**
- * Returns a value as "predicate".
- *
- * @param {any} [val] The input value.
- * @param {any} [obj] The underlying object.
- *
- * @return {Predciate<T>} The output value.
- *
- * @throws val is invalid.
- */
-export declare function toPredicateSafe<T>(val?: any, obj?: any): Predciate<T>;
-/**
- * Returns a value as "item selector".
- *
- * @param {any} [val] The input value.
- * @param {any} [obj] The underlying object.
- *
- * @return {Selector<T, U>} The output value.
- *
- * @throws val is invalid.
- */
-export declare function toSelectorSafe<T, U>(val?: any, obj?: any): Selector<T, U>;
-/**
- * Returns a value as "zippper".
- *
- * @param {any} [val] The input value.
- * @param {any} [obj] The underlying object.
- *
- * @return {Zipper<T, U, V>} The output value.
- *
- * @throws val is invalid.
- */
-export declare function toZipperSafe<T, U, V>(val?: any, obj?: any): Zipper<T, U, V>;
 /**
  * Creates a new sequence.
  *
