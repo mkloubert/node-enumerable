@@ -621,8 +621,8 @@ export interface IEnumerable<T> extends Iterable<T> {
      * 
      * @return {ArrayLike<T>} The new array.
      */
-    toLookup<TKey extends string | number>(keySelector: Selector<T, TKey> | string,
-                                           keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
+    toLookup<TKey extends PropertyKey>(keySelector: Selector<T, TKey> | string,
+                                       keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
 
     /**
      * Creates a new set collection from that sequence.
@@ -888,26 +888,28 @@ export interface IOrderedEnumerable<T> extends IEnumerable<T> {
     /**
      * Performs a subsequent ordering of the elements in that sequence in ascending order, according to a key.
      * 
-     * @param {Selector<T, U> | string} selector The key selector.
-     * @param {Comparer<U> | string} [comparer] The custom comparer to use.
+     * @param {Selector<T, TKey> | string} selector The key selector.
+     * @param {Comparer<TKey> | string} [comparer] The custom comparer to use.
      * 
      * @throws At least one argument is invalid.
      * 
      * @return {IOrderedEnumerable<T>} The new sequence.
      */
-    thenBy<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
+    thenBy<TKey>(selector: Selector<T, TKey> | string,
+                 comparer?: Comparer<TKey> | string): IOrderedEnumerable<T>;
 
     /**
      * Performs a subsequent ordering of the elements in that sequence in descending order, according to a key.
      * 
-     * @param {Selector<T, U> | string} selector The key selector.
-     * @param {Comparer<U> | string} [comparer] The custom comparer to use.
+     * @param {Selector<T, TKey> | string} selector The key selector.
+     * @param {Comparer<TKey> | string} [comparer] The custom comparer to use.
      * 
      * @throws At least one argument is invalid.
      * 
      * @return {IOrderedEnumerable<T>} The new sequence.
      */
-    thenByDescending<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
+    thenByDescending<TKey>(selector: Selector<T, TKey> | string,
+                           comparer?: Comparer<TKey> | string): IOrderedEnumerable<T>;
 
     /**
      * Performs a subsequent ordering of the elements in that sequence in descending order,
@@ -925,7 +927,7 @@ export interface IOrderedEnumerable<T> extends IEnumerable<T> {
 /**
  * Describes a lookup object.
  */
-export interface ILookup<T, TKey extends string | number> extends IEnumerable<IGrouping<T, TKey>>, Object {
+export interface ILookup<T, TKey extends PropertyKey> extends IEnumerable<IGrouping<T, TKey>>, Object {
 }
 
 /**
@@ -2571,8 +2573,8 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public toLookup<TKey extends string | number>(keySelector: Selector<T, TKey> | string,
-                                                  keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey> {
+    public toLookup<TKey extends PropertyKey>(keySelector: Selector<T, TKey> | string,
+                                              keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey> {
         
         return new Lookup<T, TKey>(this.groupBy(keySelector, keyEqualityComparer));
     }
@@ -2768,8 +2770,8 @@ export class Grouping<T, TKey> extends WrappedEnumerable<T> implements IGrouping
 /**
  * A lookup object.
  */
-export class Lookup<T, TKey extends string | number> extends WrappedEnumerable<IGrouping<T, TKey>>
-                                                     implements ILookup<T, TKey> {
+export class Lookup<T, TKey extends PropertyKey> extends WrappedEnumerable<IGrouping<T, TKey>>
+                                                 implements ILookup<T, TKey> {
     /**
      * Initializes a new instance of that class.
      * 
@@ -3229,16 +3231,6 @@ export class List<T> extends Collection<T> implements IList<T> {
  * A readonly collection / list.
  */
 export class ReadOnlyCollection<T> extends List<T> {
-    /**
-     * Initializes a new instance of that class.
-     * 
-     * @param {Sequence<T>} [seq] The initial data.
-     * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
-     */
-    constructor(arr?: Sequence<T>, comparer?: EqualityComparer<T> | string) {
-        super(from(arr).toArray(), comparer);
-    }
-
     /** @inheritdoc */
     public get isReadonly(): boolean {
         return true;
@@ -3327,11 +3319,12 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
     }
 
     /** @inheritdoc */
-    public thenBy<V>(selector: Selector<T, V> | string, comparer?: Comparer<V> | string): IOrderedEnumerable<T> {
+    public thenBy<TKey>(selector: Selector<T, TKey> | string,
+                        comparer?: Comparer<TKey> | string): IOrderedEnumerable<T> {
         let me = this;
 
-        let c = Helpers.toComparerSafe<V>(comparer, this);
-        let s = Helpers.toSelectorSafe<T, V>(selector, this);
+        let c = Helpers.toComparerSafe<TKey>(comparer, this);
+        let s = Helpers.toSelectorSafe<T, TKey>(selector, this);
 
         return from(this._originalItems)
             .orderBy((x, ctx) => {
@@ -3351,8 +3344,9 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
     }
 
     /** @inheritdoc */
-    public thenByDescending<V>(selector: Selector<T, V> | string, comparer?: Comparer<V> | string): IOrderedEnumerable<T> {
-        let c = Helpers.toComparerSafe<V>(comparer);
+    public thenByDescending<TKey>(selector: Selector<T, TKey> | string,
+                                  comparer?: Comparer<TKey> | string): IOrderedEnumerable<T> {
+        let c = Helpers.toComparerSafe<TKey>(comparer);
     
         return this.thenBy(selector,
                            (x, y) => c(y, x));
@@ -3363,11 +3357,6 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
         return this.thenByDescending<T>(x => x, comparer);
     }
 }
-
-
-
-
-
 
 
 /**
