@@ -1443,62 +1443,68 @@ export declare function asFunc(v: any, throwException?: boolean): Function | boo
  * Returns a value as "comparer".
  *
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  *
  * @return {Comparer<T>} The output value.
  *
  * @throws val is invalid.
  */
-export declare function toComparerSafe<T>(val?: any): Comparer<T>;
+export declare function toComparerSafe<T>(val?: any, obj?: any): Comparer<T>;
 /**
  * Returns a value as "equality comparer".
  *
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  *
  * @return {EqualityComparer<T>} The output value.
  *
  * @throws val is invalid.
  */
-export declare function toEqualityComparerSafe<T>(val?: any): EqualityComparer<T>;
+export declare function toEqualityComparerSafe<T>(val?: any, obj?: any): EqualityComparer<T>;
 /**
  * Returns a value as "many item selector".
  *
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  *
  * @return {ManySelector<T, U>} The output value.
  *
  * @throws val is invalid.
  */
-export declare function toManySelectorSafe<T, U>(val?: any): ManySelector<T, U>;
+export declare function toManySelectorSafe<T, U>(val?: any, obj?: any): ManySelector<T, U>;
 /**
  * Returns a value as "predicate".
  *
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  *
  * @return {Predciate<T>} The output value.
  *
  * @throws val is invalid.
  */
-export declare function toPredicateSafe<T>(val?: any): Predciate<T>;
+export declare function toPredicateSafe<T>(val?: any, obj?: any): Predciate<T>;
 /**
  * Returns a value as "item selector".
  *
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  *
  * @return {Selector<T, U>} The output value.
  *
  * @throws val is invalid.
  */
-export declare function toSelectorSafe<T, U>(val?: any): Selector<T, U>;
+export declare function toSelectorSafe<T, U>(val?: any, obj?: any): Selector<T, U>;
 /**
  * Returns a value as "zippper".
  *
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  *
  * @return {Zipper<T, U, V>} The output value.
  *
  * @throws val is invalid.
  */
-export declare function toZipperSafe<T, U, V>(val?: any): Zipper<T, U, V>;
+export declare function toZipperSafe<T, U, V>(val?: any, obj?: any): Zipper<T, U, V>;
 /**
  * Creates a new sequence.
  *

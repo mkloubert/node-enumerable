@@ -1275,7 +1275,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public all(predicate: Predciate<T> | string): boolean {
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         let e = this.getEnumerator();
         let index = -1;
@@ -1304,7 +1304,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public any(predicate?: Predciate<T> | string): boolean {
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         let e = this.getEnumerator()
         let index = -1;
@@ -1401,14 +1401,14 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public contains(item: any, comparer?: EqualityComparer<T> | string | true): boolean {
-        let equalityComparer = toEqualityComparerSafe<T>(comparer);
+        let equalityComparer = toEqualityComparerSafe<T>(comparer, this);
 
         return this.any(x => equalityComparer(x, item));
     }
 
     /** @inheritdoc */
     public count(predicate?: Predciate<T> | string): number {
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         let e = this.getEnumerator();
         let cnt = 0;
@@ -1468,7 +1468,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public distinct(comparer?: EqualityComparer<T> | string | true): IEnumerable<T> {
-        let ec = toEqualityComparerSafe(comparer);
+        let ec = toEqualityComparerSafe(comparer, this);
 
         return from(this.distinctInner(ec));
     }
@@ -1481,7 +1481,7 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */  
     protected* distinctInner(comparer: EqualityComparer<T>): Iterator<T> {
-        let ec = toEqualityComparerSafe(comparer);
+        let ec = toEqualityComparerSafe(comparer, this);
 
         let temp: T[] = [];
 
@@ -1559,7 +1559,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public except(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T> {
-        let equalityComparer = toEqualityComparerSafe(comparer);
+        let equalityComparer = toEqualityComparerSafe(comparer, this);
         let itemsToExcept = from(makeIterable<T>(other)).distinct()
                                                         .toArray();
 
@@ -1597,7 +1597,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public first(predicate?: Predciate<T> | string): T {
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         let e = this.getEnumerator();
         let result: T;
@@ -1686,8 +1686,8 @@ export class Enumerable<T> implements IEnumerable<T> {
     public groupBy<TKey>(keySelector: Selector<T, TKey> | string,
                          keyEqualityComparer?: EqualityComparer<TKey> | string): IEnumerable<IGrouping<T, TKey>> {
 
-        let ks = toSelectorSafe<T, TKey>(keySelector);
-        let ksec = toEqualityComparerSafe<TKey>(keyEqualityComparer);
+        let ks = toSelectorSafe<T, TKey>(keySelector, this);
+        let ksec = toEqualityComparerSafe<TKey>(keyEqualityComparer, this);
 
         let e = this.getEnumerator();
         let groupings: { key: TKey, items: T[] }[] = [];
@@ -1741,10 +1741,10 @@ export class Enumerable<T> implements IEnumerable<T> {
                                             comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult> {
 
         let i = from(inner);
-        let oks = toSelectorSafe<T, TKey>(outerKeySelector);
-        let iks = toSelectorSafe<TInner, TKey>(innerKeySelector);
+        let oks = toSelectorSafe<T, TKey>(outerKeySelector, this);
+        let iks = toSelectorSafe<TInner, TKey>(innerKeySelector, this);
         let rs = <Zipper<T, IEnumerable<TInner>, TResult>>asFunc(resultSelector);
-        let c = toEqualityComparerSafe<TKey>(comparer);
+        let c = toEqualityComparerSafe<TKey>(comparer, this);
 
         return from(this.groupJoinInner<TInner, TKey, TResult>(i,
                                                                oks, iks,
@@ -1831,7 +1831,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public intersect(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T> {
-        let equalityComparer = toEqualityComparerSafe(comparer);
+        let equalityComparer = toEqualityComparerSafe(comparer, this);
         let o = from(makeIterable<T>(other)).distinct();
 
         return from(this.intersectInner(o, equalityComparer));
@@ -1880,10 +1880,10 @@ export class Enumerable<T> implements IEnumerable<T> {
                                        comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult> {
 
         let i = from(inner);
-        let oks = toSelectorSafe<T, TKey>(outerKeySelector);
-        let iks = toSelectorSafe<TInner, TKey>(innerKeySelector);
+        let oks = toSelectorSafe<T, TKey>(outerKeySelector, this);
+        let iks = toSelectorSafe<TInner, TKey>(innerKeySelector, this);
         let rs = <Zipper<T, TInner, TResult>>asFunc(resultSelector);
-        let c = toEqualityComparerSafe<TKey>(comparer);
+        let c = toEqualityComparerSafe<TKey>(comparer, this);
 
         return from(this.joinInner<TInner, TKey, TResult>(i,
                                                           oks, iks,
@@ -1996,7 +1996,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public last(predicate?: Predciate<T> | string): T {
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         let e = this.getEnumerator();
         let result: T;
@@ -2135,7 +2135,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public orderByDescending<U>(selector: Selector<T, U> | string, comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
-        let c = toComparerSafe(comparer);
+        let c = toComparerSafe(comparer, this);
     
         return this.orderBy<U>(selector,
                                (x, y) => c(y, x));
@@ -2175,7 +2175,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public select<U>(selector: Selector<T, U> | string): IEnumerable<U> {
-        let s = toSelectorSafe<T, U>(selector);
+        let s = toSelectorSafe<T, U>(selector, this);
 
         return from<U>(this.selectInner<U>(s));
     }
@@ -2211,7 +2211,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public selectMany<U>(selector: ManySelector<T, U> | string): IEnumerable<U> {
-        let s = toManySelectorSafe<T, U>(selector);
+        let s = toManySelectorSafe<T, U>(selector, this);
 
         return from(this.selectManyInner(s));
     }
@@ -2259,8 +2259,8 @@ export class Enumerable<T> implements IEnumerable<T> {
     public sequenceEqual(other: Sequence<T>,
                          comparer?: EqualityComparer<T> | string | true, keyComparer?: EqualityComparer<any> | string | true): boolean {
         
-        let ec = toEqualityComparerSafe(comparer);
-        let kc = toEqualityComparerSafe(keyComparer);
+        let ec = toEqualityComparerSafe(comparer, this);
+        let kc = toEqualityComparerSafe(keyComparer, this);
 
         let enumOther = from(makeIterable<T>(other)).getEnumerator();
         let enumThis = this.getEnumerator();
@@ -2296,7 +2296,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public single(predicate?: Predciate<T> | string): T {
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         let e = this.getEnumerator();
         let result: T;
@@ -2419,7 +2419,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public skipWhile(predicate: Predciate<T> | string): IEnumerable<T> {
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         return from(this.skipWhileInner(p));
     }
@@ -2475,7 +2475,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public takeWhile(predicate: Predciate<T> | string): IEnumerable<T> {
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         return from(this.takeWhileInner(p));
     }
@@ -2590,7 +2590,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public where(predicate: Predciate<T> | string): IEnumerable<T> {
-        return from(this.whereInner(toPredicateSafe(predicate)));
+        return from(this.whereInner(toPredicateSafe(predicate, this)));
     }
 
     /**
@@ -2627,7 +2627,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     public zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U> {
         let seq = from(makeIterable<T>(other)).getEnumerator();
-        let z = toZipperSafe<T, T, U>(zipper);
+        let z = toZipperSafe<T, T, U>(zipper, this);
 
         return from(this.zipInner<U>(seq, z));
     }
@@ -2761,7 +2761,7 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
         super();
 
         this._arr = from(seq).toArray();
-        this._comparer = toEqualityComparerSafe<T>(comparer);
+        this._comparer = toEqualityComparerSafe<T>(comparer, this);
         this._hasChanged = false;
     }
 
@@ -2867,7 +2867,7 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
     public removeAll(predicate: Predciate<T> | string): number {
         this.throwIfReadOnly();
 
-        let p = toPredicateSafe(predicate);
+        let p = toPredicateSafe(predicate, this);
 
         let e = this.getEnumerator();
         let prevVal: any;
@@ -3219,8 +3219,8 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
 
         let me = this;
 
-        this._orderComparer = toComparerSafe<U>(comparer);
-        this._orderSelector = toSelectorSafe<T, U>(selector);
+        this._orderComparer = toComparerSafe<U>(comparer, this);
+        this._orderSelector = toSelectorSafe<T, U>(selector, this);
 
         this._originalItems = seq.toArray();
 
@@ -3273,8 +3273,8 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
     public thenBy<V>(selector: Selector<T, V> | string, comparer?: Comparer<V> | string): IOrderedEnumerable<T> {
         let me = this;
 
-        let c = toComparerSafe<V>(comparer);
-        let s = toSelectorSafe<T, V>(selector);
+        let c = toComparerSafe<V>(comparer, this);
+        let s = toSelectorSafe<T, V>(selector, this);
 
         return from(this._originalItems)
             .orderBy((x, ctx) => {
@@ -3427,16 +3427,17 @@ export function asFunc(v: any, throwException: boolean = true): Function | boole
  * Returns a value as "comparer".
  * 
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  * 
  * @return {Comparer<T>} The output value.
  * 
  * @throws val is invalid.
  */
-export function toComparerSafe<T>(val?: any): Comparer<T> {
+export function toComparerSafe<T>(val?: any, obj?: any): Comparer<T> {
     let comparer = <Function>asFunc(val);
     if (comparer) {
         return function() {
-            let sortValue = comparer.apply(null, arguments);
+            let sortValue = comparer.apply(obj, arguments);
 
             if (sortValue > 0) {
                 return 1;
@@ -3466,20 +3467,21 @@ export function toComparerSafe<T>(val?: any): Comparer<T> {
  * Returns a value as "equality comparer".
  * 
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  * 
  * @return {EqualityComparer<T>} The output value.
  * 
  * @throws val is invalid.
  */
-export function toEqualityComparerSafe<T>(val?: any): EqualityComparer<T> {
+export function toEqualityComparerSafe<T>(val?: any, obj?: any): EqualityComparer<T> {
     if (true === val) {
         return (x, y) => x === y;
     }
 
-    let equalityComparer = <Function>asFunc(val);
-    if (equalityComparer) {
+    let func = <Function>asFunc(val);
+    if (func) {
         return function() {
-            return equalityComparer.apply(null, arguments) ? true : false;
+            return func.apply(obj, arguments) ? true : false;
         };
     }
     
@@ -3490,22 +3492,23 @@ export function toEqualityComparerSafe<T>(val?: any): EqualityComparer<T> {
  * Returns a value as "many item selector".
  * 
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  * 
  * @return {ManySelector<T, U>} The output value.
  * 
  * @throws val is invalid.
  */
-export function toManySelectorSafe<T, U>(val?: any): ManySelector<T, U> {
+export function toManySelectorSafe<T, U>(val?: any, obj?: any): ManySelector<T, U> {
     let selector = <Function>asFunc(val);
     if (selector) {
         let func = <Function>selector;
 
         return function() {
-            return func.apply(null, arguments);
+            return func.apply(obj, arguments);
         };
     }
     
-    return (x: T) => [ <U>(<any>x) ];
+    return (x: T) => [ <any>x ];
 }
 
 function toOrDefaultArgs<T, U>(predicateOrDefaultValue: any, defaultValue: U, argCount: number): IOrDefaultArgs<T, U> {
@@ -3521,7 +3524,7 @@ function toOrDefaultArgs<T, U>(predicateOrDefaultValue: any, defaultValue: U, ar
     }
 
     return {
-        predicate: toPredicateSafe(predicate),
+        predicate: toPredicateSafe(predicate, this),
         defaultValue: defVal,
     };
 }
@@ -3530,18 +3533,19 @@ function toOrDefaultArgs<T, U>(predicateOrDefaultValue: any, defaultValue: U, ar
  * Returns a value as "predicate".
  * 
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  * 
  * @return {Predciate<T>} The output value.
  * 
  * @throws val is invalid.
  */
-export function toPredicateSafe<T>(val?: any): Predciate<T> {
+export function toPredicateSafe<T>(val?: any, obj?: any): Predciate<T> {
     let predicate = <Function>asFunc(val);
     if (predicate) {
         let func = <Function>predicate;
 
         return function() {
-            return func.apply(null, arguments) ? true : false;
+            return func.apply(obj, arguments) ? true : false;
         };
     }
     
@@ -3552,18 +3556,19 @@ export function toPredicateSafe<T>(val?: any): Predciate<T> {
  * Returns a value as "item selector".
  * 
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  * 
  * @return {Selector<T, U>} The output value.
  * 
  * @throws val is invalid.
  */
-export function toSelectorSafe<T, U>(val?: any): Selector<T, U> {
+export function toSelectorSafe<T, U>(val?: any, obj?: any): Selector<T, U> {
     let selector = <Function>asFunc(val);
     if (selector) {
         let func = <Function>selector;
 
         return function() {
-            return func.apply(null, arguments);
+            return func.apply(obj, arguments);
         };
     }
     
@@ -3574,18 +3579,19 @@ export function toSelectorSafe<T, U>(val?: any): Selector<T, U> {
  * Returns a value as "zippper".
  * 
  * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
  * 
  * @return {Zipper<T, U, V>} The output value.
  * 
  * @throws val is invalid.
  */
-export function toZipperSafe<T, U, V>(val?: any): Zipper<T, U, V> {
+export function toZipperSafe<T, U, V>(val?: any, obj?: any): Zipper<T, U, V> {
     let selector = <Function>asFunc(val);
     if (selector) {
         let func = <Function>selector;
 
         return function() {
-            return func.apply(null, arguments);
+            return func.apply(obj, arguments);
         };
     }
     
