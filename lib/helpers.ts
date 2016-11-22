@@ -25,44 +25,20 @@ import Enumerable = require('./index');
 
 
 /**
- * Returns a value as "comparer".
- * 
- * @param {any} [val] The input value.
- * @param {any} [obj] The underlying object.
- * 
- * @return {Comparer<T>} The output value.
- * 
- * @throws val is invalid.
+ * Stores the "real" arguments for a *OrDefault() method.
  */
-export function toComparerSafe<T>(val?: any, obj?: any): Enumerable.Comparer<T> {
-    let comparer = <Function>asFunc(val);
-    if (comparer) {
-        return function() {
-            let sortValue = comparer.apply(obj, arguments);
+export interface IOrDefaultArgs<T, TDefault> {
+    /**
+     * The default value to use.
+     */
+    defaultValue?: TDefault;
 
-            if (sortValue > 0) {
-                return 1;
-            }
-            if (sortValue < 0) {
-                return -1;
-            }
-
-            return 0;
-        };
-    }
-    
-    return function(x, y) {
-        if (x < y) {
-            return -1;
-        }
-        
-        if (x > y) {
-            return 1;
-        }
-        
-        return 0;
-    };
+    /**
+     * The predicate to use.
+     */
+    predicate: Enumerable.Predciate<T>;
 }
+
 
 /**
  * Returns a value as function.
@@ -121,6 +97,74 @@ export function asFunc(v: any, throwException: boolean = true): Function | boole
     }
 
     return false;
+}
+
+/**
+ * Returns a value as "comparer".
+ * 
+ * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
+ * 
+ * @return {Comparer<T>} The output value.
+ * 
+ * @throws val is invalid.
+ */
+export function toComparerSafe<T>(val?: any, obj?: any): Enumerable.Comparer<T> {
+    let comparer = <Function>asFunc(val);
+    if (comparer) {
+        return function() {
+            let sortValue = comparer.apply(obj, arguments);
+
+            if (sortValue > 0) {
+                return 1;
+            }
+            if (sortValue < 0) {
+                return -1;
+            }
+
+            return 0;
+        };
+    }
+    
+    return function(x, y) {
+        if (x < y) {
+            return -1;
+        }
+        
+        if (x > y) {
+            return 1;
+        }
+        
+        return 0;
+    };
+}
+
+/**
+ * Collects the "real" arguments for a *OrDefault() method.
+ * 
+ * @param {any} predicateOrDefaultValue The first argument of the method.
+ * @param {TDefault} defaultValue The first argument of the method.
+ * @param {number} argCount The number of submitted method arguments.
+ * 
+ * @return {IOrDefaultArgs<T, TDefault>} The collected data.
+ */
+export function toOrDefaultArgs<T, TDefault>(predicateOrDefaultValue: any, defaultValue: TDefault,
+                                             argCount: number): IOrDefaultArgs<T, TDefault> {
+    let predicate: any = predicateOrDefaultValue;
+    let defVal: any = defaultValue;
+    
+    let func = asFunc(predicate, false);
+    if (false === func) {
+        if (1 === argCount) {
+            defVal = predicate;
+            predicate = null;
+        }
+    }
+
+    return {
+        predicate: toPredicateSafe(predicate, this),
+        defaultValue: defVal,
+    };
 }
 
 /**

@@ -1,15 +1,17 @@
 import Enumerable = require('./index');
 /**
- * Returns a value as "comparer".
- *
- * @param {any} [val] The input value.
- * @param {any} [obj] The underlying object.
- *
- * @return {Comparer<T>} The output value.
- *
- * @throws val is invalid.
+ * Stores the "real" arguments for a *OrDefault() method.
  */
-export declare function toComparerSafe<T>(val?: any, obj?: any): Enumerable.Comparer<T>;
+export interface IOrDefaultArgs<T, TDefault> {
+    /**
+     * The default value to use.
+     */
+    defaultValue?: TDefault;
+    /**
+     * The predicate to use.
+     */
+    predicate: Enumerable.Predciate<T>;
+}
 /**
  * Returns a value as function.
  *
@@ -23,6 +25,27 @@ export declare function toComparerSafe<T>(val?: any, obj?: any): Enumerable.Comp
  * @throws Input value is invalid.
  */
 export declare function asFunc(v: any, throwException?: boolean): Function | boolean;
+/**
+ * Returns a value as "comparer".
+ *
+ * @param {any} [val] The input value.
+ * @param {any} [obj] The underlying object.
+ *
+ * @return {Comparer<T>} The output value.
+ *
+ * @throws val is invalid.
+ */
+export declare function toComparerSafe<T>(val?: any, obj?: any): Enumerable.Comparer<T>;
+/**
+ * Collects the "real" arguments for a *OrDefault() method.
+ *
+ * @param {any} predicateOrDefaultValue The first argument of the method.
+ * @param {TDefault} defaultValue The first argument of the method.
+ * @param {number} argCount The number of submitted method arguments.
+ *
+ * @return {IOrDefaultArgs<T, TDefault>} The collected data.
+ */
+export declare function toOrDefaultArgs<T, TDefault>(predicateOrDefaultValue: any, defaultValue: TDefault, argCount: number): IOrDefaultArgs<T, TDefault>;
 /**
  * Returns a value as "equality comparer".
  *

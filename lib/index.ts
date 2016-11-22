@@ -1145,11 +1145,6 @@ export interface IList<T> extends ICollection<T> {
     setItem(index: number, item: T): IList<T>;
 }
 
-interface IOrDefaultArgs<T, U> {
-    defaultValue?: U;
-    predicate: Predciate<T>;
-}
-
 class ItemContext<T> implements IItemContext<T> {
     protected _enumerator: IEnumerator<T>;
     protected _index: number;
@@ -1640,8 +1635,8 @@ export class Enumerable<T> implements IEnumerable<T> {
     public firstOrDefault<TDefault>(predicateOrDefaultValue?: Predciate<T> | string | TDefault,
                                     defaultValue?: TDefault): T | TDefault {
         
-        let args = toOrDefaultArgs<T, TDefault>(predicateOrDefaultValue, defaultValue,
-                                                arguments.length);
+        let args = Helpers.toOrDefaultArgs<T, TDefault>(predicateOrDefaultValue, defaultValue,
+                                                        arguments.length);
 
         let e = this.getEnumerator();
         let result: T | TDefault;
@@ -2037,8 +2032,8 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public lastOrDefault<TDefault>(predicateOrDefaultValue?: Predciate<T> | string | TDefault, defaultValue?: TDefault): T | TDefault {
-        let args = toOrDefaultArgs<T, TDefault>(predicateOrDefaultValue, defaultValue,
-                                                arguments.length);
+        let args = Helpers.toOrDefaultArgs<T, TDefault>(predicateOrDefaultValue, defaultValue,
+                                                        arguments.length);
 
         let e = this.getEnumerator();
         let result: T | TDefault;
@@ -2342,8 +2337,8 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public singleOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U {
-        let args = toOrDefaultArgs(predicateOrDefaultValue, defaultValue,
-                                   arguments.length);
+        let args = Helpers.toOrDefaultArgs(predicateOrDefaultValue, defaultValue,
+                                           arguments.length);
 
         let e = this.getEnumerator();
         let result: T | U;
@@ -3372,23 +3367,7 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
 
 
 
-function toOrDefaultArgs<T, U>(predicateOrDefaultValue: any, defaultValue: U, argCount: number): IOrDefaultArgs<T, U> {
-    let predicate: any = predicateOrDefaultValue;
-    let defVal: any = defaultValue;
-    
-    let func = Helpers.asFunc(predicate, false);
-    if (false === func) {
-        if (1 === argCount) {
-            defVal = predicate;
-            predicate = null;
-        }
-    }
 
-    return {
-        predicate: Helpers.toPredicateSafe(predicate, this),
-        defaultValue: defVal,
-    };
-}
 
 
 /**
