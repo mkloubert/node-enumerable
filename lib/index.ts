@@ -117,13 +117,13 @@ export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Aggregates all itms of the sequence to one item.
      * 
-     * @param {(result: any, item: T, ctx: IItemContext<T>) => U | string} The aggregator.
-     * @param {V} [defaultValue] The value to return if sequence is empty.
+     * @param {Aggregator<T, TResult>) => TResult | string} The aggregator.
+     * @param {TDefault} [defaultValue] The value to return if sequence is empty.
      * 
-     * @return {U | V} The aggregated value or the default value.
+     * @return {TResult | TDefault} The aggregated value or the default value.
      */
-    aggregate<U, V>(aggregator: Aggregator<T, U> | string,
-                    defaultValue?: V): U | V;
+    aggregate<TResult, TDefault>(aggregator: Aggregator<T, TResult> | string,
+                                 defaultValue?: TDefault): TResult | TDefault;
 
     /**
      * Checks if ALL items do match a condition.
@@ -147,18 +147,18 @@ export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Computes the average of that sequence.
      * 
-     * @param {U} [defaultValue] The custom value that is returned if sequence has no items.
+     * @param {TDefault} [defaultValue] The custom value that is returned if sequence has no items.
      * 
-     * @return {number | U} The average of the sequence or the default value.
+     * @return {number | TDefault} The average of the sequence or the default value.
      */
-    average<U>(defaultValue?: U): number | U;
+    average<TDefault>(defaultValue?: TDefault): number | TDefault;
 
     /**
      * Casts the items of that sequence to a new type.
      * 
-     * @return {IEnumerable<U>} The new sequence.
+     * @return {IEnumerable<TTarget>} The new sequence.
      */
-    cast<U>(): IEnumerable<U>;
+    cast<TTarget>(): IEnumerable<TTarget>;
 
     /**
      * Concats the items of that sequence with another.
@@ -239,13 +239,13 @@ export interface IEnumerable<T> extends Iterable<T> {
      * Tries to return an element at a specific position.
      * 
      * @param {number} index The zero based index.
-     * @param {U} [defaultValue] The value to return if no element has been found.
+     * @param {TDefault} [defaultValue] The value to return if no element has been found.
      * 
-     * @return {T | U} The item or the default value.
+     * @return {T | TDefault} The item or the default value.
      * 
-     * @throws Sequence has no matching item.
+     * @throws Index is out of range.
      */
-    elementAtOrDefault<U>(index: number, defaultValue?: U): T | U;
+    elementAtOrDefault<TDefault>(index: number, defaultValue?: TDefault): T | TDefault;
 
     /**
      * Produces the difference between that sequence and another.
@@ -272,13 +272,14 @@ export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Tries to return the first item of the sequence.
      * 
-     * @param {Predciate<T> | string | U} [predicateOrDefaultValue] The custom predicate to use.
-     *                                                              If there are less than 2 arguments and the first argument is NOT a function,
-     *                                                              it is used as default value.
+     * @param {Predciate<T> | string | TDefault} [predicateOrDefaultValue] The custom predicate to use.
+     *                                                                     If there are less than 2 arguments and the first argument is NOT a function,
+     *                                                                     it is used as default value.
      * 
-     * @return {T | U} The item or the default value.
+     * @return {T | TDefault} The item or the default value.
      */
-    firstOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U;
+    firstOrDefault<TDefault>(predicateOrDefaultValue?: Predciate<T> | string | TDefault,
+                             defaultValue?: TDefault): T | TDefault;
 
     /**
      * Alias for 'each()' method.
@@ -373,31 +374,32 @@ export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Tries to return the last item of the sequence.
      * 
-     * @param {Predciate<T> | string | U} [predicateOrDefaultValue] The custom predicate to use.
-     *                                                              If there are less than 2 arguments and the first argument is NOT a function,
-     *                                                              it is used as default value.
+     * @param {Predciate<T> | string | TDefault} [predicateOrDefaultValue] The custom predicate to use.
+     *                                                                     If there are less than 2 arguments and the first argument is NOT a function,
+     *                                                                     it is used as default value.
      * 
-     * @return {T | U} The item or the default value.
+     * @return {T | TDefault} The item or the default value.
      */
-    lastOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U;
+    lastOrDefault<TDefault>(predicateOrDefaultValue?: Predciate<T> | string | TDefault,
+                            defaultValue?: TDefault): T | TDefault;
 
     /**
      * Returns the "biggest" item of that sequence.
      * 
-     * @param {V} [defaultValue] The value to return if sequence is empty.
+     * @param {TDefault} [defaultValue] The value to return if sequence is empty.
      * 
-     * @return {U | V} The "biggest" value or the default value.
+     * @return {T | TDefault} The "biggest" value or the default value.
      */
-    max<U>(defaultValue?: U): T | U;
+    max<TDefault>(defaultValue?: TDefault): T | TDefault;
 
     /**
      * Returns the "smallest" item of that sequence.
      * 
-     * @param {V} [defaultValue] The value to return if sequence is empty.
+     * @param {TDefault} [defaultValue] The value to return if sequence is empty.
      * 
-     * @return {U | V} The "smallest" value or the default value.
+     * @return {T | TDefault} The "smallest" value or the default value.
      */
-    min<U>(defaultValue?: U): T | U;
+    min<TDefault>(defaultValue?: TDefault): T | TDefault;
 
     /**
      * Removes all non-empty items.
@@ -411,9 +413,9 @@ export interface IEnumerable<T> extends Iterable<T> {
      * 
      * @param {string} type The name of the target type.
      * 
-     * @return {IEnumerable<U>} The new sequence.
+     * @return {IEnumerable<TTarget>} The new sequence.
      */
-    ofType<U>(type: string): IEnumerable<U>;
+    ofType<TTarget>(type: string): IEnumerable<TTarget>;
 
     /**
      * Sorts the elements of that sequence in ascending order by using the values itself as keys.
@@ -429,26 +431,28 @@ export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Sorts the elements of that sequence in ascending order.
      * 
-     * @param {Selector<T, U> | string} selector The key selector.
-     * @param {Comparer<U> | string} [comparer] The custom key comparer to use.
+     * @param {Selector<T, TKey> | string} selector The key selector.
+     * @param {Comparer<TKey> | string} [comparer] The custom key comparer to use.
      * 
      * @throws At least one argument is invalid.
      * 
      * @return {IOrderedEnumerable<T>} The new sequence.
      */
-    orderBy<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
+    orderBy<TKey>(selector: Selector<T, TKey> | string,
+                  comparer?: Comparer<TKey> | string): IOrderedEnumerable<T>;
 
     /**
      * Sorts the elements of that sequence in descending order.
      * 
-     * @param {Selector<T, U> | string} selector The key selector.
-     * @param {Comparer<U> | string} [comparer] The custom key comparer to use.
+     * @param {Selector<T, TKey> | string} selector The key selector.
+     * @param {Comparer<TKey> | string} [comparer] The custom key comparer to use.
      * 
      * @throws At least one argument is invalid.
      * 
      * @return {IOrderedEnumerable<T>} The new sequence.
      */
-    orderByDescending<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T>;
+    orderByDescending<TKey>(selector: Selector<T, TKey> | string,
+                            comparer?: Comparer<TKey> | string): IOrderedEnumerable<T>;
 
     /**
      * Sorts the elements of that sequence in descending order by using the values as keys.
@@ -480,20 +484,20 @@ export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Projects the items of that sequence to new items.
      * 
-     * @param {Selector<T, U> | string} The selector to use.
+     * @param {Selector<T, TTarget> | string} The selector to use.
      * 
-     * @return {IEnumerable<U>} The new sequence.
+     * @return {IEnumerable<TTarget>} The new sequence.
      */
-    select<U>(selector: Selector<T, U> | string): IEnumerable<U>;
+    select<TTarget>(selector: Selector<T, TTarget> | string): IEnumerable<TTarget>;
 
     /**
      * Projects each item to a list of new items and flattens them to a new sequence.
      * 
-     * @param {ManySelector<T, U> | string} The selector to use.
+     * @param {ManySelector<T, TTarget> | string} The selector to use.
      * 
-     * @return {IEnumerable<U>} The new sequence.
+     * @return {IEnumerable<TTarget>} The new sequence.
      */
-    selectMany<U>(selector: ManySelector<T, U> | string): IEnumerable<U>;
+    selectMany<TTarget>(selector: ManySelector<T, TTarget> | string): IEnumerable<TTarget>;
     
     /**
      * Checks if that sequence has the same items as onther sequence.
@@ -523,15 +527,16 @@ export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Tries to return the one and only item of the sequence.
      * 
-     * @param {Predciate<T> | string | U} [predicateOrDefaultValue] The custom predicate to use.
-     *                                                              If there are less than 2 arguments and the first argument is NOT a function,
-     *                                                              it is used as default value.
+     * @param {Predciate<T> | string | TDefault} [predicateOrDefaultValue] The custom predicate to use.
+     *                                                                     If there are less than 2 arguments and the first argument is NOT a function,
+     *                                                                     it is used as default value.
      * 
-     * @return {T | U} The item or the default value.
+     * @return {T | TDefault} The item or the default value.
      * 
      * @throws Sequence contains more than one machting element.
      */
-    singleOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U;
+    singleOrDefault<TDefault>(predicateOrDefaultValue?: Predciate<T> | string | TDefault,
+                              defaultValue?: TDefault): T | TDefault;
 
     /**
      * Skips a number of items.
@@ -561,11 +566,11 @@ export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Calculates the sum of all items.
      * 
-     * @param {U} [defaultValue] The custom value that is returned if sequence has no items.
+     * @param {TTarget} [defaultValue] The custom value that is returned if sequence has no items.
      * 
-     * @return {number | U} The sum or the default value.
+     * @return {number | TTarget} The sum or the default value.
      */
-    sum<U>(defaultValue?: U): number | U;
+    sum<TTarget>(defaultValue?: TTarget): number | TTarget;
 
     /**
      * Takes a number of items.
@@ -613,7 +618,7 @@ export interface IEnumerable<T> extends Iterable<T> {
      * 
      * @return {ArrayLike<T>} The new array.
      */
-    toLookup<TKey extends string | number>(keySelector: Selector<T, TKey>,
+    toLookup<TKey extends string | number>(keySelector: Selector<T, TKey> | string,
                                            keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey>;
 
     /**
@@ -650,11 +655,11 @@ export interface IEnumerable<T> extends Iterable<T> {
      * producing a sequence of the results.
      * 
      * @param {Sequence<T>} other The other sequence.
-     * @param {Zipper<T, U> | string} zipper The selector for the combined result items of the elements of the two sequences.
+     * @param {Zipper<T, TTarget> | string} zipper The selector for the combined result items of the elements of the two sequences.
      * 
-     * @return IEnumerable<U> The new sequence.
+     * @return IEnumerable<TTarget> The new sequence.
      */
-    zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U>;
+    zip<TTarget>(other: Sequence<T>, zipper: Zipper<T, T, TTarget> | string): IEnumerable<TTarget>;
 }
 
 /**
@@ -1233,15 +1238,15 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public aggregate<U, V>(aggregator: Aggregator<T, U> | string,
-                           defaultValue?: V): U | V {
+    public aggregate<TResult, TDefault>(aggregator: Aggregator<T, TResult> | string,
+                                        defaultValue?: TDefault): TResult | TDefault {
         
-        let a = <Aggregator<T, U>>asFunc(aggregator);
+        let a = <Aggregator<T, TResult>>asFunc(aggregator);
         if (!a) {
-            a = (result, item) => result = result + item;
+            a = (result, item) => result + item;
         }
 
-        let result: U | V = defaultValue;
+        let result: TResult | TDefault = defaultValue;
 
         let e = this.getEnumerator();
         let index = -1;
@@ -1332,7 +1337,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public average<U>(defaultValue?: U): number | U {
+    public average<TDefault>(defaultValue?: TDefault): number | TDefault {
         let cnt = 1;
         let sum = this.aggregate<number, boolean>((result, item, ctx) => {
             let x = toNumber(result);
@@ -1350,7 +1355,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public cast<U>(): IEnumerable<U> {
+    public cast<TTarget>(): IEnumerable<TTarget> {
         return this.select(x => <any>x);
     }
 
@@ -1540,21 +1545,18 @@ export class Enumerable<T> implements IEnumerable<T> {
             throw `Index out of range: ${index}`;
         }
 
-        return this.first((item, ctx) => {
-            return 0 === index--;
-        });
+        return this.first((item, ctx) => 0 === index--);
     }
 
     /** @inheritdoc */
-    public elementAtOrDefault<U>(index: number, defaultValue?: U): T | U {
+    public elementAtOrDefault<TDefault>(index: number, defaultValue?: TDefault): T | TDefault {
         index = toNumber(index);
         if (index < 0) {
             throw `Index out of range: ${index}`;
         }
 
-        return this.firstOrDefault<U>((item, ctx) => {
-            return 0 === index--;
-        }, defaultValue);
+        return this.firstOrDefault<TDefault>((item, ctx) => 0 === index--,
+                                             defaultValue);
     }
 
     /** @inheritdoc */
@@ -1634,12 +1636,14 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public firstOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U {
-        let args = toOrDefaultArgs<T, U>(predicateOrDefaultValue, defaultValue,
-                                         arguments.length);
+    public firstOrDefault<TDefault>(predicateOrDefaultValue?: Predciate<T> | string | TDefault,
+                                    defaultValue?: TDefault): T | TDefault {
+        
+        let args = toOrDefaultArgs<T, TDefault>(predicateOrDefaultValue, defaultValue,
+                                                arguments.length);
 
         let e = this.getEnumerator();
-        let result: T | U;
+        let result: T | TDefault;
         let found = false;
         let index = -1;
         let prevVal: any;
@@ -2031,12 +2035,12 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public lastOrDefault<U>(predicateOrDefaultValue?: Predciate<T> | string | U, defaultValue?: U): T | U {
-        let args = toOrDefaultArgs<T, U>(predicateOrDefaultValue, defaultValue,
-                                         arguments.length);
+    public lastOrDefault<TDefault>(predicateOrDefaultValue?: Predciate<T> | string | TDefault, defaultValue?: TDefault): T | TDefault {
+        let args = toOrDefaultArgs<T, TDefault>(predicateOrDefaultValue, defaultValue,
+                                                arguments.length);
 
         let e = this.getEnumerator();
-        let result: T | U;
+        let result: T | TDefault;
         let found = false;
         let index = -1;
         let prevVal: any;
@@ -2068,8 +2072,8 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public max<U>(defaultValue?: U): T | U {
-        return this.aggregate<T, U>((result, item) => {
+    public max<TDefault>(defaultValue?: TDefault): T | TDefault {
+        return this.aggregate<T, TDefault>((result, item) => {
             if (item > result) {
                 result = item;
             }
@@ -2079,8 +2083,8 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public min<U>(defaultValue?: U): T | U {
-        return this.aggregate<T, U>((result: T, item: T) => {
+    public min<TDefault>(defaultValue?: TDefault): T | TDefault {
+        return this.aggregate<T, TDefault>((result: T, item: T) => {
             if (item < result) {
                 result = item;
             }
@@ -2095,7 +2099,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public ofType<U>(type: string): IEnumerable<U> {
+    public ofType<TTarget>(type: string): IEnumerable<TTarget> {
         if (!type) {
             type = '';
         }
@@ -2129,16 +2133,16 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public orderBy<U>(selector: Selector<T, U> | string, comparer?: Comparer<U> | string): IOrderedEnumerable<T> {
-        return new OrderedEnumerable<T, U>(this, selector, comparer);
+    public orderBy<TKey>(selector: Selector<T, TKey> | string, comparer?: Comparer<TKey> | string): IOrderedEnumerable<T> {
+        return new OrderedEnumerable<T, TKey>(this, selector, comparer);
     }
 
     /** @inheritdoc */
-    public orderByDescending<U>(selector: Selector<T, U> | string, comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
+    public orderByDescending<TKey>(selector: Selector<T, TKey> | string, comparer?: Comparer<T> | string): IOrderedEnumerable<T> {
         let c = toComparerSafe(comparer, this);
     
-        return this.orderBy<U>(selector,
-                               (x, y) => c(y, x));
+        return this.orderBy<TKey>(selector,
+                                  (x, y) => c(y, x));
     }
 
     /** @inheritdoc */
@@ -2174,20 +2178,20 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public select<U>(selector: Selector<T, U> | string): IEnumerable<U> {
-        let s = toSelectorSafe<T, U>(selector, this);
+    public select<TTarget>(selector: Selector<T, TTarget> | string): IEnumerable<TTarget> {
+        let s = toSelectorSafe<T, TTarget>(selector, this);
 
-        return from<U>(this.selectInner<U>(s));
+        return from(this.selectInner<TTarget>(s));
     }
 
     /**
      * The logic for the 'select()' method.
      * 
-     * @param {Selector<T, U>} selector The selector.
+     * @param {Selector<T, TTarget>} selector The selector.
      * 
      * @return {Iterator<T>} The iterator.
      */  
-    protected* selectInner<U>(selector: Selector<T, U>): Iterator<U> {
+    protected* selectInner<TTarget>(selector: Selector<T, TTarget>): Iterator<TTarget> {
         let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
@@ -2210,8 +2214,8 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public selectMany<U>(selector: ManySelector<T, U> | string): IEnumerable<U> {
-        let s = toManySelectorSafe<T, U>(selector, this);
+    public selectMany<TTarget>(selector: ManySelector<T, TTarget> | string): IEnumerable<TTarget> {
+        let s = toManySelectorSafe<T, TTarget>(selector, this);
 
         return from(this.selectManyInner(s));
     }
@@ -2219,11 +2223,11 @@ export class Enumerable<T> implements IEnumerable<T> {
     /**
      * The logic for the 'selectMany()' method.
      * 
-     * @param {ManySelector<T, U>} selector The selector.
+     * @param {ManySelector<T, TTarget>} selector The selector.
      * 
      * @return {Iterator<T>} The iterator.
      */  
-    protected* selectManyInner<U>(selector: ManySelector<T, U>): Iterator<U> {
+    protected* selectManyInner<TTarget>(selector: ManySelector<T, TTarget>): Iterator<TTarget> {
         let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
@@ -2232,13 +2236,13 @@ export class Enumerable<T> implements IEnumerable<T> {
             let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
-            let iterator = makeIterable<U>(selector(ctx.item, ctx));
+            let iterator = makeIterable<TTarget>(selector(ctx.item, ctx));
 
             if (ctx.cancel) {
                 break;
             }
 
-            let lastResult: IteratorResult<U>;
+            let lastResult: IteratorResult<TTarget>;
             do
             {
                 lastResult = iterator.next();
@@ -2571,7 +2575,7 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public toLookup<TKey extends string | number>(keySelector: Selector<T, TKey>,
+    public toLookup<TKey extends string | number>(keySelector: Selector<T, TKey> | string,
                                                   keyEqualityComparer?: EqualityComparer<TKey> | string): ILookup<T, TKey> {
         
         return new Lookup<T, TKey>(this.groupBy(keySelector, keyEqualityComparer));
@@ -2625,11 +2629,11 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U> {
-        let seq = from(makeIterable<T>(other)).getEnumerator();
-        let z = toZipperSafe<T, T, U>(zipper, this);
+    public zip<TTarget>(other: Sequence<T>, zipper: Zipper<T, T, TTarget> | string): IEnumerable<TTarget> {
+        let e = from(makeIterable<T>(other)).getEnumerator();
+        let z = toZipperSafe<T, T, TTarget>(zipper, this);
 
-        return from(this.zipInner<U>(seq, z));
+        return from(this.zipInner(e, z));
     }
 
     /**
@@ -2640,7 +2644,7 @@ export class Enumerable<T> implements IEnumerable<T> {
      * 
      * @return {Iterator<U>} The iterator.
      */ 
-    protected* zipInner<U>(other: IEnumerator<T>, zipper: Zipper<T, T, U>): Iterator<U> {
+    protected* zipInner<TTarget>(other: IEnumerator<T>, zipper: Zipper<T, T, TTarget>): Iterator<TTarget> {
         let e = this.getEnumerator();
         let index = -1;
         let prevVal1: any;
