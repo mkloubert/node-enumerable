@@ -57,28 +57,29 @@ Helpers.execute(
                     fullArray.push(arr2[k]);
                 }
 
-                let seq = Enumerable.from(arr1)
-                                    .concat(arr2);
+                let e = Enumerable.from(arr1)
+                                  .concat(arr2)
+                                  .getEnumerator();
 
                 let k = -1;
-                while (seq.moveNext()) {
+                while (e.moveNext()) {
                     ++k;
 
-                    Assert.strictEqual(seq.itemKey, k);
-                    Assert.notStrictEqual('' + seq.itemKey, k);
-                    Assert.notStrictEqual(seq.itemKey, '' + k);
-                    Assert.equal('' + seq.itemKey, k);
-                    Assert.equal(seq.itemKey, '' + k);
-                    Assert.strictEqual('' + seq.itemKey, '' + k);
-                    Assert.equal('' + seq.itemKey, '' + k);
+                    Assert.strictEqual(e.key, k);
+                    Assert.notStrictEqual('' + e.key, k);
+                    Assert.notStrictEqual(e.key, '' + k);
+                    Assert.equal('' + e.key, k);
+                    Assert.equal(e.key, '' + k);
+                    Assert.strictEqual('' + e.key, '' + k);
+                    Assert.equal('' + e.key, '' + k);
 
-                    Assert.strictEqual(seq.current, fullArray[k]);
-                    Assert.notStrictEqual('' + seq.current, fullArray[k]);
-                    Assert.notStrictEqual(seq.current, '' + fullArray[k]);
-                    Assert.equal('' + seq.current, fullArray[k]);
-                    Assert.equal(seq.current, '' + fullArray[k]);
-                    Assert.strictEqual('' + seq.current, '' + fullArray[k]);
-                    Assert.equal('' + seq.current, '' + fullArray[k]);
+                    Assert.strictEqual(e.current, fullArray[k]);
+                    Assert.notStrictEqual('' + e.current, fullArray[k]);
+                    Assert.notStrictEqual(e.current, '' + fullArray[k]);
+                    Assert.equal('' + e.current, fullArray[k]);
+                    Assert.equal(e.current, '' + fullArray[k]);
+                    Assert.strictEqual('' + e.current, '' + fullArray[k]);
+                    Assert.equal('' + e.current, '' + fullArray[k]);
                 }
 
                 let size = k + 1;

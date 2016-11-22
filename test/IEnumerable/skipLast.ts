@@ -43,14 +43,14 @@ Helpers.execute(
                 arr.push(j);
             }
 
-            let seq = Enumerable.from(arr)
-                                .skipLast();
+            let e = Enumerable.from(arr)
+                              .skipLast().getEnumerator();
 
             let expected = arr.filter((x, index) => index < (arr.length - 1));
 
             let actual: any[] = [];
-            while (seq.moveNext()) {
-                actual.push(seq.current);
+            while (e.moveNext()) {
+                actual.push(e.current);
             }
 
             Assert.strictEqual(actual.length, expected.length);

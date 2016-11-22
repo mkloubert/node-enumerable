@@ -49,9 +49,9 @@ Helpers.execute(
                 arr.push(j);
             }
 
-            let seq = Enumerable.from(arr);
+            let e = Enumerable.from(arr).getEnumerator();
 
-            let canReset = seq.canReset;
+            let canReset = e.canReset;
 
             Assert.strictEqual(canReset, true);
             Assert.notStrictEqual(canReset, 1);
@@ -68,9 +68,9 @@ Helpers.execute(
             }
 
             let iterator = createIterator(i);
-            let seq = Enumerable.from(iterator);
+            let e = Enumerable.from(iterator).getEnumerator();
 
-            let canReset = seq.canReset;
+            let canReset = e.canReset;
 
             Assert.strictEqual(canReset, false);
             Assert.notStrictEqual(canReset, 0);
@@ -92,10 +92,11 @@ Helpers.execute(
                 arr.push(j);
             }
 
-            let seq = Enumerable.from(arr)
-                                .where(x => x % 2 == 0);
+            let e = Enumerable.from(arr)
+                              .where(x => x % 2 == 0)
+                              .getEnumerator();
 
-            let canReset = seq.canReset;
+            let canReset = e.canReset;
 
             Assert.strictEqual(canReset, false);
             Assert.notStrictEqual(canReset, 0);

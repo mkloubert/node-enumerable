@@ -32,11 +32,12 @@ Helpers.execute(
     (ctx) => {
         let arr = [0, 1, undefined, 2, null, '', 3];
 
-        let seq = Enumerable.from(arr)
-                            .notEmpty();
+        let e = Enumerable.from(arr)
+                          .notEmpty()
+                          .getEnumerator();
 
         let cnt = 0;
-        while (seq.moveNext()) {
+        while (e.moveNext()) {
             ++cnt;
         }
 

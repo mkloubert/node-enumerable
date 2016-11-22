@@ -73,7 +73,7 @@ export declare type Selector<T, U> = (item: T, ctx: IItemContext<T>) => U;
 /**
  * A sequence.
  */
-export declare type Sequence<T> = ArrayLike<T> | Iterator<T>;
+export declare type Sequence<T> = ArrayLike<T> | Iterator<T> | Iterable<T> | IterableIterator<T>;
 /**
  * Describes a function that "zips" two elements.
  *
@@ -88,7 +88,7 @@ export declare type Zipper<T, U, V> = (item1: T, item2: U, ctx1: IItemContext<T>
 /**
  * Describes a sequence.
  */
-export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
+export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Aggregates all itms of the sequence to one item.
      *
@@ -116,10 +116,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      */
     any(predicate?: Predciate<T> | string): boolean;
     /**
-     * Returns a sequence of that elements that can be resetted.
-     */
-    asResettable(): IEnumerable<T>;
-    /**
      * Computes the average of that sequence.
      *
      * @param {U} [defaultValue] The custom value that is returned if sequence has no items.
@@ -127,10 +123,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * @return {number | U} The average of the sequence or the default value.
      */
     average<U>(defaultValue?: U): number | U;
-    /**
-     * Gets if the sequence can be resetted or not.
-     */
-    readonly canReset: boolean;
     /**
      * Casts the items of that sequence to a new type.
      *
@@ -171,10 +163,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * @return {Number} The number of elements.
      */
     count(predicate?: Predciate<T> | string): number;
-    /**
-     * Gets the current item / element.
-     */
-    readonly current: T;
     /**
      * Returns the elements of the sequence or a sequence with default values if the current sequence is empty.
      *
@@ -254,6 +242,12 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      */
     forEach(action: Action<T>): void;
     /**
+     * Gets the enumerator for iteration.
+     *
+     * @return {IEnumerator<T>} The enumerator.
+     */
+    getEnumerator(): IEnumerator<T>;
+    /**
      * Groups the elements of the sequence.
      *
      * @param {Selector<T, TKey> | string} keySelector The function that provides the key for an element.
@@ -284,14 +278,8 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * {IEnumerable<T>} The new sequence.
      */
     intersect(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
-    /**
-     * Gets if the 'moveNext()' can be called or not.
-     */
-    readonly isValid: boolean;
-    /**
-     * Gets the current key.
-     */
-    readonly itemKey: any;
+    /** @inheritdoc */
+    [Symbol.iterator](): IEnumerator<T>;
     /**
      * Correlates the elements of that sequence and another based on matching keys.
      *
@@ -349,12 +337,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * @return {U | V} The "smallest" value or the default value.
      */
     min<U>(defaultValue?: U): T | U;
-    /**
-     * Moves to the next element.
-     *
-     * @return New element is available or not.
-     */
-    moveNext(): boolean;
     /**
      * Removes all non-empty items.
      *
@@ -419,12 +401,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * @chainable.
      */
     pushToArray(arr: T[]): IEnumerable<T>;
-    /**
-     * Resets the sequence.
-     *
-     * @chainable.
-     */
-    reset(): IEnumerable<T>;
     /**
      * Reverses the order of the sequence.
      *
@@ -592,6 +568,97 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
     zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U>;
 }
 /**
+ * Describes an enumerator.
+ */
+export interface IEnumerator<T> extends Iterator<T> {
+    /**
+     * Gets if the enumerator can be resetted or not.
+     */
+    readonly canReset: boolean;
+    /**
+     * Gets the current element.
+     */
+    readonly current: T;
+    /**
+     * Gets if the 'moveNext()' can be called or not.
+     */
+    readonly isValid: boolean;
+    /**
+     * Gets the current key.
+     */
+    readonly key: number;
+    /**
+     * Moves to the next element.
+     *
+     * @return New element is available or not.
+     */
+    moveNext(): boolean;
+    /**
+     * Resets the enumerator.
+     *
+     * @chainable
+     *
+     * @throws Cannot be resetted.
+     */
+    reset(): IEnumerator<T>;
+}
+/**
+ * An enumerator that is based on an iterator.
+ */
+export declare class IteratorEnumerator<T> implements IEnumerator<T> {
+    /**
+     * The current result.
+     */
+    protected _current: IteratorResult<T>;
+    /**
+     * The current zero based index.
+     */
+    protected _index: number;
+    /**
+     * The underlying iterator.
+     */
+    protected _iterator: Iterator<T>;
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {Iterator<T>} [iterator] The underlying iterator.
+     */
+    constructor(iterator?: Iterator<T>);
+    /** @inheritdoc */
+    readonly canReset: boolean;
+    /** @inheritdoc */
+    readonly current: T;
+    /** @inheritdoc */
+    readonly isValid: boolean;
+    /** @inheritdoc */
+    readonly key: number;
+    /** @inheritdoc */
+    moveNext(): boolean;
+    /** @inheritdoc */
+    next(): IteratorResult<T>;
+    /** @inheritdoc */
+    reset(): IEnumerator<T>;
+}
+/**
+ * An enumerator that is based on an array.
+ */
+export declare class ArrayEnumerator<T> extends IteratorEnumerator<T> {
+    /**
+     * The underlying array.
+     */
+    protected _arr: ArrayLike<T>;
+    /**
+     * Initializes a new instance of that class.
+     *
+     * @param {ArrayLike<T>} [arr] The underlying array.
+     */
+    constructor(arr?: ArrayLike<T>);
+    /** @inheritdoc */
+    readonly canReset: boolean;
+    /** @inheritdoc */
+    reset(): IEnumerator<T>;
+}
+/**
  * A grouping of items.
  */
 export interface IGrouping<T, TKey> extends IEnumerable<T> {
@@ -609,6 +676,10 @@ export interface IItemContext<T> {
      */
     cancel: boolean;
     /**
+     * Gets the underlying enumerator.
+     */
+    readonly enumerator: IEnumerator<T>;
+    /**
      * Gets the current zero-based index.
      */
     readonly index: number;
@@ -621,10 +692,6 @@ export interface IItemContext<T> {
      */
     readonly item: T;
     /**
-     * Gets the current key.
-     */
-    readonly key: any;
-    /**
      * Gets or sets the value for the next item.
      */
     nextValue: any;
@@ -632,10 +699,6 @@ export interface IItemContext<T> {
      * Gets the value of the previous item.
      */
     readonly previousValue: any;
-    /**
-     * Gets the underlying sequence.
-     */
-    readonly sequence: IEnumerable<T>;
     /**
      * Gets or sets the value for the current item and the upcoming ones.
      */
@@ -893,17 +956,9 @@ export interface IList<T> extends ICollection<T> {
  */
 export declare class Enumerable<T> implements IEnumerable<T> {
     /**
-     * The current item
-     */
-    protected _current: IteratorResult<T>;
-    /**
-     * The current zero based index.
-     */
-    protected _index: number;
-    /**
      * The underyling iterator.
      */
-    protected _iterator: Iterator<T>;
+    protected _enumerator: IEnumerator<T>;
     /**
      * Initializes a new instance of that class.
      *
@@ -917,11 +972,7 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     any(predicate?: Predciate<T> | string): boolean;
     /** @inheritdoc */
-    asResettable(): IEnumerable<T>;
-    /** @inheritdoc */
     average<U>(defaultValue?: U): number | U;
-    /** @inheritdoc */
-    readonly canReset: boolean;
     /** @inheritdoc */
     cast<U>(): IEnumerable<U>;
     /** @inheritdoc */
@@ -940,8 +991,6 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     contains(item: any, comparer?: EqualityComparer<T> | string | true): boolean;
     /** @inheritdoc */
     count(predicate?: Predciate<T> | string): number;
-    /** @inheritdoc */
-    readonly current: T;
     /** @inheritdoc */
     defaultIfEmpty(...args: T[]): IEnumerable<T>;
     /**
@@ -986,6 +1035,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     forEach(action: Action<T>): void;
     /** @inheritdoc */
+    getEnumerator(): IEnumerator<T>;
+    /** @inheritdoc */
     groupBy<TKey>(keySelector: Selector<T, TKey> | string, keyEqualityComparer?: EqualityComparer<TKey> | string): IEnumerable<IGrouping<T, TKey>>;
     /** @inheritdoc */
     groupJoin<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, IEnumerable<TInner>, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
@@ -1013,11 +1064,7 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      */
     protected intersectInner(other: IEnumerable<T>, equalityComparer: EqualityComparer<T>): Iterator<T>;
     /** @inheritdoc */
-    readonly isValid: boolean;
-    /** @inheritdoc */
-    readonly itemKey: number;
-    /** @inheritdoc */
-    [Symbol.iterator](): Iterator<T>;
+    [Symbol.iterator](): IEnumerator<T>;
     /** @inheritdoc */
     join<TInner, TKey, TResult>(inner: Sequence<TInner>, outerKeySelector: Selector<T, TKey> | string, innerKeySelector: Selector<TInner, TKey> | string, resultSelector: Zipper<T, TInner, TResult> | string, comparer?: EqualityComparer<TKey> | string): IEnumerable<TResult>;
     /**
@@ -1043,10 +1090,6 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     min<U>(defaultValue?: U): T | U;
     /** @inheritdoc */
-    moveNext(): boolean;
-    /** @inheritdoc */
-    next(): IteratorResult<T>;
-    /** @inheritdoc */
     notEmpty(): IEnumerable<T>;
     /** @inheritdoc */
     ofType<U>(type: string): IEnumerable<U>;
@@ -1060,8 +1103,6 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     orderDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
     /** @inheritdoc */
     pushToArray(arr: T[]): IEnumerable<T>;
-    /** @inheritdoc */
-    reset(): IEnumerable<T>;
     /** @inheritdoc */
     reverse(): IOrderedEnumerable<T>;
     /** @inheritdoc */
@@ -1154,34 +1195,24 @@ export declare class Enumerable<T> implements IEnumerable<T> {
      *
      * @return {Iterator<U>} The iterator.
      */
-    protected zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, T, U>): Iterator<U>;
+    protected zipInner<U>(other: IEnumerator<T>, zipper: Zipper<T, T, U>): Iterator<U>;
 }
 /**
  * A wrapper for another sequence.
  */
 export declare class WrappedEnumerable<T> extends Enumerable<T> {
     /**
+     * Stores the wrapped sequence.
+     */
+    protected _seq: IEnumerable<T>;
+    /**
      * Initializes a new instance of that class.
      *
-     * @param {IEnumerable<T>} seq The sequence to wrap.
+     * @param {IEnumerable<T>} [seq] The sequence to wrap.
      */
-    constructor(seq: IEnumerable<T>);
+    constructor(seq?: IEnumerable<T>);
     /** @inheritdoc */
-    asResettable(): IEnumerable<T>;
-    /** @inheritdoc */
-    readonly canReset: boolean;
-    /** @inheritdoc */
-    readonly current: T;
-    /** @inheritdoc */
-    readonly isValid: boolean;
-    /** @inheritdoc */
-    readonly itemKey: any;
-    /** @inheritdoc */
-    moveNext(): boolean;
-    /** @inheritdoc */
-    next(): IteratorResult<T>;
-    /** @inheritdoc */
-    reset(): IEnumerable<T>;
+    [Symbol.iterator](): IEnumerator<T>;
     /**
      * Gets the wrapped sequence.
      */
@@ -1202,11 +1233,7 @@ export declare class ArrayEnumerable<T> extends Enumerable<T> {
      */
     constructor(arr?: ArrayLike<T>);
     /** @inheritdoc */
-    asResettable(): IEnumerable<T>;
-    /** @inheritdoc */
-    readonly canReset: boolean;
-    /** @inheritdoc */
-    reset(): IEnumerable<T>;
+    [Symbol.iterator](): IEnumerator<T>;
 }
 /**
  * A collection.
@@ -1250,15 +1277,11 @@ export declare class Collection<T> extends ArrayEnumerable<T> implements ICollec
      */
     protected markAsChanged<TResult>(func?: (coll: Collection<T>) => TResult): TResult;
     /** @inheritdoc */
-    moveNext(): boolean;
-    /** @inheritdoc */
     push(...items: T[]): number;
     /** @inheritdoc */
     remove(item: T): boolean;
     /** @inheritdoc */
     removeAll(predicate: Predciate<T> | string): number;
-    /** @inheritdoc */
-    reset(): IEnumerable<T>;
     /** @inheritdoc */
     setItem(index: number, item: T): IList<T>;
     /**
@@ -1399,9 +1422,9 @@ export declare class Lookup<T, TKey extends string | number> extends WrappedEnum
     /**
      * Initializes a new instance of that class.
      *
-     * @param {IEnumerable<IGrouping<T, U>>} seq The sequence with the elements.
+     * @param {IEnumerable<IGrouping<T, U>>} [seq] The sequence with the elements.
      */
-    constructor(seq: IEnumerable<IGrouping<T, TKey>>);
+    constructor(seq?: IEnumerable<IGrouping<T, TKey>>);
 }
 /**
  * Returns a value as function.

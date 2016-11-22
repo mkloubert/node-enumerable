@@ -59,27 +59,27 @@ Helpers.execute(
                 arr.push(j % 2 === 0 ? j : ('' + j));
             }
 
-            let seq1 = Enumerable.from(arr).ofType<number>('number');
-            let seq2 = Enumerable.from(arr).ofType<string>('string');
-            let seq3 = Enumerable.from(arr).ofType<Function>('function');
+            let e1 = Enumerable.from(arr).ofType<number>('number').getEnumerator();
+            let e2 = Enumerable.from(arr).ofType<string>('string').getEnumerator();
+            let e3 = Enumerable.from(arr).ofType<Function>('function').getEnumerator();
 
             let expected1: number[] = arr.filter(x => typeof x === "number");
             let expected2: string[] = arr.filter(x => typeof x === "string");
             let expected3: Function[] = arr.filter(x => typeof x === "function");
 
             let actual1: number[] = [];
-            while (seq1.moveNext()) {
-                actual1.push(seq1.current);
+            while (e1.moveNext()) {
+                actual1.push(e1.current);
             }
 
             let actual2: string[] = [];
-            while (seq2.moveNext()) {
-                actual2.push(seq2.current);
+            while (e2.moveNext()) {
+                actual2.push(e2.current);
             }
 
             let actual3: Function[] = [];
-            while (seq3.moveNext()) {
-                actual3.push(seq3.current);
+            while (e3.moveNext()) {
+                actual3.push(e3.current);
             }
 
             let tests = [

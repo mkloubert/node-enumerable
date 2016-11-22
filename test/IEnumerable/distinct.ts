@@ -33,14 +33,15 @@ Helpers.execute(
         let arr: any[] = [ 1, 2, 1, 3, 5, 4, 5 ];
         let expected: any[] = [ 1, 2, 3, 5, 4 ];
 
-        let seq = Enumerable.from(arr).distinct();
+        let e = Enumerable.from(arr).distinct()
+                                    .getEnumerator();
 
         let cnt = 0;
-        while (seq.moveNext()) {
+        while (e.moveNext()) {
             ++cnt;
 
-            let item = seq.current;
-            let index = seq.itemKey;
+            let item = e.current;
+            let index = e.key;
 
             Assert.strictEqual(item, expected[index]);
             Assert.notStrictEqual('' + item, expected[index]);
@@ -66,14 +67,15 @@ Helpers.execute(
 
         let equalityComparers = [ (x: number, y: number) => x === y, '(x, y) => x === y', true ];
         equalityComparers.forEach((ec: any) => {
-            let seq = Enumerable.from(arr).distinct(ec);
+            let e = Enumerable.from(arr).distinct(ec)
+                                        .getEnumerator();
 
             let cnt = 0;
-            while (seq.moveNext()) {
+            while (e.moveNext()) {
                 ++cnt;
 
-                let item = seq.current;
-                let index = seq.itemKey;
+                let item = e.current;
+                let index = e.key;
 
                 Assert.strictEqual(item, expected[index]);
                 Assert.equal(item, expected[index]);

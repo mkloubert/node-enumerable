@@ -49,19 +49,19 @@ Helpers.execute(
                 arr.push(j);
             }
 
-            let seq = Enumerable.from(arr);
+            let e = Enumerable.from(arr).getEnumerator();
 
             let cnt1 = 0;
-            while (seq.moveNext()) {
+            while (e.moveNext()) {
                 ++cnt1;
             }
 
             let cnt2: number;
             Assert.doesNotThrow(() => {
-                seq.reset();
+                e.reset();
 
                 cnt2 = 0;
-                while (seq.moveNext()) {
+                while (e.moveNext()) {
                     ++cnt2;
                 }
             });
@@ -98,19 +98,20 @@ Helpers.execute(
             }
 
             let iterator = createIterator(i);
-            let seq = Enumerable.from(iterator);
+            let e = Enumerable.from(iterator)
+                              .getEnumerator();
 
             let cnt1 = 0;
-            while (seq.moveNext()) {
+            while (e.moveNext()) {
                 ++cnt1;
             }
 
             let cnt2: number = undefined;
             Assert.throws(() => {
-                seq.reset();
+                e.reset();
 
                 cnt2 = 0;
-                while (seq.moveNext()) {
+                while (e.moveNext()) {
                     ++cnt2;
                 }
             });

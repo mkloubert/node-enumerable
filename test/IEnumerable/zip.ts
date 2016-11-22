@@ -44,11 +44,11 @@ Helpers.execute(
             for (let i = 0; i < zippers.length; i++) {
                 let z = zippers[i];
 
-                let zipped = seq.zip(arr2, z);
+                let zipped = seq.zip(arr2, z).getEnumerator();
 
                 while (zipped.moveNext()) {
                     let item = zipped.current;
-                    let index = zipped.itemKey;
+                    let index = zipped.key;
 
                     Assert.strictEqual(item, expected[index]);
                     Assert.equal('' + item, expected[index]);
@@ -57,11 +57,11 @@ Helpers.execute(
                     Assert.equal(item, expected[index]);
                 }
 
-                if (!seq.canReset) {
+                if (!zipped.canReset) {
                     break;
                 }
 
-                seq.reset();
+                zipped.reset();
             }
         });
     });
@@ -83,11 +83,11 @@ Helpers.execute(
             for (let i = 0; i < zippers.length; i++) {
                 let z = zippers[i];
 
-                let zipped = seq.zip(arr2, z);
+                let zipped = seq.zip(arr2, z).getEnumerator();
 
                 while (zipped.moveNext()) {
                     let item = zipped.current;
-                    let index = zipped.itemKey;
+                    let index = zipped.key;
 
                     Assert.strictEqual(item, expected[index]);
                     Assert.notStrictEqual('' + item, expected[index]);
@@ -98,11 +98,11 @@ Helpers.execute(
                     Assert.equal(item, expected[index]);
                 }
 
-                if (!seq.canReset) {
+                if (!zipped.canReset) {
                     break;
                 }
 
-                seq.reset();
+                zipped.reset();
             }
         });
     });

@@ -96,7 +96,7 @@ export type Selector<T, U> = (item: T, ctx: IItemContext<T>) => U;
 /**
  * A sequence.
  */
-export type Sequence<T> = ArrayLike<T> | Iterator<T>;
+export type Sequence<T> = ArrayLike<T> | Iterator<T> | Iterable<T> | IterableIterator<T>;
 /**
  * Describes a function that "zips" two elements.
  * 
@@ -113,7 +113,7 @@ export type Zipper<T, U, V> = (item1: T, item2: U,
 /**
  * Describes a sequence.
  */
-export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
+export interface IEnumerable<T> extends Iterable<T> {
     /**
      * Aggregates all itms of the sequence to one item.
      * 
@@ -145,11 +145,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
     any(predicate?: Predciate<T> | string): boolean;
 
     /**
-     * Returns a sequence of that elements that can be resetted.
-     */
-    asResettable(): IEnumerable<T>;
-
-    /**
      * Computes the average of that sequence.
      * 
      * @param {U} [defaultValue] The custom value that is returned if sequence has no items.
@@ -157,11 +152,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * @return {number | U} The average of the sequence or the default value.
      */
     average<U>(defaultValue?: U): number | U;
-
-    /**
-     * Gets if the sequence can be resetted or not.
-     */
-    readonly canReset: boolean;
 
     /**
      * Casts the items of that sequence to a new type.
@@ -207,11 +197,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * @return {Number} The number of elements.
      */
     count(predicate?: Predciate<T> | string): number;
-
-    /**
-     * Gets the current item / element.
-     */
-    readonly current: T;
 
     /**
      * Returns the elements of the sequence or a sequence with default values if the current sequence is empty.
@@ -301,6 +286,13 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
     forEach(action: Action<T>): void;
 
     /**
+     * Gets the enumerator for iteration.
+     * 
+     * @return {IEnumerator<T>} The enumerator.
+     */
+    getEnumerator(): IEnumerator<T>;
+
+    /**
      * Groups the elements of the sequence.
      * 
      * @param {Selector<T, TKey> | string} keySelector The function that provides the key for an element.
@@ -338,15 +330,8 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      */
     intersect(other: Sequence<T>, comparer?: EqualityComparer<T> | string | true): IEnumerable<T>;
 
-    /**
-     * Gets if the 'moveNext()' can be called or not.
-     */
-    readonly isValid: boolean;
-
-    /**
-     * Gets the current key.
-     */
-    readonly itemKey: any;
+    /** @inheritdoc */
+    [Symbol.iterator](): IEnumerator<T>;
 
     /**
      * Correlates the elements of that sequence and another based on matching keys.
@@ -413,13 +398,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * @return {U | V} The "smallest" value or the default value.
      */
     min<U>(defaultValue?: U): T | U;
-
-    /**
-     * Moves to the next element.
-     * 
-     * @return New element is available or not.
-     */
-    moveNext(): boolean;
 
     /**
      * Removes all non-empty items.
@@ -491,13 +469,6 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
      * @chainable.
      */
     pushToArray(arr: T[]): IEnumerable<T>;
-
-    /**
-     * Resets the sequence.
-     * 
-     * @chainable.
-     */
-    reset(): IEnumerable<T>;
 
     /**
      * Reverses the order of the sequence.
@@ -687,6 +658,155 @@ export interface IEnumerable<T> extends Iterator<T>, Iterable<T> {
 }
 
 /**
+ * Describes an enumerator.
+ */
+export interface IEnumerator<T> extends Iterator<T> {
+    /**
+     * Gets if the enumerator can be resetted or not.
+     */
+    readonly canReset: boolean;
+
+    /**
+     * Gets the current element.
+     */
+    readonly current: T;
+
+    /**
+     * Gets if the 'moveNext()' can be called or not.
+     */
+    readonly isValid: boolean;
+    
+    /**
+     * Gets the current key.
+     */
+    readonly key: number;
+
+    /**
+     * Moves to the next element.
+     * 
+     * @return New element is available or not.
+     */
+    moveNext(): boolean;
+
+    /**
+     * Resets the enumerator.
+     * 
+     * @chainable
+     * 
+     * @throws Cannot be resetted.
+     */
+    reset(): IEnumerator<T>;
+}
+
+/**
+ * An enumerator that is based on an iterator.
+ */
+export class IteratorEnumerator<T> implements IEnumerator<T> {
+    /**
+     * The current result.
+     */
+    protected _current: IteratorResult<T>;
+    /**
+     * The current zero based index.
+     */
+    protected _index = -1;
+    /**
+     * The underlying iterator.
+     */
+    protected _iterator: Iterator<T>;
+
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {Iterator<T>} [iterator] The underlying iterator.
+     */
+    constructor(iterator?: Iterator<T>) {
+        this._iterator = iterator || makeIterable<T>();
+    }
+
+    /** @inheritdoc */
+    public get canReset(): boolean {
+        return false;
+    }
+
+    /** @inheritdoc */
+    public get current(): T {
+        if (this._current) {
+            return this._current.value;
+        }
+    }
+
+    /** @inheritdoc */
+    public get isValid(): boolean {
+        return !this._current ||
+               !this._current.done;
+    }
+
+    /** @inheritdoc */
+    public get key(): number {
+        return this._index;
+    }
+
+    /** @inheritdoc */
+    public moveNext(): boolean {
+        if (this._current && this._current.done) {
+            return false;
+        }
+
+        ++this._index;
+        this._current = this._iterator.next();
+        return this._current && !this._current.done;
+    }
+
+    /** @inheritdoc */
+    public next(): IteratorResult<T> {
+        this.moveNext();
+        return this._current;
+    }
+
+    /** @inheritdoc */
+    public reset(): IEnumerator<T> {
+        throw "Reset operation is NOT supported here!";
+    }
+}
+
+/**
+ * An enumerator that is based on an array.
+ */
+export class ArrayEnumerator<T> extends IteratorEnumerator<T> {
+    /**
+     * The underlying array.
+     */
+    protected _arr: ArrayLike<T>;
+    
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {ArrayLike<T>} [arr] The underlying array.
+     */
+    constructor(arr?: ArrayLike<T>) {
+        super();
+
+        this._arr = arr || [];
+        this.reset();
+    }
+
+    /** @inheritdoc */
+    public get canReset(): boolean {
+        return true;
+    }
+
+    /** @inheritdoc */
+    public reset(): IEnumerator<T> {
+        this._index = -1;
+        this._current = null;
+        this._iterator = makeIterable<T>(this._arr);
+
+        return this;
+    }
+}
+
+/**
  * A grouping of items.
  */
 export interface IGrouping<T, TKey> extends IEnumerable<T> {
@@ -706,6 +826,11 @@ export interface IItemContext<T> {
     cancel: boolean;
 
     /**
+     * Gets the underlying enumerator.
+     */
+    readonly enumerator: IEnumerator<T>;
+
+    /**
      * Gets the current zero-based index.
      */
     readonly index: number;
@@ -721,11 +846,6 @@ export interface IItemContext<T> {
     readonly item: T;
 
     /**
-     * Gets the current key.
-     */
-    readonly key: any;
-
-    /**
      * Gets or sets the value for the next item.
      */
     nextValue: any;
@@ -734,11 +854,6 @@ export interface IItemContext<T> {
      * Gets the value of the previous item.
      */
     readonly previousValue: any;
-
-    /**
-     * Gets the underlying sequence.
-     */
-    readonly sequence: IEnumerable<T>;
 
     /**
      * Gets or sets the value for the current item and the upcoming ones.
@@ -1028,17 +1143,21 @@ interface IOrDefaultArgs<T, U> {
 }
 
 class ItemContext<T> implements IItemContext<T> {
+    protected _enumerator: IEnumerator<T>;
     protected _index: number;
     protected _previousValue: any;
-    protected _sequence: IEnumerable<T>;
 
-    constructor(seq: IEnumerable<T>, index: number, previousValue?: any) {
-        this._sequence = seq;
+    constructor(e: IEnumerator<T>, index: number, previousValue?: any) {
+        this._enumerator = e;
         this._index = index;
         this._previousValue = previousValue;
     }
 
     public cancel: boolean = false;
+
+    public get enumerator(): IEnumerator<T> {
+        return this._enumerator;
+    }
 
     public get index(): number {
         return this._index;
@@ -1049,11 +1168,7 @@ class ItemContext<T> implements IItemContext<T> {
     }
 
     public get item(): T {
-        return this._sequence.current;
-    }
-
-    public get key(): any {
-        return this._sequence.itemKey;
+        return this._enumerator.current;
     }
 
     public get previousValue(): any {
@@ -1061,10 +1176,6 @@ class ItemContext<T> implements IItemContext<T> {
     }
 
     public nextValue: any;
-
-    public get sequence(): IEnumerable<T> {
-        return this._sequence;
-    }
 
     public value: any;
 }
@@ -1108,17 +1219,9 @@ function toNumber(val: any): number {
  */
 export class Enumerable<T> implements IEnumerable<T> {
     /**
-     * The current item
-     */
-    protected _current: IteratorResult<T>;
-    /**
-     * The current zero based index.
-     */
-    protected _index = -1;
-    /**
      * The underyling iterator.
      */
-    protected _iterator: Iterator<T>;
+    protected _enumerator: IEnumerator<T>;
 
     /**
      * Initializes a new instance of that class.
@@ -1126,7 +1229,7 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @param {Iterator<T>} [iterator] The underyling iterator.
      */
     constructor(iterator?: Iterator<T>) {
-        this._iterator = iterator || makeIterable<T>();
+        this._enumerator = new IteratorEnumerator<T>(iterator || makeIterable<T>());
     }
 
     /** @inheritdoc */
@@ -1140,11 +1243,12 @@ export class Enumerable<T> implements IEnumerable<T> {
 
         let result: U | V = defaultValue;
 
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let currentResult: any;
@@ -1173,11 +1277,12 @@ export class Enumerable<T> implements IEnumerable<T> {
     public all(predicate: Predciate<T> | string): boolean {
         let p = toPredicateSafe(predicate);
 
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = p(ctx.item, ctx);
@@ -1201,11 +1306,12 @@ export class Enumerable<T> implements IEnumerable<T> {
     public any(predicate?: Predciate<T> | string): boolean {
         let p = toPredicateSafe(predicate);
 
+        let e = this.getEnumerator()
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = p(ctx.item, ctx);
@@ -1226,11 +1332,6 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public asResettable(): IEnumerable<T> {
-        return from(this.toArray());
-    }
-
-    /** @inheritdoc */
     public average<U>(defaultValue?: U): number | U {
         let cnt = 1;
         let sum = this.aggregate<number, boolean>((result, item, ctx) => {
@@ -1246,11 +1347,6 @@ export class Enumerable<T> implements IEnumerable<T> {
         }
 
         return defaultValue;
-    }
-
-    /** @inheritdoc */
-    public get canReset(): boolean {
-        return false;
     }
 
     /** @inheritdoc */
@@ -1273,9 +1369,11 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */  
     protected* concatInner(other: Iterator<T>): Iterator<T> {
+        let e = this.getEnumerator();
+
         // first the items of THAT sequence
-        while (this.moveNext()) {
-            yield this.current;
+        while (e.moveNext()) {
+            yield e.current;
         }
 
         // now the other ones
@@ -1312,12 +1410,13 @@ export class Enumerable<T> implements IEnumerable<T> {
     public count(predicate?: Predciate<T> | string): number {
         let p = toPredicateSafe(predicate);
 
+        let e = this.getEnumerator();
         let cnt = 0;
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = p(ctx.item, ctx);
@@ -1338,11 +1437,6 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public get current(): T {
-        return this._current.value;
-    }
-
-    /** @inheritdoc */
     public defaultIfEmpty(...args: T[]): IEnumerable<T> {
         return from(this.defaultIfEmptyInner(args));
     }
@@ -1355,11 +1449,13 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */  
     protected* defaultIfEmptyInner(args: T[]): Iterator<T> {
-        if (this.moveNext()) {
+        let e = this.getEnumerator();
+
+        if (e.moveNext()) {
             do {
-                yield this.current;
+                yield e.current;
             }
-            while (this.moveNext());
+            while (e.moveNext());
         }
         else {
             if (args) {
@@ -1389,9 +1485,10 @@ export class Enumerable<T> implements IEnumerable<T> {
 
         let temp: T[] = [];
 
+        let e = this.getEnumerator();
         let index = -1;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index);
 
             // check for duplicate
             let alreadyExists = false;
@@ -1417,11 +1514,12 @@ export class Enumerable<T> implements IEnumerable<T> {
             action = () => { };
         }
 
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             action(ctx.item, ctx);
@@ -1477,8 +1575,10 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */
     protected* exceptInner(itemsToExcept: ArrayLike<T>, equalityComparer: EqualityComparer<T>): Iterator<T> {
-        while (this.moveNext()) {
-            let item = this.current;
+        let e = this.getEnumerator();
+
+        while (e.moveNext()) {
+            let item = e.current;
             
             // check if item has to be excepted
             let found = false;
@@ -1499,13 +1599,14 @@ export class Enumerable<T> implements IEnumerable<T> {
     public first(predicate?: Predciate<T> | string): T {
         let p = toPredicateSafe(predicate);
 
+        let e = this.getEnumerator();
         let result: T;
         let found = false;
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = p(ctx.item, ctx);
@@ -1537,13 +1638,14 @@ export class Enumerable<T> implements IEnumerable<T> {
         let args = toOrDefaultArgs<T, U>(predicateOrDefaultValue, defaultValue,
                                          arguments.length);
 
+        let e = this.getEnumerator();
         let result: T | U;
         let found = false;
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = args.predicate(ctx.item, ctx);
@@ -1576,18 +1678,24 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public getEnumerator(): IEnumerator<T> {
+        return this[Symbol.iterator]();
+    }
+
+    /** @inheritdoc */
     public groupBy<TKey>(keySelector: Selector<T, TKey> | string,
                          keyEqualityComparer?: EqualityComparer<TKey> | string): IEnumerable<IGrouping<T, TKey>> {
 
         let ks = toSelectorSafe<T, TKey>(keySelector);
         let ksec = toEqualityComparerSafe<TKey>(keyEqualityComparer);
 
+        let e = this.getEnumerator();
         let groupings: { key: TKey, items: T[] }[] = [];
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let key = ks(ctx.item, ctx);
@@ -1671,7 +1779,7 @@ export class Enumerable<T> implements IEnumerable<T> {
                            .toArray());
         };
 
-        let outerGroups = createGroupsForSequence(this, outerKeySelector);
+        let outerGroups = createGroupsForSequence(this, outerKeySelector).getEnumerator();
         let innerGroups = createGroupsForSequence(inner, innerKeySelector);
 
         let ogIndex = -1;
@@ -1682,12 +1790,12 @@ export class Enumerable<T> implements IEnumerable<T> {
         while (outerGroups.moveNext()) {
             let og = outerGroups.current;
 
-            let ogValues = og.values;
+            let ogValues = og.values.getEnumerator();
             ogValues.reset();
 
-            innerGroups.reset();
             let matchingInnerGroups = innerGroups.where(ig => keyEqualityComparer(og.key, ig.key))
-                                                 .select(ig => new Grouping<TInner, TKey>(ig.key, ig.values));
+                                                 .select(ig => new Grouping<TInner, TKey>(ig.key, ig.values))
+                                                 .getEnumerator();
             
             while (ogValues.moveNext()) {
                 ++ogIndex;
@@ -1700,7 +1808,6 @@ export class Enumerable<T> implements IEnumerable<T> {
                     ctxOG.value = valueOG;
 
                     let ctxIG = new ItemContext(matchingInnerGroups, igIndex, prevValIG);
-                    ctxIG.item.reset();
                     ctxIG.value = valueIG;
 
                     let joinedItem = resultSelector(ctxOG.item, ctxIG.item,
@@ -1742,8 +1849,9 @@ export class Enumerable<T> implements IEnumerable<T> {
         let o: T[] = [];
         other.forEach(x => o.push(x));
 
-        while (this.moveNext()) {
-            let item = this.current;
+        let e = this.getEnumerator();
+        while (e.moveNext()) {
+            let item = e.current;
 
             // search for machting item...
             for (let i = 0; i < o.length; i++) {
@@ -1761,19 +1869,8 @@ export class Enumerable<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public get isValid(): boolean {
-        return !this._current ||
-               !this._current.done;
-    }
-
-    /** @inheritdoc */
-    public get itemKey(): number {
-        return this._index;
-    }
-
-    /** @inheritdoc */
-    public [Symbol.iterator](): Iterator<T> {
-        return this;
+    public [Symbol.iterator](): IEnumerator<T> {
+        return this._enumerator;
     }
 
     /** @inheritdoc */
@@ -1821,7 +1918,7 @@ export class Enumerable<T> implements IEnumerable<T> {
                            .toArray());
         };
 
-        let outerGroups = createGroupsForSequence(this, outerKeySelector);
+        let outerGroups = createGroupsForSequence(this, outerKeySelector).getEnumerator();
         let innerGroups = createGroupsForSequence(inner, innerKeySelector);
 
         let index = -1;
@@ -1831,14 +1928,13 @@ export class Enumerable<T> implements IEnumerable<T> {
         let valueOG: any;
         while (outerGroups.moveNext()) {
             let og = outerGroups.current;
-            let ogValues = from(og.values);
+            let ogValues = from(og.values).getEnumerator();
 
-            innerGroups.reset();
-
-            let matchingInnerGroups = innerGroups.where(ig => keyEqualityComparer(og.key, ig.key));
+            let matchingInnerGroups = innerGroups.where(ig => keyEqualityComparer(og.key, ig.key))
+                                                 .getEnumerator();
             while (matchingInnerGroups.moveNext()) {
                 let ig = matchingInnerGroups.current;
-                let igValues = from(ig.values);
+                let igValues = from(ig.values).getEnumerator();
 
                 ogValues.reset();
                 while(ogValues.moveNext()) {
@@ -1881,10 +1977,11 @@ export class Enumerable<T> implements IEnumerable<T> {
 
         let result = defaultValue;
 
+        let e = this.getEnumerator();
         let index = -1;
-        while (this.moveNext()) {
+        while (e.moveNext()) {
             ++index;
-            let item = this.current;
+            let item = e.current;
 
             if (0 !== index) {
                 result += separator + item;
@@ -1901,13 +1998,14 @@ export class Enumerable<T> implements IEnumerable<T> {
     public last(predicate?: Predciate<T> | string): T {
         let p = toPredicateSafe(predicate);
 
+        let e = this.getEnumerator();
         let result: T;
         let found = false;
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = p(ctx.item, ctx);
@@ -1937,13 +2035,14 @@ export class Enumerable<T> implements IEnumerable<T> {
         let args = toOrDefaultArgs<T, U>(predicateOrDefaultValue, defaultValue,
                                          arguments.length);
 
+        let e = this.getEnumerator();
         let result: T | U;
         let found = false;
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = args.predicate(ctx.item, ctx);
@@ -1988,22 +2087,6 @@ export class Enumerable<T> implements IEnumerable<T> {
 
             return result;
         }, defaultValue);
-    }
-
-    /** @inheritdoc */
-    public moveNext(): boolean {
-        if (this._current && this._current.done) {
-            return false;
-        }
-
-        ++this._index;
-        this._current = this._iterator.next();
-        return this._current && !this._current.done;
-    }
-
-    /** @inheritdoc */
-    public next(): IteratorResult<T> {
-        return this._iterator.next();
     }
 
     /** @inheritdoc */
@@ -2065,18 +2148,14 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public pushToArray(arr: T[]): IEnumerable<T> {
-        while (this.moveNext()) {
+        let e = this.getEnumerator();
+        while (e.moveNext()) {
             if (arr) {
-                arr.push(this.current);
+                arr.push(e.current);
             }
         }
 
         return this;
-    }
-
-    /** @inheritdoc */
-    public reset(): IEnumerable<T> {
-        throw "Not supported!";
     }
 
     /** @inheritdoc */
@@ -2109,11 +2188,12 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */  
     protected* selectInner<U>(selector: Selector<T, U>): Iterator<U> {
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let newItem = selector(ctx.item, ctx);
@@ -2144,11 +2224,12 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */  
     protected* selectManyInner<U>(selector: ManySelector<T, U>): Iterator<U> {
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let iterator = makeIterable<U>(selector(ctx.item, ctx));
@@ -2180,30 +2261,32 @@ export class Enumerable<T> implements IEnumerable<T> {
         
         let ec = toEqualityComparerSafe(comparer);
         let kc = toEqualityComparerSafe(keyComparer);
-        let seq = from(makeIterable<T>(other));
 
-        while (this.moveNext()) {
-            let x = this.current;
+        let enumOther = from(makeIterable<T>(other)).getEnumerator();
+        let enumThis = this.getEnumerator();
 
-            if (!seq.moveNext()) {
+        while (enumThis.moveNext()) {
+            let x = enumThis.current;
+
+            if (!enumOther.moveNext()) {
                 // that sequence has more items
                 return false;
             }
 
-            let y = seq.current;
+            let y = enumOther.current;
 
             if (!ec(x, y)) {
                 // different values
                 return false;
             }
 
-            if (!kc(this.itemKey, seq.itemKey)) {
+            if (!kc(enumThis.key, enumOther.key)) {
                 // different keys
                 return false;
             }
         }
 
-        if (seq.moveNext()) {
+        if (enumOther.moveNext()) {
             // other has more items
             return false;
         }
@@ -2215,13 +2298,14 @@ export class Enumerable<T> implements IEnumerable<T> {
     public single(predicate?: Predciate<T> | string): T {
         let p = toPredicateSafe(predicate);
 
+        let e = this.getEnumerator();
         let result: T;
         let found = false;
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = p(ctx.item, ctx);
@@ -2256,13 +2340,14 @@ export class Enumerable<T> implements IEnumerable<T> {
         let args = toOrDefaultArgs(predicateOrDefaultValue, defaultValue,
                                    arguments.length);
 
+        let e = this.getEnumerator();
         let result: T | U;
         let found = false;
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = args.predicate(ctx.item, ctx);
@@ -2308,13 +2393,14 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */ 
     protected* skipLastInner(): Iterator<T> {
+        let e = this.getEnumerator();
         let hasRemainingItems: boolean;
         let isFirst = true;
         let item: T;
 
         do
         {
-            hasRemainingItems = this.moveNext();
+            hasRemainingItems = e.moveNext();
             if (!hasRemainingItems) {
                 continue;
             }
@@ -2326,7 +2412,7 @@ export class Enumerable<T> implements IEnumerable<T> {
                 isFirst = false;
             }
 
-            item = this.current;
+            item = e.current;
         }
         while (hasRemainingItems);
     }
@@ -2346,12 +2432,13 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */   
     protected* skipWhileInner(predicate: Predciate<T>): Iterator<T> {
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
         let value: any;
         let skipItems = true;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             if (skipItems) {
@@ -2401,12 +2488,13 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */   
     protected* takeWhileInner(predicate: Predciate<T>): Iterator<T> {
+        let e = this.getEnumerator();
         let alwaysMatches = false;
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = predicate(ctx.item, ctx) || alwaysMatches;
@@ -2438,11 +2526,12 @@ export class Enumerable<T> implements IEnumerable<T> {
         
         let arr: T[] = [];
 
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let action: () => void;
@@ -2452,7 +2541,7 @@ export class Enumerable<T> implements IEnumerable<T> {
             }
             else {
                 action = () => {
-                    let k = ks(ctx.key,
+                    let k = ks(e.key,
                                ctx.item, ctx);
 
                     arr[k];
@@ -2512,11 +2601,12 @@ export class Enumerable<T> implements IEnumerable<T> {
      * @return {Iterator<T>} The iterator.
      */    
     protected* whereInner(predicate: Predciate<T>): Iterator<T> {
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal: any;
         let value: any;
-        while (this.moveNext()) {
-            let ctx = new ItemContext(this, ++index, prevVal);
+        while (e.moveNext()) {
+            let ctx = new ItemContext(e, ++index, prevVal);
             ctx.value = value;
 
             let doesMatch = predicate(ctx.item, ctx);
@@ -2536,7 +2626,7 @@ export class Enumerable<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public zip<U>(other: Sequence<T>, zipper: Zipper<T, T, U> | string): IEnumerable<U> {
-        let seq = from(makeIterable<T>(other));
+        let seq = from(makeIterable<T>(other)).getEnumerator();
         let z = toZipperSafe<T, T, U>(zipper);
 
         return from(this.zipInner<U>(seq, z));
@@ -2550,16 +2640,17 @@ export class Enumerable<T> implements IEnumerable<T> {
      * 
      * @return {Iterator<U>} The iterator.
      */ 
-    protected* zipInner<U>(other: IEnumerable<T>, zipper: Zipper<T, T, U>): Iterator<U> {
+    protected* zipInner<U>(other: IEnumerator<T>, zipper: Zipper<T, T, U>): Iterator<U> {
+        let e = this.getEnumerator();
         let index = -1;
         let prevVal1: any;
         let prevVal2: any;
         let value1: any;
         let value2: any;
-        while (this.moveNext() && other.moveNext()) {
+        while (e.moveNext() && other.moveNext()) {
             ++index;
 
-            let ctx1 = new ItemContext(this, index, prevVal1);
+            let ctx1 = new ItemContext(e, index, prevVal1);
             ctx1.value = value1;
 
             let ctx2 = new ItemContext(other, index, prevVal2);
@@ -2587,63 +2678,36 @@ export class Enumerable<T> implements IEnumerable<T> {
  */
 export class WrappedEnumerable<T> extends Enumerable<T> {
     /**
+     * Stores the wrapped sequence.
+     */
+    protected _seq: IEnumerable<T>;
+
+    /**
      * Initializes a new instance of that class.
      * 
-     * @param {IEnumerable<T>} seq The sequence to wrap.
+     * @param {IEnumerable<T>} [seq] The sequence to wrap.
      */
-    constructor(seq: IEnumerable<T>) {
-        super(seq);
-    }
-
-    /** @inheritdoc */
-    public asResettable(): IEnumerable<T> {
-        if (this.canReset) {
-            return this;
+    constructor(seq?: IEnumerable<T>) {
+        let i: Iterator<T>;
+        if (seq) {
+            i = seq.getEnumerator();
         }
 
-        return new WrappedEnumerable(this.sequence.asResettable());
+        super(i);
+
+        this._seq = seq;
     }
 
     /** @inheritdoc */
-    public get canReset(): boolean {
-        return this.sequence.canReset;
-    }
-
-    /** @inheritdoc */
-    public get current(): T {
-        return this.sequence.current;
-    }
-
-    /** @inheritdoc */
-    public get isValid(): boolean {
-        return this.sequence.isValid;
-    }
-
-    /** @inheritdoc */
-    public get itemKey(): any {
-        return this.sequence.itemKey;
-    }
-
-    /** @inheritdoc */
-    public moveNext(): boolean {
-        return this.sequence.moveNext();
-    }
-
-    /** @inheritdoc */
-    public next(): IteratorResult<T> {
-        return this.sequence.next();
-    }
-
-    /** @inheritdoc */
-    public reset(): IEnumerable<T> {
-        return this.sequence.reset();
+    public [Symbol.iterator](): IEnumerator<T> {
+        return this._seq.getEnumerator();
     }
 
     /**
      * Gets the wrapped sequence.
      */
     public get sequence(): IEnumerable<T> {
-        return <IEnumerable<T>>this._iterator;
+        return this._seq;
     }
 }
 
@@ -2662,28 +2726,15 @@ export class ArrayEnumerable<T> extends Enumerable<T> {
      * @param {ArrayLike<T>} [arr] The underlying "array".
      */
     constructor(arr?: ArrayLike<T>) {
-        super(makeIterable<T>(arr));
+        super();
 
         this._arr = arr || [];
+        this._enumerator = this.getEnumerator();
     }
 
     /** @inheritdoc */
-    public asResettable(): IEnumerable<T> {
-        return this;
-    }
-
-    /** @inheritdoc */
-    public get canReset(): boolean {
-        return true;
-    }
-
-    /** @inheritdoc */
-    public reset(): IEnumerable<T> {
-        this._index = -1;
-        this._current = null;
-        this._iterator = makeIterable<T>(this._arr);
-
-        return this;
+    public [Symbol.iterator](): IEnumerator<T> {
+        return new ArrayEnumerator<T>(this._arr);
     }
 }
 
@@ -2707,11 +2758,9 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
      * @param {EqualityComparer<T> | string} [comparer] The equality comparer for the items.
      */
     constructor(seq?: Sequence<T>, comparer?: EqualityComparer<T> | string) {
-        let arr: T[] = [];
-        from(seq).forEach(x => arr.push(x));
+        super();
 
-        super(arr);
-
+        this._arr = from(seq).toArray();
         this._comparer = toEqualityComparerSafe<T>(comparer);
         this._hasChanged = false;
     }
@@ -2790,15 +2839,6 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
     }
 
     /** @inheritdoc */
-    public moveNext(): boolean {
-        if (this._index > -1 && this._hasChanged) {
-            throw "Cannot move because collection has changed!";
-        }
-
-        return super.moveNext();
-    }
-
-    /** @inheritdoc */
     public push(...items: T[]): number {
         this.throwIfReadOnly();
 
@@ -2829,13 +2869,14 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
 
         let p = toPredicateSafe(predicate);
 
+        let e = this.getEnumerator();
         let prevVal: any;
         let value: any;
         let removedItems = 0;
         for (let i = 0; i < this._arr.length; i++) {
             let item = this._arr[i];
 
-            let ctx = new ItemContext(this, i, prevVal);
+            let ctx = new ItemContext(e, i, prevVal);
 
             let doRemove = p(item, ctx);
 
@@ -2854,14 +2895,6 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
         }
 
         return removedItems;
-    }
-
-    /** @inheritdoc */
-    public reset(): IEnumerable<T> {
-        let result = super.reset();
-        this._hasChanged = false;
-
-        return result;
     }
 
     /** @inheritdoc */
@@ -2977,8 +3010,9 @@ export class HashSet<T> extends Collection<T> implements ISet<T> {
             return true;
         }
 
-        while (otherHS.moveNext()) {
-            let o = otherHS.current;
+        let otherHSEnumerator = this.getEnumerator();
+        while (otherHSEnumerator.moveNext()) {
+            let o = otherHSEnumerator.current;
 
             if (!this.containsItem(o)) {
                 return false;
@@ -3018,8 +3052,9 @@ export class HashSet<T> extends Collection<T> implements ISet<T> {
             return true;
         }
 
-        while (otherHS.moveNext()) {
-            let o = otherHS.current;
+        let otherHSEnumerator = this.getEnumerator();
+        while (otherHSEnumerator.moveNext()) {
+            let o = otherHSEnumerator.current;
 
             if (!this.containsItem(o)) {
                 return false;
@@ -3039,8 +3074,9 @@ export class HashSet<T> extends Collection<T> implements ISet<T> {
     public setEquals(other: Sequence<T>): boolean {
         let otherHS = from(other).toSet(this._comparer);
         if (this.length === otherHS.length) {
-            while (otherHS.moveNext()) {
-                let o = otherHS.current;
+            let otherHSEnumerator = this.getEnumerator();
+            while (otherHSEnumerator.moveNext()) {
+                let o = otherHSEnumerator.current;
 
                 if (!this.containsItem(o)) {
                     return false;
@@ -3062,9 +3098,9 @@ export class HashSet<T> extends Collection<T> implements ISet<T> {
                 ht.unionWith(other);
             }
             else {
-                let seq = from(other);
-                while (seq.moveNext()) {
-                    let o = seq.current;
+                let e = from(other).getEnumerator();
+                while (e.moveNext()) {
+                    let o = e.current;
 
                     if (!ht.remove(o)) {
                         ht.addIfNotPresent(o);
@@ -3186,13 +3222,18 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
         this._orderComparer = toComparerSafe<U>(comparer);
         this._orderSelector = toSelectorSafe<T, U>(selector);
 
-        this._originalItems = [];
-        seq.forEach(x => me._originalItems.push(x));
+        this._originalItems = seq.toArray();
 
+        let oi = new ArrayEnumerator<T>(this._originalItems);
+        
         let prevValue: any;
         let value: any;
-        this._iterator = from(this._originalItems.map((x, index) => {
-            let ctx = new ItemContext(seq, index, prevValue);
+        this._enumerator = new ArrayEnumerator<T>(this._originalItems.map((x, index) => {
+            if (!oi.moveNext()) {
+                return null;
+            }
+
+            let ctx = new ItemContext<T>(oi, index, prevValue);
             ctx.value = value;
 
             let sortValue = {
@@ -3204,7 +3245,8 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
             value = ctx.value;
 
             return sortValue;
-        }).sort((x, y) => me.comparer(x.sortBy, y.sortBy))
+        }).filter(x => !!x)
+          .sort((x, y) => me.comparer(x.sortBy, y.sortBy))
           .map(x => x.value));
     }
 
@@ -3299,24 +3341,25 @@ export class Lookup<T, TKey extends string | number> extends WrappedEnumerable<I
     /**
      * Initializes a new instance of that class.
      * 
-     * @param {IEnumerable<IGrouping<T, U>>} seq The sequence with the elements.
+     * @param {IEnumerable<IGrouping<T, U>>} [seq] The sequence with the elements.
      */
-    constructor(seq: IEnumerable<IGrouping<T, TKey>>) {
-        super(seq);
+    constructor(seq?: IEnumerable<IGrouping<T, TKey>>) {
+        super();
 
         let me: any = this;
 
         let groupings: IGrouping<T, TKey>[] = [];
         if (seq) {
-            while (seq.moveNext()) {
-                let g = seq.current;
+            let e = seq.getEnumerator();
+            while (e.moveNext()) {
+                let g = e.current;
 
                 me[<any>g.key] = g;
                 groupings.push(g);
             }
         }
 
-        this._iterator = from(groupings);
+        this._seq = from(groupings);
     }
 }
 
@@ -3557,11 +3600,15 @@ export function toZipperSafe<T, U, V>(val?: any): Zipper<T, U, V> {
  * @return {IEnumerable<T>} The new sequence.
  */
 export function from<T>(items?: Sequence<T>): IEnumerable<T> {
-    items = items || [];
+    let i: any = items || [];
 
-    if (isArrayLike(items)) {
-        return new ArrayEnumerable<T>(<ArrayLike<T>>items);
+    if (isArrayLike(i)) {
+        return new ArrayEnumerable<T>(i);
     }
 
-    return new Enumerable<T>(<Iterator<T>>items);
+    if (typeof i[Symbol.iterator] !== "undefined") {
+        i = i[Symbol.iterator]();  // Iterable<T>
+    }
+
+    return new Enumerable<T>(i);
 }

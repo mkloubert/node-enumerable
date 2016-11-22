@@ -71,15 +71,16 @@ Helpers.execute(
             'Owner: Josefine; Pets: Lulu',
         ];
 
-        let seq = Enumerable.from(persons)
-                            .groupJoin(pets,
-                                       person => person.name,
-                                       pet => pet.owner.name,
-                                       (person, pets) => `Owner: ${person.name}; Pets: ${pets.select(x => x.name).joinToString(', ')}`);
+        let e = Enumerable.from(persons)
+                          .groupJoin(pets,
+                                     person => person.name,
+                                     pet => pet.owner.name,
+                                     (person, pets) => `Owner: ${person.name}; Pets: ${pets.select(x => x.name).joinToString(', ')}`)
+                          .getEnumerator();
 
         let actual: string[] = [];
-        while (seq.moveNext()) {
-            actual.push(seq.current);
+        while (e.moveNext()) {
+            actual.push(e.current);
         }
 
         Assert.strictEqual(actual.length, expected.length);

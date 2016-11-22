@@ -37,7 +37,8 @@ Helpers.execute(
     (ctx) => {
         let seq = Enumerable.from([true, 5979, '', 'TM', false, undefined, '23979', 'MK', null]);
 
-        let groups = seq.groupBy(x => typeof x);
+        let groups = seq.groupBy(x => typeof x)
+                        .getEnumerator();
 
         let expected: Group[] = [
             {
@@ -64,10 +65,11 @@ Helpers.execute(
 
         let actual: Group[] = [];
         while (groups.moveNext()) {
-            let grouping = groups.current;
+            let grouping = groups.current
+                                 .getEnumerator();
 
             let g: Group = {
-                key: grouping.itemKey,
+                key: grouping.key,
                 values: [],
             };
 

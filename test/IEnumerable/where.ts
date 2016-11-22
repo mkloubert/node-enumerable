@@ -47,15 +47,15 @@ Helpers.execute(
             let expected2 = arr.filter(x => x % 2 !== 0);
 
             let actual1: any[] = [];
-            let seq1 = Enumerable.from(arr).where(x => x % 2 === 0);
-            while (seq1.moveNext()) {
-                actual1.push(seq1.current);
+            let e1 = Enumerable.from(arr).where(x => x % 2 === 0).getEnumerator();
+            while (e1.moveNext()) {
+                actual1.push(e1.current);
             }
 
             let actual2: any[] = [];
-            let seq2 = Enumerable.from(arr).where(x => x % 2 !== 0);
-            while (seq2.moveNext()) {
-                actual2.push(seq2.current);
+            let e2 = Enumerable.from(arr).where(x => x % 2 !== 0).getEnumerator();
+            while (e2.moveNext()) {
+                actual2.push(e2.current);
             }
 
             Assert.strictEqual(actual2.length, expected2.length);

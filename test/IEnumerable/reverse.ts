@@ -43,7 +43,7 @@ Helpers.execute(
                 arr.push(j);
             }
 
-            let seq = Enumerable.from(arr).reverse();
+            let e = Enumerable.from(arr).reverse().getEnumerator();
 
             let expected = arr.sort((x, y) => {
                 if (x > y) {
@@ -58,8 +58,8 @@ Helpers.execute(
             });
 
             let actual: any[] = [];
-            while (seq.moveNext()) {
-                actual.push(seq.current);
+            while (e.moveNext()) {
+                actual.push(e.current);
             }
 
             Assert.strictEqual(actual.length, expected.length);

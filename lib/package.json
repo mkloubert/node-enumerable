@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/mkloubert/node-enumerable/issues"
   },
-  "homepage": "https://github.com/mkloubert/node-enumerable#readme"
+  "homepage": "https://github.com/mkloubert/node-enumerable#readme",
+  "devDependencies": {
+    "node-remote-debugger": "^1.1.2"
+  }
 }

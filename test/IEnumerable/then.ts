@@ -54,13 +54,13 @@ Helpers.execute(
             return compareItems(x, y);
         });
 
-        let seq = Enumerable.from(arr)
-                            .orderBy(x => x.length)
-                            .then();
+        let e = Enumerable.from(arr)
+                          .orderBy(x => x.length)
+                          .then().getEnumerator();
 
         let actual: string[] = [];
-        while (seq.moveNext()) {
-            actual.push(seq.current);
+        while (e.moveNext()) {
+            actual.push(e.current);
         }
 
         Assert.strictEqual(actual.length, expected.length);
@@ -97,11 +97,11 @@ Helpers.execute(
         ];
 
         for (let i = 0; i < sequences.length; i++) {
-            let seq = sequences[i];
+            let e = sequences[i].getEnumerator();
 
             let actual: string[] = [];
-            while (seq.moveNext()) {
-                actual.push(seq.current);
+            while (e.moveNext()) {
+                actual.push(e.current);
             }
 
             Assert.strictEqual(actual.length, expected.length);

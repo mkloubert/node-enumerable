@@ -49,11 +49,11 @@ Helpers.execute(
             return compareItems(x, y) * -1;
         });
 
-        let seq = Enumerable.from(arr).orderByDescending(x => x);
+        let e = Enumerable.from(arr).orderByDescending(x => x).getEnumerator();
 
         let actual: string[] = [];
-        while (seq.moveNext()) {
-            actual.push(seq.current);
+        while (e.moveNext()) {
+            actual.push(e.current);
         }
 
         Assert.strictEqual(actual.length, expected.length);

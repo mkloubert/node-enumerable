@@ -46,13 +46,15 @@ Helpers.execute(
             let arrOdd = arr.filter(x => x % 2 !== 0);
             let arrEven = arr.filter(x => x % 2 === 0);
 
-            let seqOdd = Enumerable.from(arr).except(arrEven);
-            let seqEven = Enumerable.from(arr).except(arrOdd);
+            let eOdd = Enumerable.from(arr).except(arrEven)
+                                           .getEnumerator();
+            let eEven = Enumerable.from(arr).except(arrOdd)
+                                            .getEnumerator();
 
             let cntEven = 0;
-            while (seqEven.moveNext()) {
-                let item = seqEven.current;
-                let index = seqEven.itemKey;
+            while (eEven.moveNext()) {
+                let item = eEven.current;
+                let index = eEven.key;
                 ++cntEven;
 
                 Assert.strictEqual(item, arrEven[index]);
@@ -69,9 +71,9 @@ Helpers.execute(
             Assert.equal(cntEven, arrEven.length);
 
             let cntOdd = 0;
-            while (seqOdd.moveNext()) {
-                let item = seqOdd.current;
-                let index = seqOdd.itemKey;
+            while (eOdd.moveNext()) {
+                let item = eOdd.current;
+                let index = eOdd.key;
                 ++cntOdd;
 
                 Assert.strictEqual(item, arrOdd[index]);

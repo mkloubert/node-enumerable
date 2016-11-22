@@ -43,12 +43,13 @@ Helpers.execute(
                 arr.push(j);
             }
 
-            let seq = Enumerable.from(arr)
-                                .defaultIfEmpty('MK', 'TM', 'JS', 'YS');
+            let e = Enumerable.from(arr)
+                              .defaultIfEmpty('MK', 'TM', 'JS', 'YS')
+                              .getEnumerator();
 
             let testArr: any[] = [];
-            while (seq.moveNext()) {
-                testArr.push(seq.current);
+            while (e.moveNext()) {
+                testArr.push(e.current);
             }
 
             let expected: any[];

@@ -37,7 +37,8 @@ Helpers.execute(
     (ctx) => {
         let seq = Enumerable.from([true, 5979, '', 'TM', false, undefined, '23979', 'MK', null]);
 
-        let lu: any = seq.toLookup(x => typeof x);
+        let lu = seq.toLookup(x => typeof x);
+        let le = lu.getEnumerator();
 
         let expected: Group[] = [
             {
@@ -63,8 +64,8 @@ Helpers.execute(
         ];
 
         let actual: Group[] = [];
-        while (lu.moveNext()) {
-            let grouping = lu.current;
+        while (le.moveNext()) {
+            let grouping = le.current.getEnumerator();
 
             let g: Group = {
                 key: grouping.key,
@@ -106,20 +107,21 @@ Helpers.execute(
             }
         }
 
+        let l: any = lu;
         for (let i = 0; i < expected.length; i++) {
             let e = expected[i];
-            let a: Enumerable.IGrouping<any, string> = lu[e.key];
+            let a = l[e.key];
 
             Assert.notStrictEqual(a, undefined);
             Assert.notEqual(a, undefined);
 
             let actual2: any[] = [];
 
-            let b: any = a;
+            let en = a.getEnumerator();
 
-            a.reset();
-            while (b.moveNext(true)) {
-                let item = a.current;
+            en.reset();
+            while (en.moveNext()) {
+                let item = en.current;
 
                 actual2.push(item);
             }
