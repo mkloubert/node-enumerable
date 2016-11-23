@@ -148,6 +148,13 @@ export interface IEnumerable<T> extends Iterable<T> {
     any(predicate?: Predciate<T> | string): boolean;
 
     /**
+     * Returns a version of that sequence whats enumerator is able to be resetted any time.
+     * 
+     * @return {IEnumerable<T>} The (new) sequence.
+     */
+    asResettable(): IEnumerable<T>;
+
+    /**
      * Computes the average of that sequence.
      * 
      * @param {TDefault} [defaultValue] The custom value that is returned if sequence has no items.
@@ -1334,6 +1341,11 @@ export class Enumerable<T> implements IEnumerable<T> {
         }
 
         return false;
+    }
+
+    /** @inheritdoc */
+    public asResettable(): IEnumerable<T> {
+        return from(this.toArray());
     }
 
     /** @inheritdoc */
@@ -2735,6 +2747,11 @@ export class ArrayEnumerable<T> extends Enumerable<T> {
     }
 
     /** @inheritdoc */
+    public asResettable(): IEnumerable<T> {
+        return this;
+    }
+
+    /** @inheritdoc */
     public [Symbol.iterator](): IEnumerator<T> {
         return new ArrayEnumerator<T>(this._arr);
     }
@@ -3413,4 +3430,48 @@ export function from<T>(...sequences: Sequence<T>[]): IEnumerable<T> {
     }
 
     return result;
+}
+
+/**
+ * Creates a range of numbers.
+ * 
+ * @param {number} start The start value.
+ * @param {number} count The number of values.
+ * 
+ * @return {IEnumerable<number>} The list of numbers.
+ */
+export function range(start: number, count: number): IEnumerable<number> {
+    if (count < 0) {
+        throw `Count is out of range: ${count}`;
+    }
+
+    return from(rangeInner(toNumber(start), toNumber(count)));
+}
+
+function* rangeInner(start: number, count: number): Iterator<number> {
+    for (let i = 0; i < count; i++) {
+        yield i + start;
+    }
+}
+
+/**
+ * Creates a list of repeated items.
+ * 
+ * @param {T} item The item to repeat.
+ * @param {number} count The number of values.
+ * 
+ * @return {IEnumerable<T>} The list of items.
+ */
+export function repeat<T>(item: T, count: number): IEnumerable<T> {
+    if (count < 0) {
+        throw `Count is out of range: ${count}`;
+    }
+
+    return from(repeatInner<T>(item, toNumber(count)));
+}
+
+function* repeatInner<T>(item: T, count: number): Iterator<T> {
+    for (let i = 0; i < count; i++) {
+        yield item;
+    }
 }

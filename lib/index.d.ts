@@ -116,6 +116,12 @@ export interface IEnumerable<T> extends Iterable<T> {
      */
     any(predicate?: Predciate<T> | string): boolean;
     /**
+     * Returns a version of that sequence whats enumerator is able to be resetted any time.
+     *
+     * @return {IEnumerable<T>} The (new) sequence.
+     */
+    asResettable(): IEnumerable<T>;
+    /**
      * Computes the average of that sequence.
      *
      * @param {TDefault} [defaultValue] The custom value that is returned if sequence has no items.
@@ -972,6 +978,8 @@ export declare class Enumerable<T> implements IEnumerable<T> {
     /** @inheritdoc */
     any(predicate?: Predciate<T> | string): boolean;
     /** @inheritdoc */
+    asResettable(): IEnumerable<T>;
+    /** @inheritdoc */
     average<TDefault>(defaultValue?: TDefault): number | TDefault;
     /** @inheritdoc */
     cast<TTarget>(): IEnumerable<TTarget>;
@@ -1233,6 +1241,8 @@ export declare class ArrayEnumerable<T> extends Enumerable<T> {
      */
     constructor(arr?: ArrayLike<T>);
     /** @inheritdoc */
+    asResettable(): IEnumerable<T>;
+    /** @inheritdoc */
     [Symbol.iterator](): IEnumerator<T>;
 }
 /**
@@ -1435,3 +1445,21 @@ export declare function create<T>(...items: T[]): IEnumerable<T>;
  * @return {IEnumerable<T>} The new enumerable.
  */
 export declare function from<T>(...sequences: Sequence<T>[]): IEnumerable<T>;
+/**
+ * Creates a range of numbers.
+ *
+ * @param {number} start The start value.
+ * @param {number} count The number of values.
+ *
+ * @return {IEnumerable<number>} The list of numbers.
+ */
+export declare function range(start: number, count: number): IEnumerable<number>;
+/**
+ * Creates a list of repeated items.
+ *
+ * @param {T} item The item to repeat.
+ * @param {number} count The number of values.
+ *
+ * @return {IEnumerable<T>} The list of items.
+ */
+export declare function repeat<T>(item: T, count: number): IEnumerable<T>;
