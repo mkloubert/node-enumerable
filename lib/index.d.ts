@@ -1420,10 +1420,18 @@ export declare class OrderedEnumerable<T, U> extends Enumerable<T> implements IO
     thenDescending(comparer?: Comparer<T> | string): IOrderedEnumerable<T>;
 }
 /**
- * Creates a new sequence.
+ * Creates a new enumerable from a list of items.
  *
- * @param {ArrayLike<T> | Iterator} [items] The underlying items.
+ * @param {T} [...sequences] One or more items to add.
  *
- * @return {IEnumerable<T>} The new sequence.
+ * @return {IEnumerable<T>} The new enumerable.
  */
-export declare function from<T>(items?: Sequence<T>): IEnumerable<T>;
+export declare function create<T>(...items: T[]): IEnumerable<T>;
+/**
+ * Creates a new enumerable.
+ *
+ * @param {ArrayLike<T> | Iterator} [...sequences] One or more sequence with items.
+ *
+ * @return {IEnumerable<T>} The new enumerable.
+ */
+export declare function from<T>(...sequences: Sequence<T>[]): IEnumerable<T>;

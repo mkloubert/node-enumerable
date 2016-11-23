@@ -2974,7 +2974,9 @@ export class Collection<T> extends ArrayEnumerable<T> implements ICollection<T> 
      * @throws "Collection is read-only!"
      */
     protected throwIfReadOnly(): void {
-        throw "Collection is read-only!";
+        if (this.isReadonly) {
+            throw "Collection is read-only!";
+        }
     }
 }
 
@@ -3360,22 +3362,55 @@ export class OrderedEnumerable<T, U> extends Enumerable<T> implements IOrderedEn
 
 
 /**
- * Creates a new sequence.
+ * Creates a new enumerable from a list of items.
  * 
- * @param {ArrayLike<T> | Iterator} [items] The underlying items.
+ * @param {T} [...sequences] One or more items to add.
  * 
- * @return {IEnumerable<T>} The new sequence.
+ * @return {IEnumerable<T>} The new enumerable.
  */
-export function from<T>(items?: Sequence<T>): IEnumerable<T> {
-    let i: any = items || [];
+export function create<T>(...items: T[]): IEnumerable<T> {
+    return from(items);
+}
 
-    if (isArrayLike(i)) {
-        return new ArrayEnumerable<T>(i);
+/**
+ * Creates a new enumerable.
+ * 
+ * @param {ArrayLike<T> | Iterator} [...sequences] One or more sequence with items.
+ * 
+ * @return {IEnumerable<T>} The new enumerable.
+ */
+export function from<T>(...sequences: Sequence<T>[]): IEnumerable<T> {
+    if (!sequences || sequences.length < 1) {
+        sequences = [ [] ];
     }
 
-    if (typeof i[Symbol.iterator] !== "undefined") {
-        i = i[Symbol.iterator]();  // Iterable<T>
+    let result: IEnumerable<T>;
+
+    for (let i = 0; i < sequences.length; i++) {
+        let seq: any = sequences[i];
+        if (!seq) {
+            seq = [];
+        }
+
+        let seqToConcat: IEnumerable<T>;
+        if (isArrayLike(seq)) {
+            seqToConcat = new ArrayEnumerable<T>(seq);
+        }
+        else {
+            if (typeof seq[Symbol.iterator] !== "undefined") {
+                seq = seq[Symbol.iterator]();  // Iterable<T>
+            }
+
+            seqToConcat = new Enumerable<T>(seq);
+        }
+
+        if (i > 0) {
+            result = result.concat(seqToConcat);
+        }
+        else {
+            result = seqToConcat;
+        }
     }
 
-    return new Enumerable<T>(i);
+    return result;
 }
