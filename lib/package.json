@@ -4,7 +4,7 @@
   "description": "ES6 andy async ready LINQ features written in TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "node ../test/tests.js"
+    "test": "node ../test/index.js"
   },
   "repository": {
     "type": "git",

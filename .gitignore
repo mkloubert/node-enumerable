@@ -7,3 +7,4 @@
 /test/**/*.d.ts
 /pushall.sh
 /*.d.ts
+/test/node_modules

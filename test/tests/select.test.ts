@@ -1,5 +1,3 @@
-/// <reference path="../../node.d.ts" />
-
 // The MIT License (MIT)
 // 
 // node-enumerable (https://github.com/mkloubert/node-enumerable)
@@ -23,41 +21,38 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import Assert = require('assert');
-import Enumerable = require('../../lib');
-import Helpers = require('../helpers');
+import * as Enumerable from '../../lib';
+import * as Tests from '../tests';
 
-const MAX_ARRAY_SIZE = 100;
 
-Helpers.execute(
-    'Testing numbers...',
-    (ctx) => {
-        for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
-            if (0 === i % 10) {
-                ctx.log(`Testing with ${i} elements...`);
+function test1() {
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 1000; j++) {
+            let itemCount = i * j;
+            
+            let items = [];
+            for (let k = 0; k < itemCount; k++) {
+                items.push(k);
             }
 
-            // fill test array
-            let arr: any[] = [];
-            for (let j = 0; j < i; j++) {
-                arr.push(j);
+            let l = -1;
+            let seq = Enumerable.from(items)
+                                .select(x => '' + x);
+
+            for (let seqItem of seq) {
+                let curItem = items[++l];
+                let strItem = '' + curItem;
+
+                if (strItem !== seqItem) {
+                    throw "ERROR";
+                }
             }
-
-            let sum = Enumerable.from(arr)
-                                .sum(-1);
-
-            let expectedSum = -1;
-            if (arr.length > 0) {
-                expectedSum = 0;
-                arr.forEach(x => expectedSum += x);
-            }
-
-            Assert.strictEqual(sum, expectedSum);
-            Assert.notStrictEqual('' + sum, expectedSum);
-            Assert.notStrictEqual(sum, '' + expectedSum);
-            Assert.equal('' + sum, expectedSum);
-            Assert.equal(sum, '' + expectedSum);
-            Assert.strictEqual('' + sum, '' + expectedSum);
-            Assert.equal('' + sum, '' + expectedSum);
         }
-    });
+
+        console.log(`  select(test1.${i}): [OK]`);
+    }
+}
+
+export function test() {
+    test1();
+}

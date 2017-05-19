@@ -1,5 +1,3 @@
-/// <reference path="../node.d.ts" />
-
 // The MIT License (MIT)
 // 
 // node-enumerable (https://github.com/mkloubert/node-enumerable)
@@ -23,41 +21,36 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import FS = require('fs');
-import Path = require('path');
+import * as Enumerable from '../lib';
 
-let libs: string[] = [
-    './IEnumerable',
-];
 
-console.log('Starting tests...');
-
-for (let i = 0; i < libs.length; i++) {
-    let dir = libs[i];
-    if (!Path.isAbsolute(dir)) {
-        dir = Path.join(__dirname, dir);
+export function invokeForSequences<T>(items: Enumerable.Sequence<T>,
+                                      action: (seq: Enumerable.IEnumerable<T>,
+                                               arr: T[],
+                                               items: Enumerable.Sequence<T>) => any) {
+    let arr: T[] = [];
+    if (items) {
+        for (let i of <any>items) {
+            arr.push(i);
+        }
     }
 
-    let jsFiles = FS.readdirSync(dir).filter(x => {
-        if (x.length >= 3) {
-            if ('.js' === x.substr(x.length - 3)) {
-                return true;
-            }
+    let sequences = [
+        arr,
+        toIterator(arr),
+    ];
+
+    for (let seq of sequences) {
+        if (action) {
+            action( Enumerable.from(seq),
+                    arr,
+                    items );
         }
-        
-        return false;
-    }).map(x => {
-        return Path.join(dir, x);
-    }).filter(x => {
-        return FS.lstatSync(x).isFile();
-    });
-
-    for (let j = 0; j < jsFiles.length; j++) {
-        let jf = jsFiles[j];
-
-        console.log('\t' + jf);
-        require(jf);
     }
 }
 
-console.log('Tests finished.');
+function *toIterator<T>(seq: any) {
+    for (let i of seq) {
+        yield i;
+    }
+}

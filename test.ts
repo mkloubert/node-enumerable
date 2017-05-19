@@ -1,5 +1,3 @@
-/// <reference path="../../node.d.ts" />
-
 // The MIT License (MIT)
 // 
 // node-enumerable (https://github.com/mkloubert/node-enumerable)
@@ -23,26 +21,19 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import Assert = require('assert');
-import Enumerable = require('../../lib');
-import Helpers = require('../helpers');
+import * as Enumerable from './lib';
 
-Helpers.execute(
-    'Testing numbers...',
-    (ctx) => {
-        let arr = [0, 1, undefined, 2, null, '', 3];
+function *test() {
+    yield 111;
+    yield 122;
+    yield 133;
+}
 
-        let e = Enumerable.from(arr)
-                          .notEmpty()
-                          .getEnumerator();
 
-        let cnt = 0;
-        while (e.moveNext()) {
-            ++cnt;
-        }
+let seq1 = Enumerable.create('Albert', 'Bill', 'Marcel', 'Konrad');
+let seq2 = Enumerable.create('Einstein', 'Gates', 'Kloubert');
 
-        Assert.strictEqual(cnt, 3);
-        Assert.notStrictEqual(cnt, '3');
-        Assert.notStrictEqual('' + cnt, 3);
-        Assert.strictEqual('' + cnt, '3');
-    });
+let zipped = seq1.zip(seq2,
+                      (x, y) => x + ' ' + y);
+
+console.log( zipped.first() );
