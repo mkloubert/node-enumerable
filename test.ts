@@ -22,11 +22,28 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as Enumerable from './lib';
-
+import * as FS from 'fs';
 
 let seq1 = Enumerable.range(1, 5);
-let seq2 = Enumerable.range(3, 6);
 
-for (let item of seq2.except(seq1)) {
-    console.log(item);
-}
+seq1.async((ctx) => {
+    let f = __dirname + '/' + ctx.item + '.txt';
+    
+    FS.exists(f, (exists) => {
+        console.log('prevVal: ' + ctx.previousValue);
+        console.log(f);
+
+        if (ctx.isFirst) {
+            ctx.result = f;
+            ctx.resolve(exists);
+        }
+        else {
+            ctx.reject('42');
+        }
+    });
+}).then((result) => {
+    console.log('Done: ' + result);
+}, (err) => {
+    console.log('ERROR: ' + err);
+});
+

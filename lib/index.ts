@@ -22,6 +22,65 @@
 // DEALINGS IN THE SOFTWARE.
 
 /**
+ * An async action.
+ * 
+ * @template T Type of the underlying items.
+ * 
+ * @param {AsyncActionContext<T>} context The underlying context.
+ */
+export type AsyncAction<T> = (context: AsyncActionContext<T>) => void;
+/**
+ * A context for an async action.
+ * 
+ * @template T Type of the underlying item.
+ */
+export interface AsyncActionContext<T> {
+    /**
+     * Cancels the whole operation.
+     * 
+     * @param {any} [result] The optional result for the callback.
+     */
+    cancel(result?: any): void;
+    /**
+     * The zero based index.
+     */
+    readonly index: number;
+    /**
+     * Indicates if this is the first action or not.
+     */
+    readonly isFirst: boolean;
+    /**
+     * The zero based index.
+     */
+    readonly item: T;
+    /**
+     * The value from the previous operation.
+     */
+    readonly previousValue: any;
+    /**
+     * Finishes the action as failed and cancels the whole operation.
+     * 
+     * @param {any} reason The reason why the action has failed.
+     * @param {any} [result] Optional result value / object for the callback.
+     */
+    reject(reason: any, result?: any): void;
+    /**
+     * Finishes the action as succeeded.
+     * 
+     * @param {any} [nextValue] The value for the 'previousValue' property
+     *                          of the next operation.
+     */
+    resolve(nextValue?: any): void;
+    /**
+     * Gets or sets the result value for the callback.
+     */
+    result: any;
+    /**
+     * Gets or sets the value for this action and the upcoming ones.
+     */
+    value: any;
+}
+/**
  * Compares to values.
  * 
  * @template T Type of the "left" value.
@@ -101,6 +160,8 @@ export const NOT_FOUND = Symbol('NOT_FOUND');
 
 /**
  * A sequence.
+ * 
+ * @template T Type of the items.
  */
 export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     /**
@@ -121,7 +182,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     aggregate<TAccumulate = T, TResult = T>(func: (accumulator: TAccumulate, item: T) => TAccumulate,
                                             seed?: TAccumulate,
                                             resultSelector?: (accumulator: TAccumulate) => TResult): TResult;
-
     /**
      * Checks if all elements of that sequence
      * satisfy a condition or not.
@@ -131,7 +191,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {boolean} All elements satisfy the condition or not.
      */
     all(predicate: Predicate<T>): boolean;
-
     /**
      * Checks if at least one element of that sequence
      * satisfies a condition or not.
@@ -141,7 +200,17 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {boolean} One element satisfies the condition or not.
      */
     any(predicate?: Predicate<T>): boolean;
-
+    /**
+     * Runs an async action for each item of that sequence.
+     * 
+     * @param AsyncAction<T> action The action to invoke.
+     * @param AsyncCallback [callback] The callback.
+     * @param {any} [previousValue] The value for the 'previousValue' of the first action.
+     * 
+     * @returns {Promise<any>} The promise.
+     */
+    async(action: AsyncAction<T>,
+          previousValue?: any): Promise<any>;
     /**
      * Calculates the average of the items of that sequence.
      * 
@@ -150,12 +219,10 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {number|Symbol} The average or IS_EMPTY if sequence is empty.
      */
     average(selector?: Selector<T, number>): number | Symbol;
-
     /**
      * Gets if that sequence can be resetted or not.
      */
     readonly canReset: boolean;
-
     /**
      * Returns a "casted" version of that sequence.
      * 
@@ -164,7 +231,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<U>} The "casted" sequence.
      */
     cast<U>(): IEnumerable<U>;
-
     /**
      * Clones that sequence multiply times.
      * 
@@ -177,7 +243,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     clone<U = T>(count?: number,
                  itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>>;
-
     /**
      * Concats the items of that sequences with other ones
      * to a new sequence.
@@ -187,7 +252,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @memberof IEnumerable<T> The concated sequence.
      */
     concat(...args: Sequence<T>[]): IEnumerable<T>;
-
     /**
      * Concats the items of that sequences with other ones
      * to a new sequence.
@@ -197,7 +261,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @memberof IEnumerable<T> The concated sequence.
      */
     concatArray(sequences: ArrayLike<Sequence<T>>): IEnumerable<T>;
-
     /**
      * Checks if that sequence contains an item.
      * 
@@ -211,7 +274,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     contains<U>(item: U,
                 comparer?: EqualityComparer<T, U> | true): boolean;
-
     /**
      * Counts the elements of that sequence.
      * 
@@ -220,7 +282,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {number} The number of (matching) items.
      */
     count(predicate?: Predicate<T>): number;
-
     /**
      * Returns the items of that sequence or a default item list
      * if that sequence is empty.
@@ -230,7 +291,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<T>} The (new) sequence.
      */
     defaultIfEmpty(...defaultItems: T[]): IEnumerable<T>;
-
     /**
      * Returns the items of that sequence or a default item list
      * if that sequence is empty.
@@ -240,7 +300,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<T>} The (new) sequence.
      */
     defaultSequenceIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T>;
-
     /**
      * Removes duplicate entries from that sequence.
      * 
@@ -250,13 +309,11 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<T>} The new sequence.
      */
     distinct(comparer?: EqualityComparer<T> | true): IEnumerable<T>;
-
     /**
      * Alias for forEach()
      */
     each<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                         seed?: TResult): TResult | Symbol;
-
     /**
      * Returns an element at a specific index.
      * 
@@ -267,7 +324,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @throws Element not found.
      */
     elementAt(index: number): T;
-
     /**
      * Returns an element at a specific index.
      * 
@@ -282,7 +338,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     elementAtOrDefault<U = Symbol>(index: number,
                                    defaultValue?: U): T | U;
-
     /**
      * Returns the items of that sequence except a list of specific ones.
      * 
@@ -293,7 +348,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     except(second: Sequence<T>,
            comparer?: EqualityComparer<T> | true): IEnumerable<T>;
-
     /**
      * Invokes a function for each element of that sequence.
      * 
@@ -306,7 +360,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                            seed?: TResult): TResult | Symbol;
-
     /**
      * Returns the first element of that sequence.
      * 
@@ -323,6 +376,10 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     //TODO: groupJoin()
 
     /**
+     * Gets the current zero based index.
+     */
+    readonly index: number;
+    /**
      * Returns the zero based index of the first occurrence of an item.
      * 
      * @template U Type of the item to search for.
@@ -335,7 +392,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     indexOf<U>(item: U,
                comparer?: EqualityComparer<T, U> | true): number;
-
     /**
      * Returns the intersection between this and a second sequence.
      * 
@@ -357,7 +413,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {string} The items as string.
      */
     joinToString(separator?: any): string;
-
     /**
      * Returns the last element of that sequence.
      * 
@@ -368,7 +423,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @throws ELement not found.
      */
     last(predicate?: Predicate<T>): T;
-
     /**
      * Returns the zero based index of the last occurrence of an item.
      * 
@@ -391,7 +445,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<T>} The resettable version of that sequence.
      */
     makeResettable(): IEnumerable<T>;
-
     /**
      * Returns the maximum item of that sequence.
      * 
@@ -401,7 +454,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     max<U = T>(valueSelector?: Selector<T, U>,
                comparer?: Comparer<U>): T | Symbol;
-
     /**
      * Returns the minimum item of that sequence.
      * 
@@ -411,14 +463,12 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     min<U = T>(valueSelector?: Selector<T, U>,
                comparer?: Comparer<U>): T | Symbol;
-
     /**
      * Removes empty items.
      * 
      * @returns {IEnumerable<T>} The filtered sequence.
      */
     notEmpty(): IEnumerable<T>;
-
     /**
      * Filters items of specific type.
      * 
@@ -429,14 +479,12 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<U>} The filtered sequence.
      */
     ofType<U = any>(type: string): IEnumerable<U>;
-
     /**
      * Calculates the product of that sequence.
      * 
      * @returns {(T | Symbol)} The product or IS_EMPTY if that sequence is empty.
      */
     product(seed?: T): T | Symbol;
-
     /**
      * Pushes the elements of that sequence to an array or stack-like object.
      * 
@@ -470,7 +518,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<U>} The new sequence.
      */
     select<U>(selector: Selector<T, U>): IEnumerable<U>;
-
     /**
      * Projects the items of that sequence to new sequences
      * that are flatten to a single sequence.
@@ -496,7 +543,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @throws ELement not found.
      */
     single(predicate?: Predicate<T>): T;
-    
     /**
      * Skips a maximum number of items.
      * 
@@ -505,7 +551,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @return {IEnumerable<T>} The new sequence.
      */
     skip(count?: number): IEnumerable<T>;
-
     /**
      * Skips items while a condition satisfies.
      * 
@@ -514,14 +559,12 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @return {IEnumerable<T>} The new sequence.
      */
     skipWhile(predicate: Predicate<T>): IEnumerable<T>;
-
     /**
      * Calculates the sum of that sequence.
      * 
      * @returns {(T | Symbol)} The sum or IS_EMPTY if that sequence is empty.
      */
     sum(seed?: T): T | Symbol;
-
     /**
      * Takes a maximum number of items.
      * 
@@ -530,7 +573,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @return {IEnumerable<T>} The new sequence.
      */
     take(count?: number): IEnumerable<T>;
-
     /**
      * Takes items while a condition satisfies.
      * 
@@ -539,14 +581,12 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @return {IEnumerable<T>} The new sequence.
      */
     takeWhile(predicate: Predicate<T>): IEnumerable<T>;
-
     /**
      * Creates a new array from the items of that sequence.
      * 
      * @returns {T[]} The sequence as array.
      */
     toArray(): T[];
-
     /**
      * Converts that sequence to a "buffered" sequence.
      * 
@@ -571,7 +611,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns TResult The new object.
      */
     toObject<TResult = any, TKey = number>(keySelector?: (index: number, item: T) => TKey): TResult;
-
     /**
      * Produces the union of that sequence and another.
      * 
@@ -582,7 +621,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     union(second: Sequence<T>,
           comparer?: EqualityComparer<T> | true): IEnumerable<T>;
-
     /**
      * Filters the items of that sequence.
      * 
@@ -591,7 +629,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @return {IEnumerable<T>} The filtered sequence.
      */
     where(predicate: Predicate<T>): IEnumerable<T>;
-
     /**
      * Applies a specified function to the corresponding elements of that sequence
      * and another, producing a sequence of the results.
@@ -621,7 +658,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     public [Symbol.iterator](): Iterator<T> {
         return this;
     }
-
     /** @inheritdoc */
     public aggregate<TAccumulate = T, TResult = T>(func: (accumulator: TAccumulate, item: T) => TAccumulate,
                                                    seed?: TAccumulate,
@@ -641,7 +677,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return resultSelector(acc);
     }
-
     /** @inheritdoc */
     public all(predicate: Predicate<T>): boolean {
         predicate = toPredicateSafe(predicate);
@@ -654,7 +689,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return true;
     }
-
     /** @inheritdoc */
     public any(predicate?: Predicate<T>): boolean {
         predicate = toPredicateSafe(predicate);
@@ -667,7 +701,94 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return false;
     }
+    /** @inheritdoc */
+    public async(action: AsyncAction<T>, previousValue?: any): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            let asyncResult: any;
+            let asyncCompleted = (err: any) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(asyncResult);
+                }
+            };
 
+            try {
+                let i = -1;
+                let prevVal = previousValue;
+                let val: any;
+                let nextItem = () => {
+                    ++i;
+                    
+                    let item = this.next();
+                    if (!item || item.done) {
+                        asyncCompleted(null);
+                        return;
+                    }
+
+                    let ctx: AsyncActionContext<T> = {
+                        cancel: function(result?: any) {
+                            if (arguments.length > 0) {
+                                asyncResult = result;
+                            }
+
+                            asyncCompleted(null);
+                        },
+                        index: i,
+                        isFirst: 0 === i,
+                        item: item.value,
+                        previousValue: prevVal,
+                        reject: function(reason: any, result?: any) {
+                            if (arguments.length > 1) {
+                                asyncResult = result;
+                            }
+
+                            asyncCompleted(reason);
+                        },
+                        resolve: function(nextValue?: any) {
+                            prevVal = nextValue;
+
+                            nextItem();
+                        },
+                        result: undefined,
+                        value: undefined,
+                    };
+
+                    // ctx.result
+                    Object.defineProperty(ctx, 'result', {
+                        get: () => { return asyncResult; },
+
+                        set: (newValue) => { asyncResult = newValue; },
+                    });
+
+                    // ctx.value
+                    Object.defineProperty(ctx, 'value', {
+                        get: () => { return val; },
+
+                        set: (newValue) => { val = newValue; },
+                    });
+
+                    try {
+                        if (action) {
+                            action(ctx);
+                        }
+                        else {
+                            ctx.resolve();
+                        }
+                    }
+                    catch (e) {
+                        ctx.reject(e);
+                    }
+                };
+
+                nextItem();
+            }
+            catch (e) {
+                asyncCompleted(e);
+            }
+        });
+    }
     /** @inheritdoc */
     public average(selector?: Selector<T, number>): number | Symbol {
         if (!selector) {
@@ -690,17 +811,14 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return count > 0 ? (sum / count)
                          : IS_EMPTY;
     }
-
     /** @inheritdoc */
     public get canReset(): boolean {
         return true;
     }
-
     /** @inheritdoc */
     public cast<U>(): IEnumerable<U> {
         return this.select(x => <U><any>x);
     }
-
     /** @inheritdoc */
     public clone<U = T>(count?: number,
                         itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>> {
@@ -712,7 +830,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         
         return from(this.cloneInner(count, itemSelector));
     }
-
     /**
      * @see concatArray()
      */
@@ -730,17 +847,14 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             yield from(items).select(itemSelector);
         }
     }
-
     /** @inheritdoc */
     public concat(...args: Sequence<T>[]): IEnumerable<T> {
         return this.concatArray(args);
     }
-
     /** @inheritdoc */
     public concatArray(sequences: ArrayLike<Sequence<T>>): IEnumerable<T> {
         return from(this.concatArrayInner(sequences));
     }
-
     /**
      * @see concatArray()
      */
@@ -759,13 +873,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-    
     /** @inheritdoc */
     public contains<U>(item: U,
                        comparer?: EqualityComparer<T, U> | true): boolean {
         return this.indexOf<U>(item, comparer) > -1;
     }
-
     /** @inheritdoc */
     public count(predicate?: Predicate<T>): number {
         predicate = toPredicateSafe(predicate);
@@ -779,12 +891,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return cnt;
     }
-
     /** @inheritdoc */
     public defaultIfEmpty(...defaultItems: T[]): IEnumerable<T> {
         return from(this.defaultIfEmptyInner(defaultItems));
     }
-
     /**
      * @see defaultIfEmpty()
      */
@@ -801,12 +911,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public defaultSequenceIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T> {
         return from(this.defaultSequenceIfEmptyInner(defaultSequence));
     }
-
     /**
      * @see defaultIfEmpty()
      */
@@ -823,14 +931,12 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public distinct(comparer?: EqualityComparer<T> | true): IEnumerable<T> {
         comparer = toEqualityComparerSafe(comparer);
 
         return from(this.distinctInner(comparer));
     }
-
     /**
      * @see distinct()
      */
@@ -852,14 +958,12 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public each<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                                seed?: TResult): TResult | Symbol {
         return this.forEach
                    .apply(this, arguments);
     }
-
     /** @inheritdoc */
     public elementAt(index: number): T {
         const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
@@ -873,7 +977,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return <T>item;
     }
-
     /** @inheritdoc */
     public elementAtOrDefault<U = Symbol>(index: number,
                                           defaultValue?: U): T | Symbol {
@@ -892,7 +995,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         
         return <any>defaultValue;
     }
-
     /** @inheritdoc */
     public except(second: Sequence<T>,
                      comparer?: EqualityComparer<T> | true): IEnumerable<T> {
@@ -900,7 +1002,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                                                  .toArray(),
                                      toEqualityComparerSafe(comparer)));
     }
-
     /**
      * @see except()
      */
@@ -920,7 +1021,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public first(predicate?: Predicate<T>): T {
         predicate = toPredicateSafe(predicate);
@@ -933,7 +1033,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         throw 'Element not found';
     }
-
     /** @inheritdoc */
     public forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                                   seed?: TResult): TResult | Symbol {
@@ -956,7 +1055,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return result;
     }
-
+    /** @inheritdoc */
+    public get index(): number {
+        return this._index;
+    }
     /** @inheritdoc */
     public indexOf<U>(item: U,
                       comparer?: EqualityComparer<T, U> | true): number {
@@ -973,7 +1075,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return -1;
     }
-
     /** @inheritdoc */
     public intersect(second: Sequence<T>,
                      comparer?: EqualityComparer<T> | true): IEnumerable<T> {
@@ -981,7 +1082,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                                                     .toArray(),
                                         toEqualityComparerSafe(comparer)));
     }
-
     /**
      * @see intersect()
      */
@@ -995,13 +1095,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public joinToString(separator?: any): string {
         return this.toArray()
                    .join(toStringSafe(separator));
     }
-
     /** @inheritdoc */
     public last(predicate?: Predicate<T>): T {
         predicate = toPredicateSafe(predicate);
@@ -1022,7 +1120,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return result;
     }
-
     /** @inheritdoc */
     public lastIndexOf<U>(item: U,
                           comparer?: EqualityComparer<T, U> | true): number {
@@ -1040,7 +1137,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return lastIndex;
     }
-
     /** @inheritdoc */
     public makeResettable(): IEnumerable<T> {
         if (this.canReset) {
@@ -1049,7 +1145,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return from(this.toArray());
     }
-
     /** @inheritdoc */
     public max<U = T>(valueSelector?: Selector<T, U>,
                       comparer?: Comparer<U>): T | Symbol {
@@ -1085,7 +1180,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return result;
     }
-
     /** @inheritdoc */
     public min<U = T>(valueSelector?: Selector<T, U>,
                       comparer?: Comparer<U>): T | Symbol {
@@ -1121,15 +1215,12 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return result;
     }
-
     /** @inheritdoc */
     public abstract next(value?: any): IteratorResult<T>;
-
     /** @inheritdoc */
     public notEmpty(): IEnumerable<T> {
         return this.where(x => !!x);
     }
-
     /** @inheritdoc */
     public ofType<U = any>(type: string): IEnumerable<U> {
         type = toStringSafe(type).trim();
@@ -1139,13 +1230,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                    '' === type;
         }).select(x => <any>x);
     }
-
     /** @inheritdoc */
     public product(): T | Symbol {
         return this.aggregate((acc, x) => IS_EMPTY !== acc ? (acc * <any>x) : x,
                               <any>IS_EMPTY);
     }
-
     /** @inheritdoc */
     public pushTo(stack: Stack<T>): this {
         if (stack) {
@@ -1155,12 +1244,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         
         return this;
     }
-
     /** @inheritdoc */
     public reset(): this {
         throw 'Not supported';
     }
-
     /** @inheritdoc */
     public select<U>(selector: Selector<T, U>): IEnumerable<U> {
         if (!selector) {
@@ -1171,12 +1258,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             return [ selector(x) ];
         });
     }
-
     /** @inheritdoc */
     public selectMany<U>(selector: Selector<T, Sequence<U>>): IEnumerable<U> {
         return from(this.selectManyInner(selector));
     }
-
     /**
      * @see selectMany()
      */
@@ -1193,7 +1278,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public single(predicate?: Predicate<T>): T {
         predicate = toPredicateSafe(predicate);
@@ -1220,7 +1304,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return result;
     }
-
     /** @inheritdoc */
     public skip(count?: number): IEnumerable<T> {
         count = parseInt(toStringSafe(count).trim());
@@ -1232,12 +1315,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             return count-- > 0;
         });
     }
-
     /** @inheritdoc */
     public skipWhile(predicate: Predicate<T>): IEnumerable<T> {
         return from(this.skipWhileInner(predicate));
     }
-
     /**
      * @see takeWhile()
      */
@@ -1255,13 +1336,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public sum(): T | Symbol {
         return this.aggregate((acc, x) => IS_EMPTY !== acc ? (acc + x) : x,
                               <any>IS_EMPTY);
     }
-
     /** @inheritdoc */
     public take(count?: number): IEnumerable<T> {
         count = parseInt(toStringSafe(count).trim());
@@ -1273,12 +1352,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             return count-- > 0;
         });
     }
-
     /** @inheritdoc */
     public takeWhile(predicate: Predicate<T>): IEnumerable<T> {
         return from(this.takeWhileInner(predicate));
     }
-
     /**
      * @see takeWhile()
      */
@@ -1294,7 +1371,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public toArray(): T[] {
         let arr: T[] = [];
@@ -1304,7 +1380,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return arr;
     }
-
     /** @inheritdoc */
     public toBuffer(chunkSize?: number): IEnumerable<T> {
         chunkSize = parseInt(toStringSafe(chunkSize).trim());
@@ -1314,7 +1389,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return from(this.toBufferInner(chunkSize));
     }
-
     /**
      * @see toBuffer()
      */
@@ -1334,7 +1408,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
         while (true);
     }
-
     /** @inheritdoc */
     public toObject<TResult = any, TKey = number>(keySelector?: (index: number, item: T) => TKey): TResult {
         if (!keySelector) {
@@ -1357,19 +1430,16 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return obj;
     }
-
     /** @inheritdoc */
     public union(second: Sequence<T>,
                  comparer?: EqualityComparer<T> | true): IEnumerable<T> {
         return this.concat(second)
                    .distinct(comparer);
     }
-
     /** @inheritdoc */
     public where(predicate: Predicate<T>): IEnumerable<T> {
         return from(this.whereInner(predicate));
     }
-
     /**
      * @see where()
      */
@@ -1382,14 +1452,12 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             }
         }
     }
-
     /** @inheritdoc */
     public zip<U, TResult>(second: Sequence<U>,
                            resultSelector: (x: T, y: U) => TResult): IEnumerable<TResult> {
         return from(this.zipInner(from(second),
                                   resultSelector));
     }
-
     /**
      * @see zip()
      */
@@ -1487,7 +1555,6 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
     public get canReset(): boolean {
         return true;
     }
-
     /** @inheritdoc */
     public next(): IteratorResult<T> {
         let nextIndex = this._index + 1;
@@ -1504,7 +1571,6 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
             done: false,
         };
     }
-
     /** @inheritdoc */
     public reset(): this {
         if (this.canReset) {
