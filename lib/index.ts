@@ -2168,6 +2168,28 @@ export function fromString(val: any): IEnumerable<string> {
 }
 
 /**
+ * Checks if a value represents the IS_EMPTY symbol.
+ * 
+ * @param {any} val The value to check.
+ * 
+ * @returns {boolean} Is IS_EMPTY symbol or not.
+ */
+export function isEmpty(val: any): boolean {
+    return val === IS_EMPTY;
+}
+
+/**
+ * Checks if a value represents the NOT_FOUND symbol.
+ * 
+ * @param {any} val The value to check.
+ * 
+ * @returns {boolean} Is NOT_FOUND symbol or not.
+ */
+export function notFound(val: any): boolean {
+    return val === NOT_FOUND;
+}
+
+/**
  * Creates a range of numbers.
  * 
  * @param {number} start The start value. 
