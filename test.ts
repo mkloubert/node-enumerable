@@ -33,7 +33,6 @@ function *test() {
 let seq1 = Enumerable.create('Albert', 'Bill', 'Marcel', 'Konrad');
 let seq2 = Enumerable.create('Einstein', 'Gates', 'Kloubert');
 
-let zipped = seq1.zip(seq2,
-                      (x, y) => x + ' ' + y);
-
-console.log( zipped.first() );
+for (let item of seq1.skip(2).take(2)) {
+    console.log(item);
+}

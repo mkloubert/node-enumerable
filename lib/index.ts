@@ -123,6 +123,11 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     average(selector?: Selector<T, number>): number | Symbol;
 
     /**
+     * Gets if that sequence can be resetted or not.
+     */
+    readonly canReset: boolean;
+
+    /**
      * Returns a "casted" version of that sequence.
      * 
      * @template U The target type.
@@ -290,6 +295,13 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     //TODO: lastOrDefault()
 
     /**
+     * Returns a resettable version of that sequence.
+     * 
+     * @returns {IEnumerable<T>} The resettable version of that sequence.
+     */
+    makeResettable(): IEnumerable<T>;
+
+    /**
      * Returns the maximum item of that sequence.
      * 
      * @param {Comparer<T>} [comparer] The custom comparer to use.
@@ -334,6 +346,16 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
 
     //TODO: orderBy()
     //TODO: orderByDescending()
+
+    /**
+     * Returns that sequence.
+     * 
+     * @returns {this} 
+     * 
+     * @throws Not supported
+     */
+    reset(): this;
+
     //TODO: reverse()
 
     /**
@@ -362,8 +384,24 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     //TODO: sequenceEqual()
     //TODO: single()
     //TODO: singleOrDefault()
-    //TODO: skip()
-    //TODO: skipWhile()
+    
+    /**
+     * Skips a maximum number of items.
+     * 
+     * @param {number} [count] The number of items to skip. Default: 1
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    skip(count?: number): IEnumerable<T>;
+
+    /**
+     * Skips items while a condition satisfies.
+     * 
+     * @param {Predicate<T>} [predicate] The predicate to use.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    skipWhile(predicate: Predicate<T>): IEnumerable<T>;
 
     /**
      * Calculates the sum of that sequence.
@@ -372,8 +410,23 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     sum(seed?: T): T | Symbol;
 
-    //TODO: take()
-    //TODO: takeWhile()
+    /**
+     * Takes a maximum number of items.
+     * 
+     * @param {number} [count] The maximum number of items. Default: 1
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    take(count?: number): IEnumerable<T>;
+
+    /**
+     * Takes items while a condition satisfies.
+     * 
+     * @param {Predicate<T>} [predicate] The predicate to use.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    takeWhile(predicate: Predicate<T>): IEnumerable<T>;
 
     /**
      * Creates a new array of the sequence of that items.
@@ -458,9 +511,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public all(predicate: Predicate<T>): boolean {
-        if (!predicate) {
-            predicate = () => true;
-        }
+        predicate = toPredicateSafe(predicate);
 
         for (let item of this) {
             if (!predicate(item)) {
@@ -473,9 +524,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public any(predicate?: Predicate<T>): boolean {
-        if (!predicate) {
-            predicate = () => true;
-        }
+        predicate = toPredicateSafe(predicate);
 
         for (let item of this) {
             if (predicate(item)) {
@@ -507,6 +556,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         return count > 0 ? (sum / count)
                          : IS_EMPTY;
+    }
+
+    /** @inheritdoc */
+    public get canReset(): boolean {
+        return true;
     }
 
     /** @inheritdoc */
@@ -551,9 +605,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public count(predicate?: Predicate<T>): number {
-        if (!predicate) {
-            predicate = () => true;
-        }
+        predicate = toPredicateSafe(predicate);
         
         let cnt = 0;
         for (let item of this) {
@@ -735,6 +787,15 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public makeResettable(): IEnumerable<T> {
+        if (this.canReset) {
+            return this;
+        }
+
+        return from(this.toArray());
+    }
+
+    /** @inheritdoc */
     public max(comparer?: Comparer<T>): T | Symbol {
         comparer = toComparerSafe(comparer);
 
@@ -799,6 +860,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public reset(): this {
+        throw 'Not supported';
+    }
+
+    /** @inheritdoc */
     public select<U>(selector: Selector<T, U>): IEnumerable<U> {
         if (!selector) {
             selector = (x) => <any>x;
@@ -832,9 +898,77 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public skip(count?: number): IEnumerable<T> {
+        count = parseInt(toStringSafe(count).trim());
+        if (isNaN(count)) {
+            count = 1;
+        }
+
+        return this.skipWhile(() => {
+            return count-- > 0;
+        });
+    }
+
+    /** @inheritdoc */
+    public skipWhile(predicate: Predicate<T>): IEnumerable<T> {
+        return from(this.skipWhileInner(predicate));
+    }
+
+    /**
+     * @see takeWhile()
+     */
+    protected *skipWhileInner(predicate: Predicate<T>) {
+        predicate = toPredicateSafe(predicate);
+
+        let returnItem = false;
+        for (let item of this) {
+            if (!returnItem && !predicate(item)) {
+                returnItem = true;
+            }
+            
+            if (returnItem) {
+                yield item;
+            }
+        }
+    }
+
+    /** @inheritdoc */
     public sum(): T | Symbol {
         return this.aggregate((acc, x) => IS_EMPTY !== acc ? (acc + x) : x,
                               <any>IS_EMPTY);
+    }
+
+    /** @inheritdoc */
+    public take(count?: number): IEnumerable<T> {
+        count = parseInt(toStringSafe(count).trim());
+        if (isNaN(count)) {
+            count = 1;
+        }
+
+        return this.takeWhile(() => {
+            return count-- > 0;
+        });
+    }
+
+    /** @inheritdoc */
+    public takeWhile(predicate: Predicate<T>): IEnumerable<T> {
+        return from(this.takeWhileInner(predicate));
+    }
+
+    /**
+     * @see takeWhile()
+     */
+    protected *takeWhileInner(predicate: Predicate<T>) {
+        predicate = toPredicateSafe(predicate);
+
+        for (let item of this) {
+            if (predicate(item)) {
+                yield item;
+            }
+            else {
+                break;
+            }
+        }
     }
 
     /** @inheritdoc */
@@ -863,9 +997,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
      * @see where()
      */
     protected *whereInner(predicate: Predicate<T>): IterableIterator<T> {
-        if (!predicate) {
-            predicate = (x) => true;
-        }
+        predicate = toPredicateSafe(predicate);
 
         for (let item of this) {
             if (predicate(item)) {
@@ -934,21 +1066,6 @@ export class IteratorEnumerable<T> extends EnumerableBase<T> {
     }
 
     /** @inheritdoc */
-    public count(predicate?: Predicate<T>): number {
-        if (!predicate) {
-            if ('object' === typeof this._iterator) {
-                let iterator: any = this._iterator;
-
-                if (iterator.hasOwnProperty('length')) {
-                    return iterator['length'];
-                }
-            }
-        }
-
-        return super.count(predicate);
-    }
-
-    /** @inheritdoc */
     public next(value?: any): IteratorResult<T> {
         let result = this._iterator.next(value);
         if (!result) {
@@ -990,12 +1107,8 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
     }
 
     /** @inheritdoc */
-    public count(predicate?: Predicate<T>): number {
-        if (!predicate) {
-            return this._array.length;
-        }
-
-        return super.count(predicate);
+    public get canReset(): boolean {
+        return true;
     }
 
     /** @inheritdoc */
@@ -1013,6 +1126,18 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
             value: this._array[nextIndex],
             done: false,
         };
+    }
+
+    /** @inheritdoc */
+    public reset(): this {
+        if (this.canReset) {
+            this._index = -1;
+        }
+        else {
+            return super.reset();
+        }
+
+        return this;
     }
 }
 
@@ -1166,6 +1291,20 @@ function toEqualityComparerSafe<T, U>(comparer: EqualityComparer<T, U> | true): 
     }
 
     return comparer;
+}
+
+function toPredicateSafe<T>(predicate: Predicate<T> | boolean, defaultValue = true): Predicate<T> {
+    if (isNullOrUndefined(predicate)) {
+        predicate = () => !!defaultValue;
+    }
+
+    if ('function' !== typeof predicate) {
+        let result = !!predicate;
+        
+        predicate = () => result;
+    }
+
+    return predicate;
 }
 
 function toStringSafe(val: any): string {
