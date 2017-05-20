@@ -45,6 +45,17 @@ let seq4 = Enumerable.range(2, 5);
 
 // 5979 'TM' strings
 let seq5 = Enumerable.repeat('TM', 5979);
+
+// build using factory function
+let seq6 = Enumerable.build((cancel, index) => {
+    if (index < 5) {
+        return 'item_' + (index + 1);
+    }
+    else {
+        cancel();  // we tell that we
+                   // want to cancel here
+    }
+});
 ```
 
 ### Work with them

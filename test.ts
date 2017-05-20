@@ -24,13 +24,18 @@
 import * as Enumerable from './lib';
 import * as FS from 'fs';
 
-let fruits = ["grape", "passionfruit", "banana", "mango", 
-              "orange", "raspberry", "apple", "blueberry"];
-let seq1 = Enumerable.create(0, 1, 2, 3, 4)
-                     .skipLast();
+
+let items = Enumerable.build((cancel, index) => {
+    if (index < 5) {
+        return 'item_' + (index + 1);
+    }
+    else {
+        cancel();
+    }
+});
 
 // console.log( seq1.lastOrDefault(x => x < 1, 555) );
 
-seq1.forEach((x) => {
+items.forEach((x) => {
     console.log(x);
 });
