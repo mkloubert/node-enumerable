@@ -291,6 +291,10 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     count(predicate?: Predicate<T>): number;
     /**
+     * Gets the current iterator result.
+     */
+    readonly current: IteratorResult<T>;
+    /**
      * Returns the items of that sequence or a default item list
      * if that sequence is empty.
      * 
@@ -550,8 +554,19 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<U>} The new, flatten sequence.
      */
     selectMany<U>(selector: Selector<T, Sequence<U>>): IEnumerable<U>;
+    /**
+     * Checks if that sequence is equal to another.
+     * 
+     * @template U Type of the items of the other sequence.
+     * 
+     * @param {Sequence<U>} other The other sequence.
+     * @param {(EqualityComparer<T, U> | true)} [equalityComparer] The custom equality comparer to use.
+     * 
+     * @returns {boolean} Both are equal or not.
+     */
+    sequenceEqual<U>(other: Sequence<U>,
+                     equalityComparer?: EqualityComparer<T, U> | true): boolean;
 
-    //TODO: sequenceEqual()
     //TODO: singleOrDefault()
 
     /**
@@ -697,6 +712,10 @@ export interface IGrouping<TKey, T> extends IEnumerable<T> {
  * A basic sequence.
  */
 export abstract class EnumerableBase<T> implements IEnumerable<T> {
+    /**
+     * Stores the current iterator result.
+     */
+    protected _current: IteratorResult<T>;
     /**
      * Stores the current index.
      */
@@ -941,6 +960,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
 
         return cnt;
+    }
+    /** @inheritdoc */
+    public get current(): IteratorResult<T> {
+        return this._current;
     }
     /** @inheritdoc */
     public defaultIfEmpty(...defaultItems: T[]): IEnumerable<T> {
@@ -1381,6 +1404,35 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
     }
     /** @inheritdoc */
+    public sequenceEqual<U>(other: Sequence<U>,
+                            equalityComparer?: EqualityComparer<T, U> | true): boolean {
+        let otherSeq = from(other);
+        equalityComparer = toEqualityComparerSafe(equalityComparer);
+
+        do {
+            let x = getNextIteratorResultSafe(this);
+            if (x.done) {
+                break;
+            }
+
+            let y = getNextIteratorResultSafe(otherSeq);
+            if (y.done) {
+                return false;
+            }
+
+            if (!equalityComparer(x.value, y.value)) {
+                return false;
+            }
+        }
+        while (true);
+
+        if (!getNextIteratorResultSafe(otherSeq).done) {
+            return false;
+        }
+        
+        return true;
+    }
+    /** @inheritdoc */
     public single(predicate?: Predicate<T>): T {
         predicate = toPredicateSafe(predicate);
 
@@ -1631,6 +1683,8 @@ export class IteratorEnumerable<T> extends EnumerableBase<T> {
             };
         }
 
+        this._current = result;
+
         if (!result.done) {
             ++this._index;
         }
@@ -1668,19 +1722,26 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
     }
     /** @inheritdoc */
     public next(): IteratorResult<T> {
+        let result: IteratorResult<T>;
+
         let nextIndex = this._index + 1;
         if (nextIndex >= this._array.length) {
-            return {
+            result = {
                 done: true,
                 value: undefined,
             };
         }
+        else {
+            this._index = nextIndex;
+            
+            result = {
+                done: false,
+                value: this._array[nextIndex],
+            };
+        }
 
-        this._index = nextIndex;
-        return {
-            value: this._array[nextIndex],
-            done: false,
-        };
+        this._current = result;
+        return result;
     }
     /** @inheritdoc */
     public reset(): this {
@@ -1924,6 +1985,18 @@ function *emptyIterator() {
     while (<any>false) {
         yield <any>undefined;
     }
+}
+
+function getNextIteratorResultSafe<T>(iterator: Iterator<T>, defaultValue?: any): IteratorResult<T> {
+    let result = iterator.next();
+    if (!result) {
+        result = {
+            done: true,
+            value: defaultValue,
+        };
+    }
+
+    return result;
 }
 
 function isNullOrUndefined(val: any): boolean {

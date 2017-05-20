@@ -24,16 +24,7 @@
 import * as Enumerable from './lib';
 import * as FS from 'fs';
 
-let seq1 = Enumerable.create('Albert', 'Marcel', 'Bill', 'Mandy');
+let seq1 = Enumerable.create();
+let seq2 = Enumerable.create();
 
-let lookup: { [key: string]: Enumerable.IEnumerable<string> } = seq1.toLookup(x => x[0]);
-
-for (let key in lookup) {
-    let grp = lookup[Symbol()];
-
-    console.log('Key: ' + key);
-
-    for (let item of grp) {
-        console.log('  Item: ' + item);
-    }
-}
+console.log(seq1.sequenceEqual(seq2));
