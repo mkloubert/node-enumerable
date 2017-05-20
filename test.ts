@@ -32,8 +32,4 @@ function *test() {
 
 let seq1 = Enumerable.create('Albert', 'Bill', 'Marcel', 'Konrad');
 
-let r = seq1.each((x, i, res: number) => {
-    return res + 1;
-}, 1);
-
-console.log(r);
+console.log( seq1.joinToString(', ') );

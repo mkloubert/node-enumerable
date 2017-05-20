@@ -308,6 +308,15 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     //TODO: join()
 
     /**
+     * Joins the items of that sequence to one string.
+     * 
+     * @param {any} [separator] The optional separator to use.
+     * 
+     * @returns {string} The items as string.
+     */
+    joinToString(separator?: any): string;
+
+    /**
      * Returns the zero based index of the last occurrence of an item.
      * 
      * @template U Type of the item to search for.
@@ -822,6 +831,12 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public joinToString(separator?: any): string {
+        return this.toArray()
+                   .join(toStringSafe(separator));
+    }
+
+    /** @inheritdoc */
     public lastIndexOf<U>(item: U,
                           comparer?: EqualityComparer<T, U> | true): number {
         let index = -1;
@@ -1292,6 +1307,14 @@ export function fromString(val: any): IEnumerable<string> {
     return new ArrayEnumerable<string>(val.split(''));
 }
 
+/**
+ * Creates a range of numbers.
+ * 
+ * @param {number} start The start value. 
+ * @param {number} [count] The meximum number of values.
+ * 
+ * @returns {IEnumerable<number>} The new sequence.
+ */
 export function range(start: number, count?: number): IEnumerable<number> {
     start = parseFloat(toStringSafe(start).trim());
     if (isNaN(start)) {
@@ -1300,22 +1323,45 @@ export function range(start: number, count?: number): IEnumerable<number> {
 
     count = parseInt(toStringSafe(count).trim());
 
-    return from( rangeInner(start, count) );
+    return from(rangeInner(start, count));
 }
 
 function *rangeInner(start: number, count: number) {
     let current = start;
     while (true) {
         if (!isNaN(count)) {
-            if (count < 1) {
+            if (count-- < 1) {
                 break;
-            }
-            else {
-                --count;
             }
         }
 
         yield current++;
+    }
+}
+
+/**
+ * Creates a range of numbers.
+ * 
+ * @param {T} item The item to repeat. 
+ * @param {number} [count] The maximum number of items.
+ * 
+ * @returns {IEnumerable<number>} The new sequence.
+ */
+export function repeat<T>(item: T, count?: number): IEnumerable<T> {
+    count = parseInt(toStringSafe(count).trim());
+
+    return from(repeatInner(item, count));
+}
+
+function *repeatInner<T>(item: T, count: number) {
+    while (true) {
+        if (!isNaN(count)) {
+            if (count-- < 1) {
+                break;
+            }
+        }
+
+        yield item;
     }
 }
 
