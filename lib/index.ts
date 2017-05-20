@@ -109,6 +109,22 @@ export type Comparer<T, U = T> = (x: T, y: U) => number;
  */
 export type EqualityComparer<T, U = T> = (x: T, y: U) => boolean;
 /**
+ * Saves joined values.
+ * 
+ * @template TOuter Type of the outer value.
+ * @template TInner Type of the inner value.
+ */
+export interface JoinedItems<TOuter, TInner> {
+    /**
+     * The inner value.
+     */
+    inner: TInner;
+    /**
+     * The outer value.
+     */
+    outer: TOuter;
+}
+/**
  * A key for an object.
  */
 export type ObjectKey = number | string | Symbol;
@@ -139,7 +155,6 @@ export type Selector<T, U> = (item: T) => U;
  * @template T Type of the items.
  */
 export type Sequence<T> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
-
 /**
  * A stack.
  * 
@@ -397,9 +412,25 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     groupBy<TKey>(keySelector: Selector<T, TKey>,
                   keyEqualityComparer?: EqualityComparer<TKey>): IEnumerable<IGrouping<TKey, T>>;
-    
-    //TODO: groupJoin()
-
+    /**
+     * Correlates the elements of that sequence and another based on matching keys and groups them.
+     * 
+     * @param {Sequence<TInner>} inner The other sequence.
+     * @param {Selector<T, TOuterKey>} [outerKeySelector] The key selector for the items of that sequence.
+     * @param {Selector<TInner, TInnerKey} [innerKeySelector] The key selector for the items of the other sequence.
+     * @param {((outer: T, inner: IEnumerable<TInner>) => TResult)} [resultSelector] The function that provides the result value for two matching elements.
+     * @param {EqualityComparer<TOuterKey, TInnerKey>|true} [keyEqualityComparer] The custom equality comparer for the keys to use.
+     *                                                                            (true) indicates to do a === check.
+     * 
+     * @return {IEnumerable<TResult>} The new sequence.
+     */
+    groupJoin<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, IEnumerable<TInner>>>(
+        inner: Sequence<TInner>,
+        outerKeySelector?: Selector<T, TOuterKey>,
+        innerKeySelector?: Selector<TInner, TInnerKey>,
+        resultSelector?: (outer: T, inner: IEnumerable<TInner>) => TResult,
+        keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true
+    ): IEnumerable<TResult>;
     /**
      * Gets the current zero based index.
      */
@@ -427,9 +458,25 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     intersect(second: Sequence<T>,
               comparer?: EqualityComparer<T> | true): IEnumerable<T>;
-
-    //TODO: join()
-
+    /**
+     * Correlates the elements of that sequence and another based on matching keys.
+     * 
+     * @param {Sequence<TInner>} inner The other sequence.
+     * @param {Selector<T, TOuterKey>} [outerKeySelector] The key selector for the items of that sequence.
+     * @param {Selector<TInner, TInnerKey} [innerKeySelector] The key selector for the items of the other sequence.
+     * @param {((outer: T, inner: IEnumerable<TInner>) => TResult)} [resultSelector] The function that provides the result value for two matching elements.
+     * @param {EqualityComparer<TOuterKey, TInnerKey>|true} [keyEqualityComparer] The custom equality comparer for the keys to use.
+     *                                                                            (true) indicates to do a === check. 
+     * 
+     * @return {IEnumerable<TResult>} The new sequence.
+     */
+    join<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, TInner>>(
+        inner: Sequence<TInner>,
+        outerKeySelector?: Selector<T, TOuterKey>,
+        innerKeySelector?: Selector<TInner, TInnerKey>,
+        resultSelector?: (outer: T, inner: TInner) => TResult,
+        keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true
+    ): IEnumerable<TResult>;
     /**
      * Joins the items of that sequence to one string.
      * 
@@ -1181,6 +1228,75 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
     }
     /** @inheritdoc */
+    public groupJoin<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, IEnumerable<TInner>>>(
+        inner: Sequence<TInner>,
+        outerKeySelector?: Selector<T, TOuterKey>,
+        innerKeySelector?: Selector<TInner, TInnerKey>,
+        resultSelector?: (outer: T, inner: IEnumerable<TInner>) => TResult,
+        keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true
+    ): IEnumerable<TResult> {
+        if (!outerKeySelector && !innerKeySelector) {
+            outerKeySelector = (i) => <any>i;
+            innerKeySelector = <any>outerKeySelector;
+        }
+        else {
+            if (!outerKeySelector) {
+                outerKeySelector = <any>innerKeySelector;
+            }
+            else if (!innerKeySelector) {
+                innerKeySelector = <any>outerKeySelector;
+            }
+        }
+
+        if (!resultSelector) {
+            resultSelector = (outer, inner) => {
+                // JoinedItems<T, IEnumerable<TInner>>
+                return <any>{
+                    inner: inner,
+                    outer: outer,
+                };
+            };
+        }
+        
+        keyEqualityComparer = toEqualityComparerSafe(keyEqualityComparer);
+
+        return from(this.groupJoinInner(from(inner),
+                                        outerKeySelector, innerKeySelector,
+                                        resultSelector,
+                                        keyEqualityComparer));
+    }
+    /**
+     * @see groupJoin()
+     */
+    protected *groupJoinInner<TInner, TOuterKey, TInnerKey, TResult>(
+        inner: IEnumerable<TInner>,
+        outerKeySelector: Selector<T, TOuterKey>,
+        innerKeySelector: Selector<TInner, TInnerKey>,
+        resultSelector: (outer: T, inner: IEnumerable<TInner>) => TResult,
+        keyEqualityComparer: EqualityComparer<TOuterKey, TInnerKey>
+    )
+    {
+        let outerGroups = createGroupArrayForSequence(this, outerKeySelector);
+        let innerGroups = createGroupArrayForSequence(inner, innerKeySelector);
+
+        while (outerGroups.length > 0) {
+            let outerGrp = outerGroups.shift();
+
+            for (let i = 0; i < innerGroups.length; i++) {
+                let innerGrp = innerGroups[i];
+
+                if (!keyEqualityComparer(outerGrp.key, innerGrp.key)) {
+                    continue;
+                }
+
+                for (var j = 0; j < outerGrp.values.length; j++) {
+                    yield resultSelector(outerGrp.values[j],
+                                         from(innerGrp.values));
+                }
+            }
+        }
+    }
+    /** @inheritdoc */
     public get index(): number {
         return this._index;
     }
@@ -1216,6 +1332,76 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                 if (comparer(item, secondItem)) {
                     yield item;
                     break;
+                }
+            }
+        }
+    }
+    /** @inheritdoc */
+    public join<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, TInner>>(
+        inner: Sequence<TInner>,
+        outerKeySelector?: Selector<T, TOuterKey>,
+        innerKeySelector?: Selector<TInner, TInnerKey>,
+        resultSelector?: (outer: T, inner: TInner) => TResult,
+        keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true
+    ): IEnumerable<TResult> {
+        if (!outerKeySelector && !innerKeySelector) {
+            outerKeySelector = (i) => <any>i;
+            innerKeySelector = <any>outerKeySelector;
+        }
+        else {
+            if (!outerKeySelector) {
+                outerKeySelector = <any>innerKeySelector;
+            }
+            else if (!innerKeySelector) {
+                innerKeySelector = <any>outerKeySelector;
+            }
+        }
+
+        if (!resultSelector) {
+            resultSelector = (outer, inner) => {
+                // JoinedItems<T, TInner>
+                return <any>{
+                    inner: inner,
+                    outer: outer,
+                };
+            };
+        }
+        
+        keyEqualityComparer = toEqualityComparerSafe(keyEqualityComparer);
+
+        return from(this.joinInner(from(inner),
+                                   outerKeySelector, innerKeySelector,
+                                   resultSelector,
+                                   keyEqualityComparer));
+    }
+    /**
+     * @see join()
+     */
+    protected *joinInner<TInner, TOuterKey, TInnerKey, TResult>(
+        inner: IEnumerable<TInner>,
+        outerKeySelector: Selector<T, TOuterKey>,
+        innerKeySelector: Selector<TInner, TInnerKey>,
+        resultSelector: (outer: T, inner: TInner) => TResult,
+        keyEqualityComparer: EqualityComparer<TOuterKey, TInnerKey>
+    ) {
+        let outerGroups = createGroupArrayForSequence(this, outerKeySelector);
+        let innerGroups = createGroupArrayForSequence(inner, innerKeySelector);
+
+        while (outerGroups.length > 0) {
+            let outerGrp = outerGroups.shift();
+
+            for (let i = 0; i < innerGroups.length; i++) {
+                let innerGrp = innerGroups[i];
+
+                if (!keyEqualityComparer(outerGrp.key, innerGrp.key)) {
+                    continue;
+                }
+
+                for (var j = 0; j < outerGrp.values.length; j++) {
+                    for (var k = 0; k < innerGrp.values.length; k++) {
+                        yield resultSelector(outerGrp.values[j],
+                                             innerGrp.values[k]);
+                    }
                 }
             }
         }
@@ -1979,6 +2165,16 @@ function asArray<T>(arr: ArrayLike<T>): T[] {
     }
 
     return newArray;
+}
+
+function createGroupArrayForSequence<T, TKey>(seq: IEnumerable<T>,
+                                              keySelector: Selector<T, TKey>) {
+    return seq.groupBy(keySelector).select(grp => {
+        return {
+            key: grp.key,
+            values: grp.toArray(),
+        };
+    }).toArray();
 }
 
 function *emptyIterator() {
