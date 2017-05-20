@@ -343,20 +343,22 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     /**
      * Returns the maximum item of that sequence.
      * 
-     * @param {Comparer<T>} [comparer] The custom comparer to use.
+     * @param {Comparer<U>} [comparer] The custom comparer to use.
      * 
      * @returns {T|Symbol} The item or IS_EMPTY if that sequence is empty.
      */
-    max(comparer?: Comparer<T>): T | Symbol;
+    max<U = T>(valueSelector?: Selector<T, U>,
+               comparer?: Comparer<U>): T | Symbol;
 
     /**
      * Returns the minimum item of that sequence.
      * 
-     * @param {Comparer<T>} [comparer] The custom comparer to use.
+     * @param {Comparer<U>} [comparer] The custom comparer to use.
      * 
      * @returns {T|Symbol} The item or IS_EMPTY if that sequence is empty.
      */
-    min(comparer?: Comparer<T>): T | Symbol;
+    min<U = T>(valueSelector?: Selector<T, U>,
+               comparer?: Comparer<U>): T | Symbol;
 
     /**
      * Removes empty items.
@@ -634,12 +636,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public contains<U>(item: U,
-                       comparer?: EqualityComparer<T, U> | true): boolean {
-        return this.indexOf<U>(item, comparer) > -1;
-    }
-
-    /** @inheritdoc */
     public concatArray(sequences: ArrayLike<Sequence<T>>): IEnumerable<T> {
         return from(this.concatArrayInner(sequences));
     }
@@ -661,6 +657,12 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                 }
             }
         }
+    }
+    
+    /** @inheritdoc */
+    public contains<U>(item: U,
+                       comparer?: EqualityComparer<T, U> | true): boolean {
+        return this.indexOf<U>(item, comparer) > -1;
     }
 
     /** @inheritdoc */
@@ -864,21 +866,35 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public max(comparer?: Comparer<T>): T | Symbol {
+    public max<U = T>(valueSelector?: Selector<T, U>,
+                      comparer?: Comparer<U>): T | Symbol {
+        if (!valueSelector) {
+            valueSelector = (i) => <any>i;
+        }
+        
         comparer = toComparerSafe(comparer);
 
         let result: any = IS_EMPTY;
+        let maxValue: U;
 
         let isFirst = true;
         for (let item of this) {
+            let value = valueSelector(item);
+
+            let updateResult = () => {
+                result = item;
+                maxValue = value;
+            };
+
             if (!isFirst) {
-                if (comparer(item, result) > 0) {
-                    result = item;
+                if (comparer(value, maxValue) > 0) {
+                    updateResult();
                 }
             }
             else {
                 isFirst = false;
-                result = item;
+
+                updateResult();
             }
         }
 
@@ -886,21 +902,35 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public min(comparer?: Comparer<T>): T | Symbol {
+    public min<U = T>(valueSelector?: Selector<T, U>,
+                      comparer?: Comparer<U>): T | Symbol {
+        if (!valueSelector) {
+            valueSelector = (i) => <any>i;
+        }
+        
         comparer = toComparerSafe(comparer);
 
         let result: any = IS_EMPTY;
+        let minValue: U;
 
         let isFirst = true;
         for (let item of this) {
+            let value = valueSelector(item);
+
+            let updateResult = () => {
+                result = item;
+                minValue = value;
+            };
+
             if (!isFirst) {
-                if (comparer(item, result) < 0) {
-                    result = item;
+                if (comparer(value, minValue) < 0) {
+                    updateResult();
                 }
             }
             else {
                 isFirst = false;
-                result = item;
+
+                updateResult();
             }
         }
 

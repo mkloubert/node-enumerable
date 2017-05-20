@@ -30,6 +30,6 @@ function *test() {
 }
 
 
-let seq1 = Enumerable.create('Albert', 'Bill', 'Marcel', 'Konrad');
+let seq1 = Enumerable.create('Albert', 'Bill', 'Mar', 'Konrad');
 
-console.log( seq1.joinToString(', ') );
+console.log( seq1.min() );
