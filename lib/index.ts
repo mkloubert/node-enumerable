@@ -1276,6 +1276,53 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
     }
 }
 
+
+/**
+ * Builds a sequence.
+ * 
+ * @template T Type of the items. 
+ * 
+ * @param {(cancel: (flag?: boolean) => void, index: number) => T} factory The factory function. 
+ * @param {number} [count] The maximum
+ * 
+ * @returns {IEnumerable<T>} 
+ */
+export function build<T>(factory: (cancel: (flag?: boolean) => void, index: number) => T,
+                         count?: number): IEnumerable<T> {
+    count = parseInt(toStringSafe(count).trim());
+
+    return from(buildInner(factory, count));
+}
+
+function *buildInner<T>(factory: (cancel: (flag?: boolean) => void, index: number) => T,
+                        count: number) {
+    let i = -1;
+    let run = true;
+    while (run) {
+        ++i;
+
+        if (!isNaN(count)) {
+            if (i >= count) {
+                run = false;
+                continue;
+            }
+        }
+
+        let cancel = function(flag?: boolean) {
+            if (arguments.length < 1) {
+                flag = true;
+            }
+
+            run = !flag;
+        };
+
+        let newItem = factory(cancel, i);
+        if (run) {
+            yield newItem;
+        }
+    }
+}
+
 /**
  * Creates a new sequence from a list of items.
  * 

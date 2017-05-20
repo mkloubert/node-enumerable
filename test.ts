@@ -30,6 +30,19 @@ function *test() {
 }
 
 
-let seq1 = Enumerable.create('Albert', 'Bill', 'Mar', 'Konrad');
+let seq1 = Enumerable.build((i, cancel) => {
+    if (i < 5) {
+        return 'item' + i;
+    }
+    else {
+        cancel();
 
-console.log( seq1.min() );
+        if (i < 6) {
+            cancel(false);
+        }
+    }
+});
+
+seq1.each((i) => {
+    console.log(i);
+});
