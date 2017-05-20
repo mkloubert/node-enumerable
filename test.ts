@@ -33,6 +33,9 @@ function *test() {
 let seq1 = Enumerable.create('Albert', 'Bill', 'Marcel', 'Konrad');
 let seq2 = Enumerable.create('Einstein', 'Gates', 'Kloubert');
 
-for (let item of seq1.skip(2).take(2)) {
+let arr: string[] = [];
+seq1.skip(3).pushTo(arr);
+
+for (let item of arr) {
     console.log(item);
 }

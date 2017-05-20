@@ -24,6 +24,9 @@
 /**
  * Compares to values.
  * 
+ * @template T Type of the "left" value.
+ * @template U Type of the "right" value.
+ * 
  * @param {T} x The "left" value.
  * @param {U} y The "right" value.
  * 
@@ -32,6 +35,9 @@
 export type Comparer<T, U = T> = (x: T, y: U) => number;
 /**
  * Checks if two values are equal.
+ * 
+ * @template T Type of the "left" value.
+ * @template U Type of the "right" value.
  * 
  * @param {T} x The "left" value.
  * @param {U} y The "right" value.
@@ -42,6 +48,8 @@ export type EqualityComparer<T, U = T> = (x: T, y: U) => boolean;
 /**
  * A predicate / condition.
  * 
+ * @template T Type of the item to check.
+ * 
  * @param {T} The item to check.
  * 
  * @return {boolean} Item satisfies the condition or not.
@@ -50,6 +58,9 @@ export type Predicate<T> = (item: T) => boolean;
 /**
  * A selector.
  * 
+ * @template T Type of the source item.
+ * @template U Type of the new item.
+ * 
  * @param {T} item The source item.
  * 
  * @return {U} The new item.
@@ -57,8 +68,26 @@ export type Predicate<T> = (item: T) => boolean;
 export type Selector<T, U> = (item: T) => U;
 /**
  * Possible sequence types.
+ * 
+ * @template T Type of the items.
  */
 export type Sequence<T> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
+
+/**
+ * A stack.
+ * 
+ * @template T The type of the items.
+ */
+export interface Stack<T> {
+    /**
+     * Pushes one or more item to the stack.
+     * 
+     * @param {...T[]} items The items to push.
+     * 
+     * @returns {number} The new length of the stack.
+     */
+    push(...items: T[]): number;
+}
 
 
 /**
@@ -343,6 +372,15 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {(T | Symbol)} The product or IS_EMPTY if that sequence is empty.
      */
     product(seed?: T): T | Symbol;
+
+    /**
+     * Pushes the elements of that sequence to an array or stack-like object.
+     * 
+     * @param {Stack<T>} stack The array or stack.
+     * 
+     * @returns {this} 
+     */
+    pushTo(stack: Stack<T>): this;
 
     //TODO: orderBy()
     //TODO: orderByDescending()
@@ -859,6 +897,16 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     public product(): T | Symbol {
         return this.aggregate((acc, x) => IS_EMPTY !== acc ? (acc * <any>x) : x,
                               <any>IS_EMPTY);
+    }
+
+    /** @inheritdoc */
+    public pushTo(stack: Stack<T>): this {
+        if (stack) {
+            stack.push
+                 .apply(stack, this.toArray());
+        }
+        
+        return this;
     }
 
     /** @inheritdoc */
