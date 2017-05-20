@@ -24,10 +24,6 @@
 import * as Enumerable from './lib';
 
 
-let seq = Enumerable.range(1, 5);
+let seq = Enumerable.range(1, 1);
 
-for (let s of seq.clone().take(3)) {
-    for (let i of s) {
-        console.log(i);
-    }
-}
+console.log( seq.single() );

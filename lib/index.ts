@@ -298,7 +298,17 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                            seed?: TResult): TResult | Symbol;
 
-    //TODO: first()
+    /**
+     * Returns the first element of that sequence.
+     * 
+     * @param {Predicate<T>} [predicate] The optional predicate to use.
+     * 
+     * @returns {T} The first element. 
+     * 
+     * @throws ELement not found.
+     */
+    first(predicate?: Predicate<T>): T;
+
     //TODO: firstOrDefault()
     //TODO: groupBy()
     //TODO: groupJoin()
@@ -330,6 +340,17 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     joinToString(separator?: any): string;
 
     /**
+     * Returns the last element of that sequence.
+     * 
+     * @param {Predicate<T>} [predicate] The optional predicate to use.
+     * 
+     * @returns {T} The last element. 
+     * 
+     * @throws ELement not found.
+     */
+    last(predicate?: Predicate<T>): T;
+
+    /**
      * Returns the zero based index of the last occurrence of an item.
      * 
      * @template U Type of the item to search for.
@@ -343,7 +364,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     lastIndexOf<U>(item: U,
                    comparer?: EqualityComparer<T, U> | true): number;
 
-    //TODO: last()
     //TODO: lastOrDefault()
 
     /**
@@ -445,8 +465,18 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     selectMany<U>(selector: Selector<T, Sequence<U>>): IEnumerable<U>;
 
     //TODO: sequenceEqual()
-    //TODO: single()
     //TODO: singleOrDefault()
+
+    /**
+     * Returns the one and only element of that sequence.
+     * 
+     * @param {Predicate<T>} [predicate] The optional predicate to use.
+     * 
+     * @returns {T} The single element. 
+     * 
+     * @throws ELement not found.
+     */
+    single(predicate?: Predicate<T>): T;
     
     /**
      * Skips a maximum number of items.
@@ -845,6 +875,19 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public first(predicate?: Predicate<T>): T {
+        predicate = toPredicateSafe(predicate);
+
+        for (let item of this) {
+            if (predicate(item)) {
+                return item;
+            }
+        }
+
+        throw 'Element not found';
+    }
+
+    /** @inheritdoc */
     public forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                                   seed?: TResult): TResult | Symbol {
         let result: TResult | Symbol = IS_EMPTY;
@@ -888,6 +931,27 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     public joinToString(separator?: any): string {
         return this.toArray()
                    .join(toStringSafe(separator));
+    }
+
+    /** @inheritdoc */
+    public last(predicate?: Predicate<T>): T {
+        predicate = toPredicateSafe(predicate);
+
+        const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
+
+        let result: any = ELEMENT_NOT_FOUND;
+
+        for (let item of this) {
+            if (predicate(item)) {
+                result = item;
+            }
+        }
+
+        if (ELEMENT_NOT_FOUND === result) {
+            throw "Element not found";
+        }
+
+        return result;
     }
 
     /** @inheritdoc */
@@ -1059,6 +1123,33 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                 yield item;
             }
         }
+    }
+
+    /** @inheritdoc */
+    public single(predicate?: Predicate<T>): T {
+        predicate = toPredicateSafe(predicate);
+
+        const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
+
+        let result: any = ELEMENT_NOT_FOUND;
+
+        for (let item of this) {
+            if (!predicate(item)) {
+                continue;
+            }
+
+            if (ELEMENT_NOT_FOUND !== result) {
+                throw 'Sequence contains more that one matching element';    
+            }
+
+            result = item;
+        }
+
+        if (ELEMENT_NOT_FOUND === result) {
+            throw 'Element not found';
+        }
+
+        return result;
     }
 
     /** @inheritdoc */
