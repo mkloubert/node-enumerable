@@ -996,15 +996,17 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                     // ctx.result
                     Object.defineProperty(ctx, 'result', {
                         get: () => { return asyncResult; },
-
                         set: (newValue) => { asyncResult = newValue; },
+
+                        enumerable: true,
                     });
 
                     // ctx.value
                     Object.defineProperty(ctx, 'value', {
                         get: () => { return val; },
-
                         set: (newValue) => { val = newValue; },
+
+                        enumerable: true,
                     });
 
                     try {

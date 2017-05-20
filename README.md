@@ -88,7 +88,7 @@ for (let item of newSeq) {
 }
 ```
 
-You can also run async operations:
+#### Async operations
 
 ```javascript
 const FS = require('fs');
@@ -116,8 +116,8 @@ seq.async((context) => {
         FS.readFile(fullPath, (err, data) => {
             if (err) {
                 context.reject(err);  // has to be called if action
-                                    // FAILED with the error object
-                                    // or value as argument
+                                      // FAILED with the error object
+                                      // or value as argument
             }
             else {
                 ++context.result;  // update counter value
