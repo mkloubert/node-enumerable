@@ -26,8 +26,12 @@ import * as FS from 'fs';
 
 let seq1 = Enumerable.create('Albert', 'Marcel', 'Bill', 'Mandy');
 
-for (let grp of seq1.groupBy(x => x.length)) {
-    console.log('Key: ' + grp.key);
+let lookup: { [key: string]: Enumerable.IEnumerable<string> } = seq1.toLookup(x => x[0]);
+
+for (let key in lookup) {
+    let grp = lookup[Symbol()];
+
+    console.log('Key: ' + key);
 
     for (let item of grp) {
         console.log('  Item: ' + item);

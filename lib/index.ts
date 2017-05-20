@@ -109,6 +109,10 @@ export type Comparer<T, U = T> = (x: T, y: U) => number;
  */
 export type EqualityComparer<T, U = T> = (x: T, y: U) => boolean;
 /**
+ * A key for an object.
+ */
+export type ObjectKey = number | string | Symbol;
+/**
  * A predicate / condition.
  * 
  * @template T Type of the item to check.
@@ -615,8 +619,21 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
 
     //TODO: toDictionary()
     //TODO: toList()
-    //TODO: toLookup()
+    
 
+    /**
+     * Converts that sequence to a lookup object.
+     * 
+     * @template TKey Type of the keys.
+     * @template U Type of the result object.
+     * 
+     * @param {Selector<T, TKey>} keySelector The key selector.
+     * @param {EqualityComparer<TKey>} [keyEqualityComparer] The custom equality comparer for the keys.
+     * 
+     * @returns U The lookup object
+     */
+    toLookup<TKey extends ObjectKey, U = any>(keySelector: Selector<T, TKey>,
+                                              keyEqualityComparer?: EqualityComparer<TKey>): U;
     /**
      * Wraps the items of that sequence to an object.
      * 
@@ -627,7 +644,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @returns TResult The new object.
      */
-    toObject<TResult = any, TKey = number>(keySelector?: (index: number, item: T) => TKey): TResult;
+    toObject<TResult = any, TKey extends ObjectKey = number>(keySelector?: (index: number, item: T) => TKey): TResult;
     /**
      * Produces the union of that sequence and another.
      * 
@@ -1494,7 +1511,20 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         while (true);
     }
     /** @inheritdoc */
-    public toObject<TResult = any, TKey = number>(keySelector?: (index: number, item: T) => TKey): TResult {
+    public toLookup<TKey extends ObjectKey, U = any>(keySelector: Selector<T, TKey>,
+                                                     keyEqualityComparer?: EqualityComparer<TKey>): U {
+        let lookup: any = {};
+
+        for (let grp of this.groupBy(keySelector, keyEqualityComparer)) {
+            let key: any = grp.key;
+
+            lookup[key] = grp;
+        }
+
+        return lookup;
+    }
+    /** @inheritdoc */
+    public toObject<TResult = any, TKey extends ObjectKey = number>(keySelector?: (index: number, item: T) => TKey): TResult {
         if (!keySelector) {
             keySelector = (index) => <any>index;
         }
@@ -1505,11 +1535,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         for (let item of this) {
             ++i;
 
-            let key: any = keySelector(i, item);
-            if ('number' !== typeof key) {
-                key = toStringSafe(key);
-            }
-
+            let key = keySelector(i, item);
             obj[key] = item;
         }
 
