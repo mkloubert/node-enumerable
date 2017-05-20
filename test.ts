@@ -24,6 +24,9 @@
 import * as Enumerable from './lib';
 
 
-let seq = Enumerable.range(1, 1);
+let seq1 = Enumerable.range(1, 5);
+let seq2 = Enumerable.range(3, 6);
 
-console.log( seq.single() );
+for (let item of seq2.except(seq1)) {
+    console.log(item);
+}

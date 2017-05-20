@@ -283,7 +283,16 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     elementAtOrDefault<U = Symbol>(index: number,
                                    defaultValue?: U): T | U;
 
-    //TODO: except()
+    /**
+     * Returns the items of that sequence except a list of specific ones.
+     * 
+     * @param {Sequence<T>} second The second sequence.
+     * @param {EqualityComparer<T>|true} [equalityComparer] The custom equality comparer to use.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    except(second: Sequence<T>,
+           comparer?: EqualityComparer<T> | true): IEnumerable<T>;
 
     /**
      * Invokes a function for each element of that sequence.
@@ -327,7 +336,17 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     indexOf<U>(item: U,
                comparer?: EqualityComparer<T, U> | true): number;
 
-    //TODO: intersect()
+    /**
+     * Returns the intersection between this and a second sequence.
+     * 
+     * @param {Sequence<T>} second The second sequence.
+     * @param {EqualityComparer<T>|true} [equalityComparer] The custom equality comparer to use.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    intersect(second: Sequence<T>,
+              comparer?: EqualityComparer<T> | true): IEnumerable<T>;
+
     //TODO: join()
 
     /**
@@ -875,6 +894,34 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
+    public except(second: Sequence<T>,
+                     comparer?: EqualityComparer<T> | true): IEnumerable<T> {
+        return from(this.exceptInner(from(second).distinct()
+                                                 .toArray(),
+                                     toEqualityComparerSafe(comparer)));
+    }
+
+    /**
+     * @see except()
+     */
+    protected *exceptInner(second: T[], comparer: EqualityComparer<T>) {
+        for (let item of this) {
+            let found = false;
+
+            for (let secondItem of second) {
+                if (comparer(item, secondItem)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                yield item;
+            }
+        }
+    }
+
+    /** @inheritdoc */
     public first(predicate?: Predicate<T>): T {
         predicate = toPredicateSafe(predicate);
 
@@ -925,6 +972,28 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
 
         return -1;
+    }
+
+    /** @inheritdoc */
+    public intersect(second: Sequence<T>,
+                     comparer?: EqualityComparer<T> | true): IEnumerable<T> {
+        return from(this.intersectInner(from(second).distinct()
+                                                    .toArray(),
+                                        toEqualityComparerSafe(comparer)));
+    }
+
+    /**
+     * @see intersect()
+     */
+    protected *intersectInner(second: T[], comparer: EqualityComparer<T>) {
+        for (let item of this) {
+            for (let secondItem of second) {
+                if (comparer(item, secondItem)) {
+                    yield item;
+                    break;
+                }
+            }
+        }
     }
 
     /** @inheritdoc */
