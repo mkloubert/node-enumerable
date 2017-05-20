@@ -24,26 +24,12 @@
 import * as Enumerable from './lib';
 import * as FS from 'fs';
 
-let seq1 = Enumerable.range(1, 5);
+let seq1 = Enumerable.create('Albert', 'Marcel', 'Bill', 'Mandy');
 
-seq1.async((ctx) => {
-    let f = __dirname + '/' + ctx.item + '.txt';
-    
-    FS.exists(f, (exists) => {
-        console.log('prevVal: ' + ctx.previousValue);
-        console.log(f);
+for (let grp of seq1.groupBy(x => x.length)) {
+    console.log('Key: ' + grp.key);
 
-        if (ctx.isFirst) {
-            ctx.result = f;
-            ctx.resolve(exists);
-        }
-        else {
-            ctx.reject('42');
-        }
-    });
-}).then((result) => {
-    console.log('Done: ' + result);
-}, (err) => {
-    console.log('ERROR: ' + err);
-});
-
+    for (let item of grp) {
+        console.log('  Item: ' + item);
+    }
+}

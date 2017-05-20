@@ -76,6 +76,10 @@ export interface AsyncActionContext<T> {
      */
     result: any;
     /**
+     * Gets the underlying sequence.
+     */
+    readonly sequence: IEnumerable<T>;
+    /**
      * Gets or sets the value for this action and the upcoming ones.
      */
     value: any;
@@ -372,7 +376,20 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     first(predicate?: Predicate<T>): T;
 
     //TODO: firstOrDefault()
-    //TODO: groupBy()
+
+    /**
+     * Groups the items of that sequence by a key.
+     * 
+     * @template TKey Type of the keys.
+     * 
+     * @param {Selector<T, TKey>} keySelector The key selector.
+     * @param {EqualityComparer<TKey>} [keyEqualityComparer] The custom equality comparer for the keys.
+     * 
+     * @returns {IEnumerable<IGrouping<TKey, T>>} The grouped items.
+     */
+    groupBy<TKey>(keySelector: Selector<T, TKey>,
+                  keyEqualityComparer?: EqualityComparer<TKey>): IEnumerable<IGrouping<TKey, T>>;
+    
     //TODO: groupJoin()
 
     /**
@@ -646,6 +663,20 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
 }
 
 /**
+ * Describes a grouping.
+ * 
+ * @template T Type of the items.
+ * @template TKey Type of the key.
+ */
+export interface IGrouping<TKey, T> extends IEnumerable<T> {
+    /**
+     * Gets the key.
+     */
+    readonly key: TKey;
+}
+
+
+/**
  * A basic sequence.
  */
 export abstract class EnumerableBase<T> implements IEnumerable<T> {
@@ -703,6 +734,8 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
     /** @inheritdoc */
     public async(action: AsyncAction<T>, previousValue?: any): Promise<any> {
+        let me = this;
+
         return new Promise<any>((resolve, reject) => {
             let asyncResult: any;
             let asyncCompleted = (err: any) => {
@@ -752,6 +785,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                             nextItem();
                         },
                         result: undefined,
+                        sequence: me,
                         value: undefined,
                     };
 
@@ -1056,6 +1090,57 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return result;
     }
     /** @inheritdoc */
+    public groupBy<TKey>(keySelector: Selector<T, TKey>,
+                         keyEqualityComparer?: EqualityComparer<TKey>): IEnumerable<IGrouping<TKey, T>> {
+        if (!keySelector) {
+            keySelector = (i) => <any>i;
+        }
+
+        keyEqualityComparer = toEqualityComparerSafe(keyEqualityComparer);
+
+        return from(this.groupByInner(keySelector, keyEqualityComparer));
+    }
+    /**
+     * @see groupBy()
+     */
+    protected *groupByInner<TKey>(keySelector: Selector<T, TKey>,
+                                  keyEqualityComparer: EqualityComparer<TKey>) {
+        interface GroupItem {
+            key: TKey,
+            values: T[],
+        };
+
+        let groupList: GroupItem[] = [];
+
+        for (let item of this) {
+            let key = keySelector(item);
+
+            let grp: GroupItem;
+            for (let g of groupList) {
+                if (keyEqualityComparer(key, g.key)) {
+                    grp = g;
+                    break;
+                }
+            }
+
+            if (!grp) {
+                grp = {
+                    key: key,
+                    values: [],
+                };
+
+                groupList.push(grp);
+            }
+
+            grp.values
+               .push(item);
+        }
+
+        for (let grp of groupList) {
+            yield new Grouping(grp.key, from(grp.values));
+        }
+    }
+    /** @inheritdoc */
     public get index(): number {
         return this._index;
     }
@@ -1225,10 +1310,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     public ofType<U = any>(type: string): IEnumerable<U> {
         type = toStringSafe(type).trim();
 
-        return this.where(x => {
+        return <any>this.where(x => {
             return type.toLowerCase() === typeof x ||
                    '' === type;
-        }).select(x => <any>x);
+        });
     }
     /** @inheritdoc */
     public product(): T | Symbol {
@@ -1581,6 +1666,45 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
         }
 
         return this;
+    }
+}
+
+/**
+ * A grouping.
+ * 
+ * @template T Type of the items.
+ * @template TKey Type of the key.
+ */
+export class Grouping<TKey, T> extends EnumerableBase<T> implements IGrouping<TKey, T> {
+    /**
+     * Stores the key.
+     */
+    protected _key: TKey;
+    /**
+     * Stores the underlying sequence.
+     */
+    protected _seq: IEnumerable<T>;
+    
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {TKey} key The key.
+     * @param {IEnumerable} seq The items of the grouping.
+     */
+    constructor(key: TKey, seq: IEnumerable<T>) {
+        super();
+
+        this._key = key;
+        this._seq = seq;
+    }
+
+    /** @inheritdoc */
+    public get key(): TKey {
+        return this._key;
+    }
+    /** @inheritdoc */
+    public next(): IteratorResult<T> {
+        return this._seq.next();
     }
 }
 
