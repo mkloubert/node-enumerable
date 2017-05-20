@@ -192,7 +192,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @param {U} item The item to search for.
      * @param {(EqualityComparer<T, U>|true)} [comparer] The custom equality comparer to use.
-     *                                                               (true) indicates to do a === check.
+     *                                                   (true) indicates to do a === check.
      * 
      * @returns {boolean} Sequence contains item or not.
      */
@@ -232,6 +232,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * Removes duplicate entries from that sequence.
      * 
      * @param {EqualityComparer<T>} [comparer] The custom equality comparer to use.
+     *                                         (true) indicates to do a === check.
      * 
      * @returns {IEnumerable<T>} The new sequence.
      */
@@ -296,7 +297,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @param {U} item The item to search for.
      * @param {(EqualityComparer<T, U>|true)} [comparer] The custom equality comparer to use.
-     *                                                               (true) indicates to do a === check.
+     *                                                   (true) indicates to do a === check.
      * 
      * @returns {number} The index or -1 if not found.
      */
@@ -313,7 +314,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @param {U} item The item to search for.
      * @param {(EqualityComparer<T, U>|true)} [comparer] The custom equality comparer to use.
-     *                                                               (true) indicates to do a === check.
+     *                                                   (true) indicates to do a === check.
      * 
      * @returns {number} The index or -1 if not found.
      */
@@ -493,12 +494,12 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * Produces the union of that sequence and another.
      * 
      * @param {Sequence<T>} second The other sequence.
-     * @param {EqualityComparer<T>} [comparer] The optional equality comparer to use.
+     * @param {EqualityComparer<T>|true} [comparer] The optional equality comparer to use.
      * 
      * @returns {IEnumerable<T>} The new sequence.
      */
     union(second: Sequence<T>,
-          comparer?: EqualityComparer<T>): IEnumerable<T>;
+          comparer?: EqualityComparer<T> | true): IEnumerable<T>;
 
     /**
      * Filters the items of that sequence.
@@ -1068,7 +1069,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
     /** @inheritdoc */
     public union(second: Sequence<T>,
-                 comparer?: EqualityComparer<T>): IEnumerable<T> {
+                 comparer?: EqualityComparer<T> | true): IEnumerable<T> {
         return this.concat(second)
                    .distinct(comparer);
     }
