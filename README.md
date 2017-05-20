@@ -60,6 +60,9 @@ let seq6 = Enumerable.build((cancel, index) => {
                    // want to cancel here
     }
 });
+
+// create empty sequence
+let seq7 = Enumerable.empty();
 ```
 
 ### Work with them

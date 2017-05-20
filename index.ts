@@ -29,6 +29,7 @@
  * @param {AsyncActionContext<T>} context The underlying context.
  */
 export type AsyncAction<T> = (context: AsyncActionContext<T>) => void;
+
 /**
  * A context for an async action.
  * 
@@ -83,7 +84,8 @@ export interface AsyncActionContext<T> {
      * Gets or sets the value for this action and the upcoming ones.
      */
     value: any;
-}
+}  // AsyncActionContext<T>
+
 /**
  * Compares to values.
  * 
@@ -96,6 +98,7 @@ export interface AsyncActionContext<T> {
  * @return {number} The "sort" value.
  */
 export type Comparer<T, U = T> = (x: T, y: U) => number;
+
 /**
  * Checks if two values are equal.
  * 
@@ -108,6 +111,7 @@ export type Comparer<T, U = T> = (x: T, y: U) => number;
  * @return {boolean} Are equal or not.
  */
 export type EqualityComparer<T, U = T> = (x: T, y: U) => boolean;
+
 /**
  * Saves joined values.
  * 
@@ -123,11 +127,13 @@ export interface JoinedItems<TOuter, TInner> {
      * The outer value.
      */
     outer: TOuter;
-}
+}  // JoinedItems<TOuter, TInner>
+
 /**
  * A key for an object.
  */
 export type ObjectKey = number | string | Symbol;
+
 /**
  * A predicate / condition.
  * 
@@ -138,6 +144,7 @@ export type ObjectKey = number | string | Symbol;
  * @return {boolean} Item satisfies the condition or not.
  */
 export type Predicate<T> = (item: T) => boolean;
+
 /**
  * A selector.
  * 
@@ -149,12 +156,14 @@ export type Predicate<T> = (item: T) => boolean;
  * @return {U} The new item.
  */
 export type Selector<T, U> = (item: T) => U;
+
 /**
  * Possible sequence types.
  * 
  * @template T Type of the items.
  */
 export type Sequence<T> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
+
 /**
  * A stack.
  * 
@@ -169,7 +178,7 @@ export interface Stack<T> {
      * @returns {number} The new length of the stack.
      */
     push(...items: T[]): number;
-}
+}  // interface Stack<T>
 
 
 /**
@@ -803,7 +812,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     zip<U, TResult>(second: Sequence<U>,
                     resultSelector: (x: T, y: U, index: number) => TResult): IEnumerable<TResult>;
-}
+}  // IEnumerable<T>
 
 /**
  * Describes a grouping.
@@ -816,7 +825,7 @@ export interface IGrouping<TKey, T> extends IEnumerable<T> {
      * Gets the key.
      */
     readonly key: TKey;
-}
+}  // IGrouping<TKey, T>
 
 /**
  * Describes an ordered sequence.
@@ -864,7 +873,7 @@ export interface IOrderedEnumerable<T> extends IEnumerable<T> {
      * @return {IOrderedEnumerable<T>} The new sequence.
      */
     thenDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
-}
+}  // IOrderedEnumerable<T>
 
 
 /**
@@ -2061,7 +2070,48 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
         while (true);
     }
-}
+}  // EnumerableBase<T>
+
+/**
+ * Wraps a sequence.
+ * 
+ * @template T Type of the items.
+ */
+export class EnumerableWrapper<T> extends EnumerableBase<T> {
+    /**
+     * The wrapped sequence.
+     */
+    protected _sequence: IEnumerable<T>;
+
+    /**
+     * Intializes a new instance of that class.
+     * 
+     * @param {IEnumerable<T>} [seq] The sequence to wrap.
+     */
+    constructor(seq?: IEnumerable<T>) {
+        super();
+
+        this._sequence = seq;
+    }
+
+    /** @inheritdoc */
+    public get canReset() {
+        return this._sequence.canReset;
+    }
+    /** @inheritdoc */
+    public get current() {
+        return this._sequence.current;
+    }
+    /** @inheritdoc */
+    public next() {
+        return this._sequence.next();
+    }
+    /** @inheritdoc */
+    public reset() {
+        this._sequence.reset();
+        return this;
+    }
+}  // EnumerableWrapper<T>
 
 /**
  * A sequence based on an Iterator<T>.
@@ -2104,7 +2154,7 @@ export class IteratorEnumerable<T> extends EnumerableBase<T> {
 
         return result;
     }
-}
+}  // IteratorEnumerable<T>
 
 /**
  * A sequence based on an array.
@@ -2167,7 +2217,7 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
 
         return this;
     }
-}
+}  // ArrayEnumerable<T>
 
 /**
  * A grouping.
@@ -2175,15 +2225,11 @@ export class ArrayEnumerable<T> extends EnumerableBase<T> {
  * @template T Type of the items.
  * @template TKey Type of the key.
  */
-export class Grouping<TKey, T> extends EnumerableBase<T> implements IGrouping<TKey, T> {
+export class Grouping<TKey, T> extends EnumerableWrapper<T> implements IGrouping<TKey, T> {
     /**
      * Stores the key.
      */
     protected _key: TKey;
-    /**
-     * Stores the underlying sequence.
-     */
-    protected _seq: IEnumerable<T>;
     
     /**
      * Initializes a new instance of that class.
@@ -2192,40 +2238,24 @@ export class Grouping<TKey, T> extends EnumerableBase<T> implements IGrouping<TK
      * @param {IEnumerable} seq The items of the grouping.
      */
     constructor(key: TKey, seq: IEnumerable<T>) {
-        super();
+        super(seq);
 
         this._key = key;
-        this._seq = seq;
     }
 
-    /** @inheritdoc */
-    public get canReset() {
-        return this._seq.canReset;
-    }
-    /** @inheritdoc */
-    public get current() {
-        return this._seq.current;
-    }
     /** @inheritdoc */
     public get key(): TKey {
         return this._key;
     }
-    /** @inheritdoc */
-    public next() {
-        return this._seq.next();
-    }
-    /** @inheritdoc */
-    public reset() {
-        this._seq.reset();
-        return this;
-    }
-}
+}  // Grouping<TKey, T>
 
 /**
  * An ordered sequence.
+ * 
+ * @template T Type of the items.
+ * @template U Type of the sort keys.
  */
-export class OrderedEnumerable<T, U = T> extends EnumerableBase<T> implements IOrderedEnumerable<T> {
-    protected _items: IEnumerable<T>;
+export class OrderedEnumerable<T, U = T> extends EnumerableWrapper<T> implements IOrderedEnumerable<T> {
     protected _originalItems: T[];
     protected _orderComparer: Comparer<U, U>;
     protected _orderSelector: Selector<T, U>;
@@ -2239,7 +2269,7 @@ export class OrderedEnumerable<T, U = T> extends EnumerableBase<T> implements IO
      */
     constructor(seq: IEnumerable<T>,
                 selector: Selector<T, U>, comparer: Comparer<U, U>) {
-        super();
+        super(seq);
 
         let me = this;
 
@@ -2252,7 +2282,7 @@ export class OrderedEnumerable<T, U = T> extends EnumerableBase<T> implements IO
 
         this._originalItems = seq.toArray();
 
-        this._items = from(this._originalItems.map(function(x: T) {
+        this._sequence = from(this._originalItems.map(function(x: T) {
             return {
                 sortBy: me.selector(x),
                 value: x
@@ -2271,19 +2301,6 @@ export class OrderedEnumerable<T, U = T> extends EnumerableBase<T> implements IO
      */
     public get comparer(): Comparer<U, U> {
         return this._orderComparer;
-    }
-    /** @inheritdoc */
-    public get current() {
-        return this._items.current;
-    }
-    /** @inheritdoc */
-    public next() {
-        return this._items.next();
-    }
-    /** @inheritdoc */
-    public reset() {
-        this._items.reset();
-        return this;
     }
     /**
      * Gets the selector.
@@ -2348,7 +2365,7 @@ export class OrderedEnumerable<T, U = T> extends EnumerableBase<T> implements IO
         return this.thenByDescending(x => x,
                                      comparer);
     }
-}
+}  // OrderedEnumerable<T, U = T>
 
 
 /**
@@ -2366,7 +2383,7 @@ export function build<T>(factory: (cancel: (flag?: boolean) => void, index: numb
     count = parseInt(toStringSafe(count).trim());
 
     return from(buildInner(factory, count));
-}
+}  // build<T>()
 
 function *buildInner<T>(factory: (cancel: (flag?: boolean) => void, index: number) => T,
                         count: number) {
@@ -2408,7 +2425,7 @@ function *buildInner<T>(factory: (cancel: (flag?: boolean) => void, index: numbe
  */
 export function create<T = any>(...items: T[]): IEnumerable<T> {
     return from(items);
-}
+}  // create<T = any>()
 
 /**
  * Creates an empty sequence.
@@ -2419,7 +2436,7 @@ export function create<T = any>(...items: T[]): IEnumerable<T> {
  */
 export function empty<T = any>(): IEnumerable<T> {
     return from(emptyIterator());
-}
+}  // empty<T = any>()
 
 /**
  * Creates a new sequence.
@@ -2442,7 +2459,7 @@ export function from<T>(seq?: Sequence<T>): IEnumerable<T> {
     }
 
     return new IteratorEnumerable<T>(<Iterator<T>>seq);
-}
+}  // from<T>()
 
 /**
  * Creates a new sequence from the string representation of a value.
@@ -2458,7 +2475,7 @@ export function fromString(val: any): IEnumerable<string> {
     val = '' + val;
 
     return new ArrayEnumerable<string>(val.split(''));
-}
+}  // fromString()
 
 /**
  * Checks if a value represents the IS_EMPTY symbol.
@@ -2469,7 +2486,7 @@ export function fromString(val: any): IEnumerable<string> {
  */
 export function isEmpty(val: any): boolean {
     return val === IS_EMPTY;
-}
+}  // isEmpty()
 
 /**
  * Checks if a value represents the NOT_FOUND symbol.
@@ -2480,7 +2497,7 @@ export function isEmpty(val: any): boolean {
  */
 export function notFound(val: any): boolean {
     return val === NOT_FOUND;
-}
+}  // notFound()
 
 /**
  * Creates a range of numbers.
@@ -2499,7 +2516,7 @@ export function range(start: number, count?: number): IEnumerable<number> {
     count = parseInt(toStringSafe(count).trim());
 
     return from(rangeInner(start, count));
-}
+}  // range()
 
 function *rangeInner(start: number, count: number) {
     let current = start;
@@ -2526,7 +2543,7 @@ export function repeat<T>(item: T, count?: number): IEnumerable<T> {
     count = parseInt(toStringSafe(count).trim());
 
     return from(repeatInner(item, count));
-}
+}  // repeat<T>()
 
 function *repeatInner<T>(item: T, count: number) {
     while (true) {
