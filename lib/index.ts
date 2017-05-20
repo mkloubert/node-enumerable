@@ -166,6 +166,19 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     cast<U>(): IEnumerable<U>;
 
     /**
+     * Clones that sequence multiply times.
+     * 
+     * @template U The type of the target sequences.
+     * 
+     * @param {number} [count] The maximum number of sequences.
+     * @param {Selector<T, U>} [itemSelector] The selector for the items.
+     * 
+     * @returns {IEnumerable<IEnumerable<U>>} The sequence of sequences.
+     */
+    clone<U = T>(count?: number,
+                 itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>>;
+
+    /**
      * Concats the items of that sequences with other ones
      * to a new sequence.
      * 
@@ -479,7 +492,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     takeWhile(predicate: Predicate<T>): IEnumerable<T>;
 
     /**
-     * Creates a new array of the sequence of that items.
+     * Creates a new array from the items of that sequence.
      * 
      * @returns {T[]} The sequence as array.
      */
@@ -637,6 +650,36 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     /** @inheritdoc */
     public cast<U>(): IEnumerable<U> {
         return this.select(x => <U><any>x);
+    }
+
+    /** @inheritdoc */
+    public clone<U = T>(count?: number,
+                        itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>> {
+        count = parseInt(toStringSafe(count).trim());
+
+        if (!itemSelector) {
+            itemSelector = (i) => <any>i;
+        }
+        
+        return from(this.cloneInner(count, itemSelector));
+    }
+
+    /**
+     * @see concatArray()
+     */
+    protected *cloneInner<U>(count: number,
+                             itemSelector: Selector<T, U>) {
+        let items = this.toArray();
+
+        while (true) {
+            if (!isNaN(count)) {
+                if (count-- < 1) {
+                    break;
+                }
+            }
+
+            yield from(items).select(itemSelector);
+        }
     }
 
     /** @inheritdoc */

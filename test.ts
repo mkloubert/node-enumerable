@@ -23,22 +23,11 @@
 
 import * as Enumerable from './lib';
 
-function *test() {
-    yield 111;
-    yield 122;
-    yield 133;
+
+let seq = Enumerable.range(1, 5);
+
+for (let s of seq.clone().take(3)) {
+    for (let i of s) {
+        console.log(i);
+    }
 }
-
-
-let seq1 = Enumerable.build((cancel, i) => {
-    if (i < 10) {
-        return 'item' + i;
-    }
-    else {
-        cancel();
-    }
-});
-
-seq1.toBuffer(3).each((i) => {
-    console.log(i);
-});
