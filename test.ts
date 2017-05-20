@@ -31,11 +31,15 @@ function *test() {
 
 
 let seq1 = Enumerable.create('Albert', 'Bill', 'Marcel', 'Konrad');
-let seq2 = Enumerable.create('Einstein', 'Gates', 'Kloubert');
 
-let arr: string[] = [];
-seq1.skip(3).pushTo(arr);
+let obj: { [key: number]: string } = seq1.toObject();
 
-for (let item of arr) {
-    console.log(item);
+for (let k in obj) {
+    console.log(`${k} = ${obj[k]}`);
+}
+
+obj[2] = '1000';
+
+for (let k in obj) {
+    console.log(`${k} = ${obj[k]}`);
 }

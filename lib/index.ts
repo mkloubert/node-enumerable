@@ -473,9 +473,21 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     toArray(): T[];
 
-    //TODO: toList()
     //TODO: toDictionary()
+    //TODO: toList()
     //TODO: toLookup()
+
+    /**
+     * Wraps the items of that sequence to an object.
+     * 
+     * @template TKey Type of the keys.
+     * @template TResult Type of the result.
+     * 
+     * @param {(index: number, item: T) => TKey} [keySelector] The selector for the keys.
+     * 
+     * @returns TResult The new object.
+     */
+    toObject<TKey, TResult = any>(keySelector?: (index: number, item: T) => TKey): TResult;
 
     /**
      * Produces the union of that sequence and another.
@@ -1029,6 +1041,29 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
 
         return arr;
+    }
+
+    /** @inheritdoc */
+    public toObject<TKey, TResult = any>(keySelector?: (index: number, item: T) => TKey): TResult {
+        if (!keySelector) {
+            keySelector = (index) => <any>index;
+        }
+        
+        let obj: any = {};
+        
+        let i = -1;
+        for (let item of this) {
+            ++i;
+
+            let key: any = keySelector(i, item);
+            if ('number' !== typeof key) {
+                key = toStringSafe(key);
+            }
+
+            obj[key] = item;
+        }
+
+        return obj;
     }
 
     /** @inheritdoc */
