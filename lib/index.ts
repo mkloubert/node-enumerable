@@ -485,6 +485,15 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     toArray(): T[];
 
+    /**
+     * Converts that sequence to a "buffered" sequence.
+     * 
+     * @param {number} [chunkSize] The chunk size. Default: 1
+     * 
+     * @returns {IEnumerable<T>} The new sequence.
+     */
+    toBuffer(chunkSize?: number): IEnumerable<T>;
+
     //TODO: toDictionary()
     //TODO: toList()
     //TODO: toLookup()
@@ -1091,6 +1100,36 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
 
         return arr;
+    }
+
+    /** @inheritdoc */
+    public toBuffer(chunkSize?: number): IEnumerable<T> {
+        chunkSize = parseInt(toStringSafe(chunkSize).trim());
+        if (isNaN(chunkSize)) {
+            chunkSize = 1;
+        }
+
+        return from(this.toBufferInner(chunkSize));
+    }
+
+    /**
+     * @see toBuffer()
+     */
+    protected *toBufferInner(chunkSize: number) {
+        let me = this;
+            
+        do
+        {
+            let arr = me.take(chunkSize).toArray();
+            if (arr.length < 1) {
+                break;
+            }
+
+            for (let item of arr) {
+                yield item;
+            }
+        }
+        while (true);
     }
 
     /** @inheritdoc */

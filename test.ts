@@ -30,19 +30,15 @@ function *test() {
 }
 
 
-let seq1 = Enumerable.build((i, cancel) => {
-    if (i < 5) {
+let seq1 = Enumerable.build((cancel, i) => {
+    if (i < 10) {
         return 'item' + i;
     }
     else {
         cancel();
-
-        if (i < 6) {
-            cancel(false);
-        }
     }
 });
 
-seq1.each((i) => {
+seq1.toBuffer(3).each((i) => {
     console.log(i);
 });
