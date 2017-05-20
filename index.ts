@@ -1064,10 +1064,6 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                         itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>> {
         count = parseInt(toStringSafe(count).trim());
 
-        if (!itemSelector) {
-            itemSelector = (i) => <any>i;
-        }
-        
         return from(this.cloneInner(count, itemSelector));
     }
     /**
@@ -1084,7 +1080,12 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
                 }
             }
 
-            yield from(items).select(itemSelector);
+            let seq: any = from(items);
+            if (itemSelector) {
+                seq = seq.select(itemSelector);
+            }
+            
+            yield seq;
         }
     }
     /** @inheritdoc */
