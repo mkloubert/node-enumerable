@@ -27,5 +27,8 @@ import * as FS from 'fs';
 
 let seq1 = Enumerable.create(1, 2, 3);
 
-console.log( seq1.lastOrDefault(x => x < 1, 555) );
+// console.log( seq1.lastOrDefault(x => x < 1, 555) );
 
+seq1.reverse().forEach((x) => {
+    console.log(x);
+});
