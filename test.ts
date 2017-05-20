@@ -25,17 +25,7 @@ import * as Enumerable from './lib';
 import * as FS from 'fs';
 
 
-let seq1 = Enumerable.create('Albert', 'Marcel', 'Momo', 'Konrad');
-let seq2 = Enumerable.create('Angela', 'Zoo', 'Mandy');
+let seq1 = Enumerable.create(1, 2, 3);
 
-let joined = seq1.groupJoin(seq2,
-                            null,
-                            o => o[0].toUpperCase());
+console.log( seq1.lastOrDefault(x => x < 1, 555) );
 
-for (let item of joined) {
-    console.log(item.outer);
-
-    for (let innerItem of item.inner) {
-        console.log('  ' + innerItem);
-    }
-}

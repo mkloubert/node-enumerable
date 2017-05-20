@@ -397,9 +397,17 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @throws ELement not found.
      */
     first(predicate?: Predicate<T>): T;
-
-    //TODO: firstOrDefault()
-
+    /**
+     * Tries to return the first element.
+     * 
+     * @param {(Predicate<T> | T)} [predicateOrDefaultValue] The predicate or default value.
+     * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
+     *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
+     * 
+     * @returns {(T | Symbol)} The item or the default value.
+     */
+    firstOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
+                   defaultValue?: T | Symbol): T | Symbol;
     /**
      * Groups the items of that sequence by a key.
      * 
@@ -509,8 +517,17 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     lastIndexOf<U>(item: U,
                    comparer?: EqualityComparer<T, U> | true): number;
 
-    //TODO: lastOrDefault()
-
+    /**
+     * Tries to return the last element.
+     * 
+     * @param {(Predicate<T> | T)} [predicateOrDefaultValue] The predicate or default value.
+     * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
+     *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
+     * 
+     * @returns {(T | Symbol)} The item or the default value.
+     */
+    lastOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
+                  defaultValue?: T | Symbol): T | Symbol;
     /**
      * Returns a resettable version of that sequence.
      * 
@@ -613,9 +630,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     sequenceEqual<U>(other: Sequence<U>,
                      equalityComparer?: EqualityComparer<T, U> | true): boolean;
-
-    //TODO: singleOrDefault()
-
     /**
      * Returns the one and only element of that sequence.
      * 
@@ -623,9 +637,22 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @returns {T} The single element. 
      * 
-     * @throws ELement not found.
+     * @throws ELement not found or sequence contains for than one (matching) element.
      */
     single(predicate?: Predicate<T>): T;
+    /**
+     * Tries to return the one and only element.
+     * 
+     * @param {(Predicate<T> | T)} [predicateOrDefaultValue] The predicate or default value.
+     * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
+     *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
+     * 
+     * @returns {(T | Symbol)} The item or the default value.
+     * 
+     * @throws Sequence contains for than one (matching) element.
+     */
+    singleOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
+                    defaultValue?: T | Symbol): T | Symbol;
     /**
      * Skips a maximum number of items.
      * 
@@ -1146,13 +1173,30 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     public first(predicate?: Predicate<T>): T {
         predicate = toPredicateSafe(predicate);
 
+        const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
+
+        let result = this.firstOrDefault(predicate,
+                                         ELEMENT_NOT_FOUND);
+        
+        if (ELEMENT_NOT_FOUND === result) {
+            throw 'Element not found';
+        }
+
+        return <any>result;
+    }
+    /** @inheritdoc */
+    public firstOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
+                          defaultValue?: T | Symbol): T | Symbol {
+        let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
+                                         arguments.length);
+
         for (let item of this) {
-            if (predicate(item)) {
+            if (args.predicate(item)) {
                 return item;
             }
         }
 
-        throw 'Element not found';
+        return args.defaultValue;
     }
     /** @inheritdoc */
     public forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
@@ -1417,19 +1461,12 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
-        let result: any = ELEMENT_NOT_FOUND;
-
-        for (let item of this) {
-            if (predicate(item)) {
-                result = item;
-            }
-        }
-
+        let result = this.lastOrDefault(predicate, ELEMENT_NOT_FOUND);
         if (ELEMENT_NOT_FOUND === result) {
-            throw "Element not found";
+            throw 'Element not found';
         }
 
-        return result;
+        return <any>result;
     }
     /** @inheritdoc */
     public lastIndexOf<U>(item: U,
@@ -1447,6 +1484,28 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
 
         return lastIndex;
+    }
+    /** @inheritdoc */
+    public lastOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
+                         defaultValue?: T | Symbol): T | Symbol {
+        let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
+                                         arguments.length);
+
+        const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
+
+        let result: any = ELEMENT_NOT_FOUND;
+
+        for (let item of this) {
+            if (args.predicate(item)) {
+                result = item;
+            }
+        }
+
+        if (ELEMENT_NOT_FOUND !== result) {
+            return result;
+        }
+
+        return args.defaultValue;
     }
     /** @inheritdoc */
     public makeResettable(): IEnumerable<T> {
@@ -1624,10 +1683,27 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
 
         const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
+        let item = this.singleOrDefault(predicate,
+                                        ELEMENT_NOT_FOUND);
+
+        if (ELEMENT_NOT_FOUND === item) {
+            throw 'Element not found';
+        }
+
+        return <any>item;
+    }
+    /** @inheritdoc */
+    public singleOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
+                           defaultValue?: T | Symbol): T | Symbol {
+        let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
+                                         arguments.length);
+
+        const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
+
         let result: any = ELEMENT_NOT_FOUND;
 
         for (let item of this) {
-            if (!predicate(item)) {
+            if (!args.predicate(item)) {
                 continue;
             }
 
@@ -1638,11 +1714,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             result = item;
         }
 
-        if (ELEMENT_NOT_FOUND === result) {
-            throw 'Element not found';
+        if (ELEMENT_NOT_FOUND !== result) {
+            return result;
         }
 
-        return result;
+        return args.defaultValue;
     }
     /** @inheritdoc */
     public skip(count?: number): IEnumerable<T> {
@@ -2181,6 +2257,34 @@ function *emptyIterator() {
     while (<any>false) {
         yield <any>undefined;
     }
+}
+
+function getOrDefaultArguments<T>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: T | Symbol,
+                                  paramCount: number) {
+    let predicate: Predicate<T>;
+    let defVal: T | Symbol;
+
+    if (paramCount < 1) {
+        defVal = NOT_FOUND;
+    }
+    else if (paramCount < 2) {
+        if ('function' === typeof predicateOrDefaultValue) {
+            predicate = predicateOrDefaultValue;
+            defVal = NOT_FOUND;
+        }
+        else {
+            defVal = predicateOrDefaultValue;
+        }
+    }
+    else {
+        predicate = <any>predicateOrDefaultValue;
+        defVal = defaultValue;
+    }
+    
+    return {
+        defaultValue: defVal,
+        predicate: toPredicateSafe(predicate),
+    };
 }
 
 function getNextIteratorResultSafe<T>(iterator: Iterator<T>, defaultValue?: any): IteratorResult<T> {
