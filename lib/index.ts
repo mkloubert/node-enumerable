@@ -2259,7 +2259,7 @@ function *emptyIterator() {
     }
 }
 
-function getOrDefaultArguments<T>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: T | Symbol,
+function getOrDefaultArguments<T>(predicateOrDefaultValue: Predicate<T> | T, defaultValue: T | Symbol,
                                   paramCount: number) {
     let predicate: Predicate<T>;
     let defVal: T | Symbol;
