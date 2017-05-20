@@ -799,10 +799,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     public max(comparer?: Comparer<T>): T | Symbol {
         comparer = toComparerSafe(comparer);
 
+        const IS_FIRST = Symbol('IS_FIRST');
         let result: any = IS_EMPTY;
 
         for (let item of this) {
-            if (result !== IS_EMPTY) {
+            if (result !== IS_FIRST) {
                 if (comparer(item, result) > 0) {
                     result = item;
                 }
@@ -819,10 +820,11 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     public min(comparer?: Comparer<T>): T | Symbol {
         comparer = toComparerSafe(comparer);
         
+        const IS_FIRST = Symbol('IS_FIRST');
         let result: any = IS_EMPTY;
 
         for (let item of this) {
-            if (result !== IS_EMPTY) {
+            if (result !== IS_FIRST) {
                 if (comparer(item, result) < 0) {
                     result = item;
                 }
