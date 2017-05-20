@@ -444,7 +444,7 @@ Enumerable.create(1, 2, '3', 4)
  
 // sequenceEqual()
 // (false)         
-Enumerable.create([1, 2, 3])
+Enumerable.create(1, 2, 3)
           .sequenceEqual([1, 3, 2]);
 ```
 
@@ -463,10 +463,10 @@ let obj = Enumerable.create(1, 2, 3, 4)
 // 
 // lookup['A'][0] = 'Albert'
 // lookup['B'][0] = 'Bill'
-// lookup['B'][1] = 'Barney'
+// lookup['B'][1] = 'barney'
 // lookup['K'][0] = 'Konrad'
 // lookup['M'][0] = 'Marcel'
-let lookup = Enumerable.create('Bill', 'Marcel', 'Barney', 'Albert', 'Konrad')
+let lookup = Enumerable.create('Bill', 'Marcel', 'barney', 'Albert', 'Konrad')
                        .toLookup(x => x[0].toUpperCase());
 ```
 
