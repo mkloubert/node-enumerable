@@ -241,7 +241,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     /**
      * Alias for forEach()
      */
-    each<TResult = any>(func: (item: T, index: number) => TResult,
+    each<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                         seed?: TResult): TResult | Symbol;
 
     /**
@@ -277,12 +277,12 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @template TResult Type of the result.
      * 
-     * @param {(item: T, index: number) => TResult} func The function to invoke.
+     * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
      * @param {TResult} [seed] The seed value for the result. Default: IS_EMPTY
      * 
      * @returns {(TResult|Symbol)} The result of the last action.
      */
-    forEach<TResult = any>(func: (item: T, index: number) => TResult,
+    forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                            seed?: TResult): TResult | Symbol;
 
     //TODO: first()
@@ -742,7 +742,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public each<TResult = any>(func: (item: T, index: number) => TResult,
+    public each<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                                seed?: TResult): TResult | Symbol {
         return this.forEach
                    .apply(this, arguments);
@@ -782,7 +782,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public forEach<TResult = any>(func: (item: T, index: number) => TResult,
+    public forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
                                   seed?: TResult): TResult | Symbol {
         let result: TResult | Symbol = IS_EMPTY;
         if (arguments.length > 1) {
@@ -795,8 +795,10 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
             
             let funcResult: TResult;
             if (func) {
-                funcResult = func(item, i);
+                funcResult = func(item, i, result);
             }
+
+            result = funcResult;
         }
 
         return result;

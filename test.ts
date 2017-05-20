@@ -32,14 +32,8 @@ function *test() {
 
 let seq1 = Enumerable.create('Albert', 'Bill', 'Marcel', 'Konrad');
 
-let obj: { [key: number]: string } = seq1.toObject();
+let r = seq1.each((x, i, res: number) => {
+    return res + 1;
+}, 1);
 
-for (let k in obj) {
-    console.log(`${k} = ${obj[k]}`);
-}
-
-obj[2] = '1000';
-
-for (let k in obj) {
-    console.log(`${k} = ${obj[k]}`);
-}
+console.log(r);
