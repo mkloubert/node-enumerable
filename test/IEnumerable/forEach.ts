@@ -27,6 +27,7 @@ import Helpers = require('../helpers');
 
 const MAX_ARRAY_SIZE = 100;
 
+
 Helpers.execute(
     'Testing forEach...',
     (ctx) => {
@@ -44,34 +45,6 @@ Helpers.execute(
             let seq = Enumerable.from(arr);
 
             seq.forEach((x, index) => {
-                Assert.strictEqual(x, arr[index]);
-                Assert.notStrictEqual('' + x, arr[index]);
-                Assert.notStrictEqual(x, '' + arr[index]);
-                Assert.equal(x, arr[index]);
-                Assert.equal('' + x, arr[index]);
-                Assert.equal(x, '' + arr[index]);
-                Assert.strictEqual('' + x, '' + arr[index]);
-            });          
-        }
-    });
-
-Helpers.execute(
-    'Testing each...',
-    (ctx) => {
-        for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
-            if (0 === i % 10) {
-                ctx.log(`Testing with ${i} elements...`);
-            }
-
-            // fill test array
-            let arr: any[] = [];
-            for (let j = 0; j < i; j++) {
-                arr.push(j);
-            }
-
-            let seq = Enumerable.from(arr);
-
-            seq.each((x, index) => {
                 Assert.strictEqual(x, arr[index]);
                 Assert.notStrictEqual('' + x, arr[index]);
                 Assert.notStrictEqual(x, '' + arr[index]);

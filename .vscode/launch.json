@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Sandbox",
-            "program": "${workspaceRoot}/tests/sandbox.js",
+            "program": "${workspaceRoot}/test/sandbox.js",
             "outFiles": [
                 "${workspaceRoot}/out/**/*.js"
             ]

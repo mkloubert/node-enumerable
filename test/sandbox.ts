@@ -25,17 +25,18 @@ import * as Enumerable from '../';
 import * as FS from 'fs';
 
 
-let items = Enumerable.build((cancel, index) => {
-    if (index < 5) {
-        return 'item_' + (index + 1);
-    }
-    else {
-        cancel();
-    }
-});
+async function test() {
+    let seq1 = Enumerable.create(1, 2, 3);
 
-// console.log( seq1.lastOrDefault(x => x < 1, 555) );
+    let result: number = await seq1.async((ctx) => {
+        ctx.result = ctx.item * 10;
+        
+        ctx.resolve();
+    });
 
-items.forEach((x) => {
-    console.log(x);
+    console.log(result);
+}
+
+test().then(() => {
+
 });

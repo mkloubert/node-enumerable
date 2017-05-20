@@ -27,9 +27,8 @@ import Helpers = require('../helpers');
 
 const MAX_ARRAY_SIZE = 100;
 
-
 Helpers.execute(
-    'Testing each...',
+    'Testing numbers...',
     (ctx) => {
         for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
             if (0 === i % 10) {
@@ -42,16 +41,36 @@ Helpers.execute(
                 arr.push(j);
             }
 
-            let seq = Enumerable.from(arr);
+            let e = Enumerable.from(arr)
+                              .defaultSequenceIfEmpty([ 'MK', 'TM', 'JS', 'YS' ]);
 
-            seq.each((x, index) => {
-                Assert.strictEqual(x, arr[index]);
-                Assert.notStrictEqual('' + x, arr[index]);
-                Assert.notStrictEqual(x, '' + arr[index]);
-                Assert.equal(x, arr[index]);
-                Assert.equal('' + x, arr[index]);
-                Assert.equal(x, '' + arr[index]);
-                Assert.strictEqual('' + x, '' + arr[index]);
-            });          
+            let testArr: any[] = [];
+            while (!e.next().done) {
+                testArr.push(e.current.value);
+            }
+
+            let expected: any[];
+            if (arr.length > 0) {
+                expected = arr;
+            }
+            else {
+                expected = ['MK', 'TM', 'JS', 'YS'];
+            }
+
+            Assert.strictEqual(testArr.length, expected.length);
+            Assert.equal(testArr.length, expected.length);
+            Assert.equal('' + testArr.length, expected.length);
+            Assert.equal(testArr.length, '' + expected.length);
+            Assert.equal('' + testArr.length, '' + expected.length);
+            Assert.strictEqual('' + testArr.length, '' + expected.length);
+
+            for (let j = 0; j < testArr.length; j++) {
+                Assert.strictEqual(testArr[j], expected[j]);
+                Assert.equal(testArr[j], expected[j]);
+                Assert.equal('' + testArr[j], expected[j]);
+                Assert.equal(testArr[j], '' + expected[j]);
+                Assert.equal('' + testArr[j], '' + expected[j]);
+                Assert.strictEqual('' + testArr[j], '' + expected[j]);
+            }
         }
     });
