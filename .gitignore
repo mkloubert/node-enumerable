@@ -1,10 +1,4 @@
 **/*.map
 **/*.js
-!lib/enumerable.js
 /node_modules
-/demo/node_modules
-/lib/node_modules
-/test/**/*.d.ts
 /pushall.sh
-/*.d.ts
-/test/node_modules

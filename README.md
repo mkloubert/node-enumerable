@@ -367,7 +367,7 @@ Enumerable.from(persons)
                      (pet) => pet.owner.name,
                      (person, petsOfPerson) => {
                          let petList = petsOfPerson
-                             .select((pet: Pet) => pet.name)
+                             .select(pet => pet.name)
                              .joinToString(', ');
                      
                          return 'Owner: ' + person.name + '; Pets: ' + petList;

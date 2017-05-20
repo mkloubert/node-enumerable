@@ -1,10 +1,10 @@
 {
   "name": "node-enumerable",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "ES6 ready LINQ features written in TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "node ../test/index.js"
+    "test": "node ./test/index.js"
   },
   "repository": {
     "type": "git",
@@ -12,7 +12,22 @@
   },
   "keywords": [
     "linq",
-    "enumerable"
+    "enumerable",
+    "enumerables",
+    "sequence",
+    "sequences",
+    "array",
+    "arrays",
+    "generator",
+    "generators",
+    "es6",
+    "typescript",
+    "ecmascript",
+    "2015",
+    "node",
+    "nodejs",
+    "dotnet",
+    "net"
   ],
   "author": "mkloubert",
   "license": "MIT",

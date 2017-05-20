@@ -21,36 +21,21 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import * as Enumerable from '../lib';
+import * as Enumerable from '../';
+import * as FS from 'fs';
 
 
-export function invokeForSequences<T>(items: Enumerable.Sequence<T>,
-                                      action: (seq: Enumerable.IEnumerable<T>,
-                                               arr: T[],
-                                               items: Enumerable.Sequence<T>) => any) {
-    let arr: T[] = [];
-    if (items) {
-        for (let i of <any>items) {
-            arr.push(i);
-        }
+let items = Enumerable.build((cancel, index) => {
+    if (index < 5) {
+        return 'item_' + (index + 1);
     }
-
-    let sequences = [
-        arr,
-        toIterator(arr),
-    ];
-
-    for (let seq of sequences) {
-        if (action) {
-            action( Enumerable.from(seq),
-                    arr,
-                    items );
-        }
+    else {
+        cancel();
     }
-}
+});
 
-function *toIterator<T>(seq: any) {
-    for (let i of seq) {
-        yield i;
-    }
-}
+// console.log( seq1.lastOrDefault(x => x < 1, 555) );
+
+items.forEach((x) => {
+    console.log(x);
+});
