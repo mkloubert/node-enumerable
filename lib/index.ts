@@ -480,14 +480,14 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     /**
      * Wraps the items of that sequence to an object.
      * 
-     * @template TKey Type of the keys.
      * @template TResult Type of the result.
+     * @template TKey Type of the keys.
      * 
      * @param {(index: number, item: T) => TKey} [keySelector] The selector for the keys.
      * 
      * @returns TResult The new object.
      */
-    toObject<TKey, TResult = any>(keySelector?: (index: number, item: T) => TKey): TResult;
+    toObject<TResult = any, TKey = number>(keySelector?: (index: number, item: T) => TKey): TResult;
 
     /**
      * Produces the union of that sequence and another.
@@ -1044,7 +1044,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
 
     /** @inheritdoc */
-    public toObject<TKey, TResult = any>(keySelector?: (index: number, item: T) => TKey): TResult {
+    public toObject<TResult = any, TKey = number>(keySelector?: (index: number, item: T) => TKey): TResult {
         if (!keySelector) {
             keySelector = (index) => <any>index;
         }
