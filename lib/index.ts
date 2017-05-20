@@ -698,6 +698,12 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      */
     skip(count?: number): IEnumerable<T>;
     /**
+     * Takes all elements but the last one.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    skipLast(): IEnumerable<T>;
+    /**
      * Skips items while a condition satisfies.
      * 
      * @param {Predicate<T>} [predicate] The predicate to use.
@@ -741,10 +747,6 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @returns {IEnumerable<T>} The new sequence.
      */
     toBuffer(chunkSize?: number): IEnumerable<T>;
-
-    //TODO: toDictionary()
-    //TODO: toList()
-    
     /**
      * Converts that sequence to a lookup object.
      * 
@@ -1847,6 +1849,38 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return this.skipWhile(() => {
             return count-- > 0;
         });
+    }
+    /** @inheritdoc */
+    public skipLast(): IEnumerable<T> {
+        return from(this.skipLastInner());
+    }
+    /**
+     * @see skipLast()
+     */
+    protected *skipLastInner() {
+        let hasRemainingItems;
+        let isFirst = true;
+        let item: T;
+
+        do
+        {
+            let iteratorItem = this.next();
+
+            hasRemainingItems = iteratorItem && !iteratorItem.done;
+            if (!hasRemainingItems) {
+                continue;
+            }
+
+            if (!isFirst) {
+                yield item;
+            }
+            else {
+                isFirst = false;
+            }
+
+            item = iteratorItem.value;
+        }
+        while (hasRemainingItems);
     }
     /** @inheritdoc */
     public skipWhile(predicate: Predicate<T>): IEnumerable<T> {
