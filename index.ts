@@ -1042,7 +1042,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
     /** @inheritdoc */
     public get canReset(): boolean {
-        return true;
+        return false;
     }
     /** @inheritdoc */
     public cast<U>(): IEnumerable<U> {
@@ -2199,12 +2199,25 @@ export class Grouping<TKey, T> extends EnumerableBase<T> implements IGrouping<TK
     }
 
     /** @inheritdoc */
+    public get canReset() {
+        return this._seq.canReset;
+    }
+    /** @inheritdoc */
+    public get current() {
+        return this._seq.current;
+    }
+    /** @inheritdoc */
     public get key(): TKey {
         return this._key;
     }
     /** @inheritdoc */
-    public next(): IteratorResult<T> {
+    public next() {
         return this._seq.next();
+    }
+    /** @inheritdoc */
+    public reset() {
+        this._seq.reset();
+        return this;
     }
 }
 

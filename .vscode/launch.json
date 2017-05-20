@@ -7,8 +7,17 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Test script",
-            "program": "${workspaceRoot}/test.js",
+            "name": "Sandbox",
+            "program": "${workspaceRoot}/tests/sandbox.js",
+            "outFiles": [
+                "${workspaceRoot}/out/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Tests",
+            "program": "${workspaceRoot}/test/index.js",
             "outFiles": [
                 "${workspaceRoot}/out/**/*.js"
             ]

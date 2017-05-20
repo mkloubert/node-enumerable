@@ -21,40 +21,33 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import FS = require('fs');
-import Path = require('path');
+import Assert = require('assert');
+import Enumerable = require('../../');
+import Helpers = require('../helpers');
 
+const DEFAULT_VALUE = 'tamolieg';
+const MAX_ARRAY_SIZE = 100;
 
-let libs: string[] = [
-    './IEnumerable',
-];
-
-console.log('Starting tests...');
-
-for (let dir of libs) {
-    if (!Path.isAbsolute(dir)) {
-        dir = Path.join(__dirname, dir);
-    }
-
-    let jsFiles = FS.readdirSync(dir).filter(x => {
-        if (x.length >= 3) {
-            if ('.js' === x.substr(x.length - 3)) {
-                return true;
+Helpers.execute(
+    'Testing numbers...',
+    (ctx) => {
+        for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
+            if (0 === i % 10) {
+                ctx.log(`Testing with ${i} elements...`);
             }
+
+            // fill test array
+            let arr: any[] = [];
+            for (let j = 0; j < i; j++) {
+                arr.push(j);
+            }
+
+            let max = Enumerable.from(arr)
+                                .max();
+
+            let expectedValue = arr.length > 0 ? arr.length - 1 : Enumerable.IS_EMPTY;
+
+            Assert.strictEqual(max, expectedValue);
+            Assert.equal(max, expectedValue);
         }
-        
-        return false;
-    }).map(x => {
-        return Path.join(dir, x);
-    }).filter(x => {
-        return FS.lstatSync(x).isFile();
     });
-
-    for (let jf of jsFiles) {
-        console.log('\t' + jf);
-        
-        require(jf);
-    }
-}
-
-console.log('Tests finished.');

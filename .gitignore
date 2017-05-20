@@ -2,3 +2,5 @@
 **/*.js
 /node_modules
 /pushall.sh
+/typedoc.cmd
+docs

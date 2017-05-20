@@ -21,40 +21,4 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import FS = require('fs');
-import Path = require('path');
-
-
-let libs: string[] = [
-    './IEnumerable',
-];
-
-console.log('Starting tests...');
-
-for (let dir of libs) {
-    if (!Path.isAbsolute(dir)) {
-        dir = Path.join(__dirname, dir);
-    }
-
-    let jsFiles = FS.readdirSync(dir).filter(x => {
-        if (x.length >= 3) {
-            if ('.js' === x.substr(x.length - 3)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }).map(x => {
-        return Path.join(dir, x);
-    }).filter(x => {
-        return FS.lstatSync(x).isFile();
-    });
-
-    for (let jf of jsFiles) {
-        console.log('\t' + jf);
-        
-        require(jf);
-    }
-}
-
-console.log('Tests finished.');
+// s. './forEach'

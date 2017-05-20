@@ -21,40 +21,42 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import FS = require('fs');
-import Path = require('path');
+import Assert = require('assert');
+import Enumerable = require('../../');
+import Helpers = require('../helpers');
 
+const MAX_ARRAY_SIZE = 100;
 
-let libs: string[] = [
-    './IEnumerable',
-];
+Helpers.execute(
+    'Testing numbers...',
+    (ctx) => {
+        for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
+            if (0 === i % 10) {
+                ctx.log(`Testing with ${i} elements...`);
+            }
 
-console.log('Starting tests...');
+            // fill test array
+            let arr: any[] = [];
+            for (let j = 0; j < i; j++) {
+                arr.push(j);
+            }
 
-for (let dir of libs) {
-    if (!Path.isAbsolute(dir)) {
-        dir = Path.join(__dirname, dir);
-    }
+            let av = Enumerable.from(arr)
+                               .average();
 
-    let jsFiles = FS.readdirSync(dir).filter(x => {
-        if (x.length >= 3) {
-            if ('.js' === x.substr(x.length - 3)) {
-                return true;
+            let expectedAverage: number | Symbol = Enumerable.IS_EMPTY;
+            if (arr.length > 0) {
+                let sum = 0;
+                arr.forEach(x => sum += x);
+
+                expectedAverage = sum / arr.length;
+            }
+
+            Assert.strictEqual(av, expectedAverage);
+            if (expectedAverage !== Enumerable.IS_EMPTY) {
+                Assert.notStrictEqual('' + av, expectedAverage);
+                Assert.notStrictEqual(av, '' + expectedAverage);
+                Assert.strictEqual('' + av, '' + expectedAverage);
             }
         }
-        
-        return false;
-    }).map(x => {
-        return Path.join(dir, x);
-    }).filter(x => {
-        return FS.lstatSync(x).isFile();
     });
-
-    for (let jf of jsFiles) {
-        console.log('\t' + jf);
-        
-        require(jf);
-    }
-}
-
-console.log('Tests finished.');

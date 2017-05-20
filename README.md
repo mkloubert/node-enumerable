@@ -18,6 +18,10 @@ npm install node-enumerable --save
 
 inside project folder to install the module.
 
+## Documentation
+
+The API documentation can be found [here](https://mkloubert.github.io/node-enumerable/).
+
 ## Usage
 
 ### Create a sequence
@@ -529,3 +533,13 @@ seq.reset()
              console.log(x * 2);
          });
 ```
+
+## Tests
+
+Go to the module folder and run
+
+```bash
+npm test
+```
+
+to start unit tests from `test/` subfolder.

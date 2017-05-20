@@ -21,40 +21,25 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import FS = require('fs');
-import Path = require('path');
+import Assert = require('assert');
+import Enumerable = require('../../');
+import Helpers = require('../helpers');
 
+Helpers.execute(
+    'Testing numbers...',
+    (ctx) => {
+        let arr = [0, 1, undefined, 2, null, '', 3];
 
-let libs: string[] = [
-    './IEnumerable',
-];
+        let e = Enumerable.from(arr)
+                          .notEmpty();
 
-console.log('Starting tests...');
-
-for (let dir of libs) {
-    if (!Path.isAbsolute(dir)) {
-        dir = Path.join(__dirname, dir);
-    }
-
-    let jsFiles = FS.readdirSync(dir).filter(x => {
-        if (x.length >= 3) {
-            if ('.js' === x.substr(x.length - 3)) {
-                return true;
-            }
+        let cnt = 0;
+        while (!e.next().done) {
+            ++cnt;
         }
-        
-        return false;
-    }).map(x => {
-        return Path.join(dir, x);
-    }).filter(x => {
-        return FS.lstatSync(x).isFile();
+
+        Assert.strictEqual(cnt, 3);
+        Assert.notStrictEqual(cnt, '3');
+        Assert.notStrictEqual('' + cnt, 3);
+        Assert.strictEqual('' + cnt, '3');
     });
-
-    for (let jf of jsFiles) {
-        console.log('\t' + jf);
-        
-        require(jf);
-    }
-}
-
-console.log('Tests finished.');
