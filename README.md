@@ -55,7 +55,7 @@ inside project folder to install the module.
 
 ## Documentation
 
-The API documentation can be found [here](https://mkloubert.github.io/node-enumerable/interfaces/_index_.ienumerable.html).
+The API documentation can be found [here](https://mkloubert.github.io/node-enumerable/interfaces/_index_.enumerable.ienumerable.html).
 
 ## Usage
 
