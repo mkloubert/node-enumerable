@@ -25,10 +25,17 @@ import * as Enumerable from '../';
 import * as FS from 'fs';
 
 
-let seq1 = Enumerable.create(1, 2, 3);
-
-let i = seq1.firstOrDefault((x) => 12 === x);
-
-let a = seq1.forEach(x => {
-    
+let seq = Enumerable.buildMany((cancel, index) => {
+    let i = index + 1;
+        
+    if (i < 6) {
+        return [ i, i * 10, i * 100 ];
+    }
+    else {
+        cancel();
+    }
 });
+
+for (let item of seq) {
+    console.log(item);
+}

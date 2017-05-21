@@ -52,15 +52,23 @@ let seq2 = Enumerable.from([11, 22, 33, 44]);
 // from a generator
 let seq3 = Enumerable.from( testGenerator() );
 
+// from a string
+// 
+// 'A', 'j', 'n', 'a', 't'
+let seq4 = Enumerable.from('Ajnat');
+// alt: Enumerable.fromString('Ajnat');
+
 // range of numbers: 2, 3, 4, 5, 6
-let seq4 = Enumerable.range(2, 5);
+let seq5 = Enumerable.range(2, 5);
 
 // 5979 'TM' strings
-let seq5 = Enumerable.repeat('TM', 5979);
+let seq6 = Enumerable.repeat('TM', 5979);
 
 // build using factory function
-let seq6 = Enumerable.build((cancel, index) => {
-    if (index < 5) {
+// 
+// 'item_1', 'item_2', 'item_3'
+let seq7 = Enumerable.build((cancel, index) => {
+    if (index < 3) {
         return 'item_' + (index + 1);
     }
     else {
@@ -69,8 +77,21 @@ let seq6 = Enumerable.build((cancel, index) => {
     }
 });
 
+// build using factory function
+// by building a flatten list
+// 
+// 0, 0, 0, 1, 10, 100, 2, 20, 200
+let seq8 = Enumerable.buildMany((cancel, index) => {
+    if (index < 3) {
+        return [ index, index * 10, index * 100 ];
+    }
+    else {
+        cancel();
+    }
+});
+
 // create empty sequence
-let seq7 = Enumerable.empty();
+let seq9 = Enumerable.empty();
 ```
 
 ### Work with them

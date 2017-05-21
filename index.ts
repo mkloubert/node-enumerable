@@ -87,6 +87,18 @@ export interface AsyncActionContext<T> {
 }  // AsyncActionContext<T>
 
 /**
+ * A factory function that can be cancelled.
+ * 
+ * @template TResult The type of the result.
+ * 
+ * @param {((cancel: (flag?: boolean) => void)} cancel The callback to cancel the building.
+ * @param {number} index The zero based index of that invocation.
+ * 
+ * @return {TResult} The result.
+ */
+export type CancelableFactory<TResult> = (cancel: (flag?: boolean) => void, index: number) => TResult;
+
+/**
  * Compares to values.
  * 
  * @template T Type of the "left" value.
@@ -2272,8 +2284,17 @@ export class Grouping<TKey, T> extends EnumerableWrapper<T> implements IGrouping
  * @template U Type of the sort keys.
  */
 export class OrderedEnumerable<T, U = T> extends EnumerableWrapper<T> implements IOrderedEnumerable<T> {
+    /**
+     * Stores the items in the original order.
+     */
     protected _originalItems: T[];
+    /**
+     * Stores the comparer for the sort keys.
+     */
     protected _orderComparer: Comparer<U, U>;
+    /**
+     * Stores the selector for the keys.
+     */
     protected _orderSelector: Selector<T, U>;
 
     /**
@@ -2389,19 +2410,19 @@ export class OrderedEnumerable<T, U = T> extends EnumerableWrapper<T> implements
  * 
  * @template T Type of the items. 
  * 
- * @param {(cancel: (flag?: boolean) => void, index: number) => T} factory The factory function. 
- * @param {number} [count] The maximum
+ * @param {CancelableFactory<T>} factory The factory function. 
+ * @param {number} [count] The maximum number of items.
  * 
  * @returns {IEnumerable<T>} 
  */
-export function build<T>(factory: (cancel: (flag?: boolean) => void, index: number) => T,
+export function build<T>(factory: CancelableFactory<T>,
                          count?: number): IEnumerable<T> {
     count = parseInt(toStringSafe(count).trim());
 
     return from(buildInner(factory, count));
 }  // build<T>()
 
-function *buildInner<T>(factory: (cancel: (flag?: boolean) => void, index: number) => T,
+function *buildInner<T>(factory: CancelableFactory<T>,
                         count: number) {
     let i = -1;
     let run = true;
@@ -2426,6 +2447,55 @@ function *buildInner<T>(factory: (cancel: (flag?: boolean) => void, index: numbe
         let newItem = factory(cancel, i);
         if (run) {
             yield newItem;
+        }
+    }
+}
+
+/**
+ * Builds a flatten sequence of sequences.
+ * 
+ * @template T Type of the items.
+ * @param {CancelableFactory<Sequence<T>>} factory The factory.
+ * @param {number} [count] The maximum number of invocations.
+ * 
+ * @returns {IEnumerable<T>} The flatten list of items. 
+ */
+export function buildMany<T>(factory: CancelableFactory<Sequence<T>>,
+                             count?: number): IEnumerable<T> {
+    count = parseInt(toStringSafe(count).trim());
+
+    return from(buildManyInner(factory, count));
+}  // buildMany<T>()
+
+function *buildManyInner<T>(factory: CancelableFactory<Sequence<T>>,
+                            count: number) {
+    let i = -1;
+    let run = true;
+    while (run) {
+        ++i;
+
+        if (!isNaN(count)) {
+            if (i >= count) {
+                run = false;
+                continue;
+            }
+        }
+
+        let cancel = function(flag?: boolean) {
+            if (arguments.length < 1) {
+                flag = true;
+            }
+
+            run = !flag;
+        };
+
+        let seq: any = factory(cancel, i);
+        if (run) {
+            if (!isNullOrUndefined(seq)) {
+                for (let item of seq) {
+                    yield item;
+                }
+            }
         }
     }
 }
