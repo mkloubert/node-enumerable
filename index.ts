@@ -285,7 +285,7 @@ namespace Enumerable {
          * @template U The target type.
          * 
          * @param {string} [type] The optional target type to converts the items to.
-         *                        Possible values are: bool/boolean, float/number, func/function, object, string, int/integer
+         *                        Possible values are: bool/boolean, float/number, func/function, object, string, int/integer, null, undefined
          * 
          * @returns {IEnumerable<U>} The "casted" sequence.
          * 
@@ -1121,6 +1121,10 @@ namespace Enumerable {
                                 };
                             }
                             break;
+
+                        case 'null':
+                            x = null;
+                            break;
                        
                         case 'object':
                             if ('undefined' === typeof x) {
@@ -1143,6 +1147,10 @@ namespace Enumerable {
                         
                         case 'string':
                             x = '' + x;
+                            break;
+
+                        case 'undefined':
+                            x = undefined;
                             break;
 
                         default:
