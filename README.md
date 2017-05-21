@@ -20,7 +20,7 @@ inside project folder to install the module.
 
 ## Documentation
 
-The API documentation can be found [here](https://mkloubert.github.io/node-enumerable/).
+The API documentation can be found [here](https://mkloubert.github.io/node-enumerable/interfaces/_index_.ienumerable.html).
 
 ## Usage
 
@@ -502,15 +502,32 @@ Enumerable.create(0, 1, 2)
 
 ### More
 
-#### concat
+#### clone
+
+```javascript
+let father = Enumerable.create(0, 1, 2);
+
+// create 3 clone of 'father'
+for (let child of father.clone(3)) {
+    //TODO
+}
+
+// alt: father.clone().take(3)
+```
+
+#### concat / concatArray
 
 ```javascript
 // 0, 1, 2, 'PZ', 'TM', 'MK'
 Enumerable.create(0, 1, 2)
-          .concat(['PZ', 'TM', 'MK']);
+          .concat(['PZ'], ['TM', 'MK']);
+
+// 0, 111, 222, 'pz', 'tm', 'mk'
+Enumerable.create(0, 111, 222)
+          .concatArray([ [ 'pz', 'tm' ], [ 'mk' ] ]);
 ```
 
-#### defaultIfEmpty
+#### defaultIfEmpty / defaultSequenceIfEmpty
 
 ```javascript
 // 0, 1, 2
@@ -520,6 +537,14 @@ Enumerable.create(0, 1, 2)
 // 'PZ', 'TM', 'MK'
 Enumerable.create()
           .defaultIfEmpty('PZ', 'TM', 'MK');
+
+// 0, 11, 22
+Enumerable.create(0, 11, 22)
+          .defaultSequenceIfEmpty('pz', 'tm', 'mk');
+          
+// 'pz', 'tm', 'mk'
+Enumerable.create()
+          .defaultSequenceIfEmpty('pz', 'tm', 'mk');
 ```
 
 #### reset
