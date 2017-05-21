@@ -244,9 +244,16 @@ declare namespace Enumerable {
          *
          * @template U The target type.
          *
+         * @param {string} [type] The optional target type to converts the items to.
+         *                        Possible values are: bool/boolean, float/number, func/function, object, string, int/integer,
+         *                                             null, undefined,
+         *                                             symbol
+         *
          * @returns {IEnumerable<U>} The "casted" sequence.
+         *
+         * @throws Target type is not supported
          */
-        cast<U>(): IEnumerable<U>;
+        cast<U = any>(type?: string): IEnumerable<U>;
         /**
          * Clones that sequence multiply times.
          *
@@ -521,6 +528,14 @@ declare namespace Enumerable {
          * @returns {T|Symbol} The item or IS_EMPTY if that sequence is empty.
          */
         min<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | Symbol;
+        /**
+         * Removes all values that are no valid numbers.
+         *
+         * @param {boolean} [checkForInt] Check for integer and not for float. Default: (false)
+         *
+         * @return {IEnumerable<T>} The filtered sequence.
+         */
+        noNAN(checkForInt?: boolean): IEnumerable<T>;
         /**
          * Removes empty items.
          *
@@ -853,7 +868,7 @@ declare namespace Enumerable {
         /** @inheritdoc */
         readonly canReset: boolean;
         /** @inheritdoc */
-        cast<U>(): IEnumerable<U>;
+        cast<U>(type?: string): IEnumerable<U>;
         /** @inheritdoc */
         clone<U = T>(count?: number, itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>>;
         /**
@@ -954,6 +969,8 @@ declare namespace Enumerable {
         min<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | Symbol;
         /** @inheritdoc */
         abstract next(value?: any): IteratorResult<T>;
+        /** @inheritdoc */
+        noNAN(checkForInt?: boolean): IEnumerable<T>;
         /** @inheritdoc */
         notEmpty(): IEnumerable<T>;
         /** @inheritdoc */
