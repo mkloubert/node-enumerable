@@ -142,11 +142,6 @@ export interface JoinedItems<TOuter, TInner> {
 }  // JoinedItems<TOuter, TInner>
 
 /**
- * A key for an object.
- */
-export type ObjectKey = number | string | Symbol;
-
-/**
  * A predicate / condition.
  * 
  * @template T Type of the item to check.
@@ -785,8 +780,8 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @returns U The lookup object
      */
-    toLookup<TKey extends ObjectKey, U = any>(keySelector: Selector<T, TKey>,
-                                              keyEqualityComparer?: EqualityComparer<TKey>): U;
+    toLookup<TKey extends PropertyKey, U = any>(keySelector: Selector<T, TKey>,
+                                                keyEqualityComparer?: EqualityComparer<TKey>): U;
     /**
      * Wraps the items of that sequence to an object.
      * 
@@ -797,7 +792,7 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @returns TResult The new object.
      */
-    toObject<TResult = any, TKey extends ObjectKey = number>(keySelector?: (index: number, item: T) => TKey): TResult;
+    toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (index: number, item: T) => TKey): TResult;
     /**
      * Produces the union of that sequence and another.
      * 
@@ -2006,8 +2001,8 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         while (true);
     }
     /** @inheritdoc */
-    public toLookup<TKey extends ObjectKey, U = any>(keySelector: Selector<T, TKey>,
-                                                     keyEqualityComparer?: EqualityComparer<TKey>): U {
+    public toLookup<TKey extends PropertyKey, U = any>(keySelector: Selector<T, TKey>,
+                                                       keyEqualityComparer?: EqualityComparer<TKey>): U {
         let lookup: any = {};
 
         for (let grp of this.groupBy(keySelector, keyEqualityComparer)) {
@@ -2019,7 +2014,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return lookup;
     }
     /** @inheritdoc */
-    public toObject<TResult = any, TKey extends ObjectKey = number>(keySelector?: (index: number, item: T) => TKey): TResult {
+    public toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (index: number, item: T) => TKey): TResult {
         if (!keySelector) {
             keySelector = (index) => <any>index;
         }
