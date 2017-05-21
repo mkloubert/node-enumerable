@@ -119,16 +119,14 @@ namespace Enumerable {
     export type Comparer<T, U = T> = (x: T, y: U) => number;
 
     /**
-     * A forEach function.
+     * A forEach action.
      * 
      * @template T Type of the items.
-     * @template TResult Type of the result(s).
      * 
      * @param {T} item The current item.
      * @param {number} index The zero based index of the current item.
-     * @param {TResult} result The current result value.
      */
-    export type EachFunc<T, TResult> = (item: T, index: number, result: TResult) => TResult;
+    export type EachAction<T> = (item: T, index: number) => void;
 
     /**
      * Checks if two values are equal.
@@ -374,8 +372,7 @@ namespace Enumerable {
         /**
          * Alias for forEach()
          */
-        each<TResult>(func: EachFunc<T, TResult>,
-                      seed?: TResult): TResult | Symbol;
+        each(func: EachAction<T>): this;
         /**
          * Returns an element at a specific index.
          * 
@@ -416,12 +413,10 @@ namespace Enumerable {
          * @template TResult Type of the result.
          * 
          * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
-         * @param {TResult} [seed] The seed value for the result. Default: IS_EMPTY
          * 
-         * @returns {(TResult|Symbol)} The result of the last action.
+         * @returns this
          */
-        forEach<TResult>(func: EachFunc<T, TResult>,
-                         seed?: TResult): TResult | Symbol;
+        forEach(func: EachAction<T>): this;
         /**
          * Returns the first element of that sequence.
          * 
@@ -469,7 +464,7 @@ namespace Enumerable {
          * 
          * @return {IEnumerable<TResult>} The new sequence.
          */
-        groupJoin<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, IEnumerable<TInner>>>(
+        groupJoin<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, IEnumerable<TInner>>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
             innerKeySelector?: Selector<TInner, TInnerKey>,
@@ -515,7 +510,7 @@ namespace Enumerable {
          * 
          * @return {IEnumerable<TResult>} The new sequence.
          */
-        join<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, TInner>>(
+        join<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, TInner>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
             innerKeySelector?: Selector<TInner, TInnerKey>,
@@ -1236,10 +1231,9 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
-        public each<TResult>(func: EachFunc<T, TResult>,
-                             seed?: TResult): TResult | Symbol {
+        public each(action: EachAction<T>): this {
             return this.forEach
-                    .apply(this, arguments);
+                       .apply(this, arguments);
         }
         /** @inheritdoc */
         public elementAt(index: number): T {
@@ -1328,26 +1322,17 @@ namespace Enumerable {
             return args.defaultValue;
         }
         /** @inheritdoc */
-        public forEach<TResult>(func: EachFunc<T, TResult>,
-                                seed?: TResult): TResult | Symbol {
-            let result: any = IS_EMPTY;
-            if (arguments.length > 1) {
-                result = seed;
-            }
-
+        public forEach(action: EachAction<T>): this {
             let i = -1;
             for (let item of this) {
                 ++i;
-                
-                let funcResult: TResult;
-                if (func) {
-                    funcResult = func(item, i, result);
-                }
 
-                result = funcResult;
+                if (action) {
+                    action(item, i);
+                }
             }
 
-            return result;
+            return this;
         }
         /** @inheritdoc */
         public groupBy<TKey>(keySelector: Selector<T, TKey>,
@@ -1401,7 +1386,7 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
-        public groupJoin<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, IEnumerable<TInner>>>(
+        public groupJoin<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, IEnumerable<TInner>>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
             innerKeySelector?: Selector<TInner, TInnerKey>,
@@ -1464,7 +1449,7 @@ namespace Enumerable {
 
                     for (let j = 0; j < outerGrp.values.length; j++) {
                         yield resultSelector(outerGrp.values[j],
-                                            from(innerGrp.values));
+                                             from(innerGrp.values));
                     }
                 }
             }
@@ -1510,7 +1495,7 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
-        public join<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, TInner>>(
+        public join<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, TInner>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
             innerKeySelector?: Selector<TInner, TInnerKey>,

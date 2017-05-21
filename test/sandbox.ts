@@ -25,17 +25,72 @@ import * as Enumerable from '../';
 import * as FS from 'fs';
 
 
-let seq = Enumerable.buildMany((cancel, index) => {
-    let i = index + 1;
-        
-    if (i < 6) {
-        return [ i, i * 10, i * 100 ];
+class Person {
+    constructor(name: string) {
+        this.name = name;
     }
-    else {
-        cancel();
-    }
-});
 
-for (let item of seq) {
-    console.log(item);
+    public name: string;
 }
+
+class Pet {
+    constructor(name: string, owner: Person) {
+        this.name = name;
+        this.owner = owner;
+    }
+
+    public name: string;
+    public owner: Person;
+}
+
+let persons = [
+    new Person("Tanja"),
+    new Person("Marcel"),
+    new Person("Yvonne"),
+    new Person("Josefine")
+];
+
+let pets = [
+    new Pet("Gina", persons[1]),
+    new Pet("Schnuffi", persons[1]),
+    new Pet("Schnuffel", persons[2]),
+    new Pet("WauWau", persons[0]),
+    new Pet("Lulu", persons[3]),
+    new Pet("Asta", persons[1]),
+];
+
+// groupJoin()
+// 
+// [0] 'Owner: Tanja; Pets: WauWau, Sparky'
+// [1] 'Owner: Marcel; Pets: Gina, Schnuffi, Asta'
+// [2] 'Owner: Yvonne; Pets: Schnuffel'
+// [3] 'Owner: Josefine; Pets: Lulu'
+let k = Enumerable.from(persons)
+          .groupJoin(pets,
+                     (person) => person.name,
+                     (pet) => pet.owner.name,
+                     (person, petsOfPerson) => {
+                         let petList = petsOfPerson
+                             .select(pet => pet.name)
+                             .joinToString(', ');
+                     
+                         return 'Owner: ' + person.name + '; Pets: ' + petList;
+                     });
+
+// join()
+// 
+// [0] 'Owner: Tanja; Pet: WauWau'
+// [1] 'Owner: Marcel; Pet: Gina'
+// [2] 'Owner: Marcel; Pet: Schnuffi'
+// [3] 'Owner: Marcel; Pet: Asta'
+// [4] 'Owner: Yvonne; Pet: Schnuffel'
+// [5] 'Owner: Josefine; Pet: Lulu'
+let j = Enumerable.from(persons)
+          .join(pets,
+                (person) => person.name,
+                (pet) => pet.owner.name,
+                (person, pet) => {
+                    return 'Owner: ' + person.name + '; Pet: ' + pet.name;
+                });
+
+k.forEach(i => console.log(i));

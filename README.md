@@ -7,16 +7,22 @@
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9BX9ZJCAJHQ8U) [![](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fnode-enumerable)
 
-## License
+## Table of contents
 
-[MIT license](https://raw.githubusercontent.com/mkloubert/node-enumerable/master/LICENSE)
+1. [Requirements](#requirements-)
+2. [Installation](#installation-)
+3. [Usage](#usage-)
+4. [Examples](#examples-)
+5. [Documentation](#documentation-)
+6. [License](#license-)
+7. [Tests](#tests-)
 
-## Requirements
+## Requirements [[&uarr;](#table-of-contents)]
 
 * an [ES6](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015) compatible environment like [modern browsers](https://en.wikipedia.org/wiki/ECMAScript#Implementations) or [NodeJS](https://nodejs.org/en/)
-* [TypeScript](https://www.typescriptlang.org/) 2.3 or later (when using defintion files)
+* [TypeScript](https://www.typescriptlang.org/) 2.3 or later (ONLY when using [defintion files](https://github.com/mkloubert/node-enumerable/blob/master/index.d.ts))
 
-## Installation
+## Installation [[&uarr;](#table-of-contents)]
 
 ### NodeJS
 
@@ -29,6 +35,8 @@ npm install node-enumerable --save
 inside project folder to install the module.
 
 ### Browser
+
+Download the latest version from [here](https://github.com/mkloubert/node-enumerable/releases).
 
 ```html
 <html>
@@ -53,11 +61,7 @@ inside project folder to install the module.
 </html>
 ```
 
-## Documentation
-
-The API documentation can be found [here](https://mkloubert.github.io/node-enumerable/interfaces/_index_.enumerable.ienumerable.html).
-
-## Usage
+## Usage [[&uarr;](#table-of-contents)]
 
 ### Create a sequence
 
@@ -200,7 +204,7 @@ seq.async((context) => {
 
 Most methods are chainable as in [.NET](https://en.wikipedia.org/wiki/.NET_Framework) context.
 
-## Examples
+## Examples [[&uarr;](#table-of-contents)]
 
 ```javascript
 // distinct()
@@ -628,7 +632,15 @@ seq.reset()
          });
 ```
 
-## Tests
+## Documentation [[&uarr;](#table-of-contents)]
+
+The API documentation can be found [here](https://mkloubert.github.io/node-enumerable/interfaces/_index_.enumerable.ienumerable.html).
+
+## License [[&uarr;](#table-of-contents)]
+
+[MIT license](https://raw.githubusercontent.com/mkloubert/node-enumerable/master/LICENSE)
+
+## Tests [[&uarr;](#table-of-contents)]
 
 Go to the module folder and run
 
