@@ -504,7 +504,7 @@ let jsArray = Enumerable.create(1, 2, 3, 4)
   
 // toObject()
 let obj = Enumerable.create(1, 2, 3, 4)
-                    .toObject((item, index) => "item" + index);  
+                    .toObject((index, item) => "item" + index);  
 
 // toLookup()
 // 
@@ -536,7 +536,7 @@ Enumerable.create(0, 1, 2)
 ```javascript
 let father = Enumerable.create(0, 1, 2);
 
-// create 3 clone of 'father'
+// create 3 clones of 'father'
 for (let child of father.clone(3)) {
     //TODO
 }
