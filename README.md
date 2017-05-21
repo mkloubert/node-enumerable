@@ -666,6 +666,7 @@ The API documentation can be found [here](https://mkloubert.github.io/node-enume
 Go to the module folder and run
 
 ```bash
+tsc
 npm test
 ```
 

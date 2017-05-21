@@ -27,7 +27,10 @@
     "node",
     "nodejs",
     "dotnet",
-    "net"
+    "net",
+    "browser",
+    "browsers",
+    "web"
   ],
   "author": "mkloubert",
   "license": "MIT",

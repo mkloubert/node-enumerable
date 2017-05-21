@@ -26,6 +26,7 @@ import Path = require('path');
 
 
 let libs: string[] = [
+    './Functions',
     './IEnumerable',
 ];
 
