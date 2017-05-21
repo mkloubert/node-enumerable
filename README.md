@@ -13,6 +13,19 @@
 2. [Installation](#installation-)
 3. [Usage](#usage-)
 4. [Examples](#examples-)
+   * [Filters](#filters-)
+   * [Sort elements](#sort-elements-)
+   * [Take / skip elements](#take--skip-elements-)
+   * [Get one element](#get-one-element-)
+   * [Accumulators](#accumulators-)
+   * [Minimum / maximum values](#minimum--maximum-values-)
+   * [Joins](#joins-)
+   * [Groupings](#groupings-)
+   * [Projection](#projection-)
+   * [Checks / conditions](#checks--conditions-)
+   * [Conversions](#conversions-)
+   * [Count](#count-)
+   * [More](#more-)
 5. [Documentation](#documentation-)
 6. [License](#license-)
 7. [Tests](#tests-)
@@ -206,6 +219,8 @@ Most methods are chainable as in [.NET](https://en.wikipedia.org/wiki/.NET_Frame
 
 ## Examples [[&uarr;](#table-of-contents)]
 
+### Filters [[&uarr;](#examples-)]
+
 ```javascript
 // distinct()
 // 1, 2, 4, 3
@@ -238,7 +253,7 @@ Enumerable.create(1, 2, 3, 4)
           .where((x) => x < 4);
 ```
 
-### Sort elements
+### Sort elements [[&uarr;](#examples-)]
 
 ```javascript
 // orderBy(), thenBy()
@@ -257,7 +272,7 @@ Enumerable.create(1, 2, 3, 4)
           .reverse();
 ```
 
-### Take / skip elements
+### Take / skip elements [[&uarr;](#examples-)]
 
 ```javascript
 // skip()
@@ -286,7 +301,7 @@ Enumerable.create(22, 33, 44, 55)
           .takeWhile((x) => x < 50);
 ```
 
-### Get one element
+### Get one element [[&uarr;](#examples-)]
 
 ```javascript
 // elementAt()
@@ -341,7 +356,7 @@ Enumerable.create(11, 22, 33, 44)
           .first((x) => x >= 20);
 ```
 
-### Accumulators
+### Accumulators [[&uarr;](#examples-)]
 
 ```typescript
 // aggregate()
@@ -371,7 +386,7 @@ Enumerable.create(1, 2, 3, 4)
           .sum();
 ```
 
-### Minimum / maximum values
+### Minimum / maximum values [[&uarr;](#examples-)]
 
 ```typescript
 // max()
@@ -385,7 +400,7 @@ Enumerable.create(2, 3, 1, 2)
           .min();
 ```
 
-### Joins
+### Joins [[&uarr;](#examples-)]
 
 ```typescript
 class Person {
@@ -457,7 +472,7 @@ Enumerable.from(persons)
                 });
 ```
 
-### Groupings
+### Groupings [[&uarr;](#examples-)]
 
 ```javascript
 // groupBy()
@@ -480,7 +495,7 @@ Enumerable.create("grape", "passionfruit", "blueberry",
                 });
 ```
 
-### Projection
+### Projection [[&uarr;](#examples-)]
 
 ```javascript
 // select()
@@ -502,7 +517,7 @@ Enumerable.create('Marcel', 'Bill', 'Albert')
                });
 ```
 
-### Checks / conditions
+### Checks / conditions [[&uarr;](#examples-)]
 
 ```javascript
 // all()
@@ -526,7 +541,7 @@ Enumerable.create(1, 2, 3)
           .sequenceEqual([1, 3, 2]);
 ```
 
-### Conversions
+### Conversions [[&uarr;](#examples-)]
 
 ```javascript
 // toArray()
@@ -548,7 +563,7 @@ let lookup = Enumerable.create('Bill', 'Marcel', 'barney', 'Albert', 'Konrad')
                        .toLookup(x => x[0].toUpperCase());
 ```
 
-### Count
+### Count [[&uarr;](#examples-)]
 
 ```javascript
 // 3
@@ -560,7 +575,7 @@ Enumerable.create(0, 1, 2)
           .count((x) => x > 0);
 ```
 
-### More
+### More [[&uarr;](#examples-)]
 
 #### clone
 
