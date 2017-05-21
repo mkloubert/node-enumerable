@@ -409,14 +409,16 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     /**
      * Tries to return the first element.
      * 
-     * @param {(Predicate<T> | T)} [predicateOrDefaultValue] The predicate or default value.
-     * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
+     * @template U Type of the default value.
+     * 
+     * @param {(Predicate<T>|T|U)} [predicateOrDefaultValue] The predicate or default value.
+     * @param {U} [defaultValue] The default value. Default: NOT_FOUND
      *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
      * 
-     * @returns {(T | Symbol)} The item or the default value.
+     * @returns {T|U} The item or the default value.
      */
-    firstOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
-                   defaultValue?: T | Symbol): T | Symbol;
+    firstOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T | U,
+                               defaultValue?: U): T | U;
     /**
      * Groups the items of that sequence by a key.
      * 
@@ -528,14 +530,16 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     /**
      * Tries to return the last element.
      * 
-     * @param {(Predicate<T> | T)} [predicateOrDefaultValue] The predicate or default value.
+     * @template U Type of the default value.
+     * 
+     * @param {(Predicate<T>|T|U)} [predicateOrDefaultValue] The predicate or default value.
      * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
      *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
      * 
-     * @returns {(T | Symbol)} The item or the default value.
+     * @returns {T|U} The item or the default value.
      */
-    lastOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
-                  defaultValue?: T | Symbol): T | Symbol;
+    lastOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T | U,
+                              defaultValue?: U): T | U;
     /**
      * Returns a resettable version of that sequence.
      * 
@@ -688,16 +692,18 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     /**
      * Tries to return the one and only element.
      * 
-     * @param {(Predicate<T> | T)} [predicateOrDefaultValue] The predicate or default value.
+     * @template U Type of the default value.
+     * 
+     * @param {(Predicate<T>|T|U)} [predicateOrDefaultValue] The predicate or default value.
      * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
      *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
      * 
-     * @returns {(T | Symbol)} The item or the default value.
+     * @returns {T|U} The item or the default value.
      * 
      * @throws Sequence contains for than one (matching) element.
      */
-    singleOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
-                    defaultValue?: T | Symbol): T | Symbol;
+    singleOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T | U,
+                                defaultValue?: U): T | U;
     /**
      * Skips a maximum number of items.
      * 
@@ -1224,7 +1230,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
     }
     /** @inheritdoc */
     public elementAtOrDefault<U = Symbol>(index: number,
-                                          defaultValue?: U): T | Symbol {
+                                          defaultValue?: U): T | U {
         index = parseInt(toStringSafe(index).trim());
 
         if (arguments.length < 2) {
@@ -1282,8 +1288,8 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return <any>result;
     }
     /** @inheritdoc */
-    public firstOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
-                          defaultValue?: T | Symbol): T | Symbol {
+    public firstOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T | U,
+                                      defaultValue?: U): T | U {
         let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
                                          arguments.length);
 
@@ -1583,8 +1589,8 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return lastIndex;
     }
     /** @inheritdoc */
-    public lastOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
-                         defaultValue?: T | Symbol): T | Symbol {
+    public lastOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T | U,
+                                     defaultValue?: U): T | U {
         let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
                                          arguments.length);
 
@@ -1824,8 +1830,8 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return <any>item;
     }
     /** @inheritdoc */
-    public singleOrDefault(predicateOrDefaultValue?: Predicate<T> | T,
-                           defaultValue?: T | Symbol): T | Symbol {
+    public singleOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T | U,
+                                       defaultValue?: U): T | U {
         let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
                                          arguments.length);
 
@@ -2594,10 +2600,10 @@ function *emptyIterator() {
     }
 }
 
-function getOrDefaultArguments<T>(predicateOrDefaultValue: Predicate<T> | T, defaultValue: T | Symbol,
-                                  paramCount: number) {
+function getOrDefaultArguments<T, U>(predicateOrDefaultValue: Predicate<T> | T | U, defaultValue: U,
+                                     paramCount: number) {
     let predicate: Predicate<T>;
-    let defVal: T | Symbol;
+    let defVal: any;
 
     if (paramCount < 1) {
         defVal = NOT_FOUND;
