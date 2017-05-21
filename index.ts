@@ -284,9 +284,14 @@ namespace Enumerable {
          * 
          * @template U The target type.
          * 
+         * @param {string} [type] The optional target type to converts the items to.
+         *                        Possible values are: bool/boolean, float/number, func/function, object, string, int/integer
+         * 
          * @returns {IEnumerable<U>} The "casted" sequence.
+         * 
+         * @throws Target type is not supported
          */
-        cast<U>(): IEnumerable<U>;
+        cast<U = any>(type?: string): IEnumerable<U>;
         /**
          * Clones that sequence multiply times.
          * 
@@ -585,6 +590,14 @@ namespace Enumerable {
          */
         min<U = T>(valueSelector?: Selector<T, U>,
                    comparer?: Comparer<U>): T | Symbol;
+        /**
+         * Removes all values that are no valid numbers.
+         * 
+         * @param {boolean} [checkForInt] Check for integer and not for float. Default: (false)
+         * 
+         * @return {IEnumerable<T>} The filtered sequence.
+         */
+        noNAN(checkForInt?: boolean): IEnumerable<T>;
         /**
          * Removes empty items.
          * 
@@ -1083,8 +1096,62 @@ namespace Enumerable {
             return false;
         }
         /** @inheritdoc */
-        public cast<U>(): IEnumerable<U> {
-            return this.select(x => <U><any>x);
+        public cast<U>(type?: string): IEnumerable<U> {
+            type = toStringSafe(type).trim();
+
+            return this.select((x: any) => {
+                if ('' !== type) {
+                    switch (type) {
+                        case 'bool':
+                        case 'boolean':
+                            x = !!x;
+                            break;
+                            
+                        case 'float':
+                        case 'number':
+                            x = parseFloat(toStringSafe(x).trim());
+                            break;
+
+                        case 'func':
+                        case 'function':
+                            if ('function' !== typeof x) {
+                                let funcResult = x;
+                                x = function() {
+                                    return funcResult;
+                                };
+                            }
+                            break;
+                       
+                        case 'object':
+                            if ('undefined' === typeof x) {
+                                x = undefined;
+                            }
+                            else if (null === x) {
+                                x = null;
+                            }
+                            else {
+                                if ('object' !== typeof x) {
+                                    x = JSON.parse(toStringSafe(x));
+                                }
+                            }
+                            break;
+
+                        case 'int':
+                        case 'integer':
+                            x = parseInt(toStringSafe(x).trim());
+                            break;
+                        
+                        case 'string':
+                            x = '' + x;
+                            break;
+
+                        default:
+                            throw 'Not supported type ' + type;
+                    }
+                }
+
+                return <U>x;
+            });
         }
         /** @inheritdoc */
         public clone<U = T>(count?: number,
@@ -1701,6 +1768,15 @@ namespace Enumerable {
         }
         /** @inheritdoc */
         public abstract next(value?: any): IteratorResult<T>;
+        /** @inheritdoc */
+        public noNAN(checkForInt?: boolean): IEnumerable<T> {
+            return this.where(x => {
+                let str = toStringSafe(x).trim();
+                let nr = !checkForInt ? parseFloat(str) : parseInt(str);
+
+                return !isNaN(nr);
+            });
+        }
         /** @inheritdoc */
         public notEmpty(): IEnumerable<T> {
             return this.where(x => !!x);
