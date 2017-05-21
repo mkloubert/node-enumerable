@@ -429,7 +429,7 @@ namespace Enumerable {
          * 
          * @returns {T} The first element. 
          * 
-         * @throws ELement not found.
+         * @throws Element not found.
          */
         first(predicate?: Predicate<T>): T;
         /**
@@ -537,7 +537,7 @@ namespace Enumerable {
          * 
          * @returns {T} The last element. 
          * 
-         * @throws ELement not found.
+         * @throws Element not found.
          */
         last(predicate?: Predicate<T>): T;
         /**
@@ -712,7 +712,7 @@ namespace Enumerable {
          * 
          * @returns {T} The single element. 
          * 
-         * @throws ELement not found or sequence contains for than one (matching) element.
+         * @throws Element not found or sequence contains for than one (matching) element.
          */
         single(predicate?: Predicate<T>): T;
         /**
