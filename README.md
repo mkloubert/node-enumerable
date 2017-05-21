@@ -99,15 +99,12 @@ let seq1 = Enumerable.create(1, 'MK', true, null, {});
 
 // from an array
 let seq2 = Enumerable.from([11, 22, 33, 44]);
-
 // from a generator
 let seq3 = Enumerable.from( testGenerator() );
-
 // from a string
 // 
 // 'A', 'j', 'n', 'a', 't'
-let seq4 = Enumerable.from('Ajnat');
-// alt: Enumerable.fromString('Ajnat');
+let seq4 = Enumerable.from('Ajnat');  // alt: Enumerable.fromString('Ajnat');
 
 // range of numbers: 2, 3, 4, 5, 6
 let seq5 = Enumerable.range(2, 5);
@@ -115,7 +112,7 @@ let seq5 = Enumerable.range(2, 5);
 // 5979 'TM' strings
 let seq6 = Enumerable.repeat('TM', 5979);
 
-// build using factory function
+// build, using factory function
 // 
 // 'item_1', 'item_2', 'item_3'
 let seq7 = Enumerable.build((cancel, index) => {
@@ -128,18 +125,18 @@ let seq7 = Enumerable.build((cancel, index) => {
     }
 });
 
-// build using factory function
+// build, using factory function
 // by building a flatten list
 // 
-// 0, 0, 0, 1, 10, 100, 2, 20, 200
+// 1, 10, 100, 2, 20, 200, 3, 30, 300
 let seq8 = Enumerable.buildMany((cancel, index) => {
-    if (index < 3) {
-        return [ index, index * 10, index * 100 ];
-    }
-    else {
-        cancel();
-    }
-});
+    let n = index + 1;
+
+    return [ n, n * 10, n * 100 ];
+}, 3);  // create 3 elements
+        // 
+        // the 'build()' function has
+        // a same argument
 
 // create empty sequence
 let seq9 = Enumerable.empty();
@@ -167,6 +164,8 @@ for (let item of newSeq) {
     console.log(item);
 }
 ```
+
+Most methods are chainable as in [.NET](https://en.wikipedia.org/wiki/.NET_Framework) context.
 
 #### Async operations [[&uarr;](#work-with-them-)]
 
@@ -222,7 +221,7 @@ seq.async((context) => {
 });
 ```
 
-Most methods are chainable as in [.NET](https://en.wikipedia.org/wiki/.NET_Framework) context.
+The `context` argument of the `async()` method uses the [AsyncActionContext](https://mkloubert.github.io/node-enumerable/interfaces/_index_.enumerable.asyncactioncontext.html) interface.
 
 ## Examples [[&uarr;](#table-of-contents)]
 
