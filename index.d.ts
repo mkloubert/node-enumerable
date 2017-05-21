@@ -91,16 +91,14 @@ declare namespace Enumerable {
      */
     type Comparer<T, U = T> = (x: T, y: U) => number;
     /**
-     * A forEach function.
+     * A forEach action.
      *
      * @template T Type of the items.
-     * @template TResult Type of the result(s).
      *
      * @param {T} item The current item.
      * @param {number} index The zero based index of the current item.
-     * @param {TResult} result The current result value.
      */
-    type EachFunc<T, TResult> = (item: T, index: number, result: TResult) => TResult;
+    type EachAction<T> = (item: T, index: number) => void;
     /**
      * Checks if two values are equal.
      *
@@ -332,7 +330,7 @@ declare namespace Enumerable {
         /**
          * Alias for forEach()
          */
-        each<TResult>(func: EachFunc<T, TResult>, seed?: TResult): TResult | Symbol;
+        each(func: EachAction<T>): this;
         /**
          * Returns an element at a specific index.
          *
@@ -371,11 +369,10 @@ declare namespace Enumerable {
          * @template TResult Type of the result.
          *
          * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
-         * @param {TResult} [seed] The seed value for the result. Default: IS_EMPTY
          *
-         * @returns {(TResult|Symbol)} The result of the last action.
+         * @returns this
          */
-        forEach<TResult>(func: EachFunc<T, TResult>, seed?: TResult): TResult | Symbol;
+        forEach(func: EachAction<T>): this;
         /**
          * Returns the first element of that sequence.
          *
@@ -421,7 +418,7 @@ declare namespace Enumerable {
          *
          * @return {IEnumerable<TResult>} The new sequence.
          */
-        groupJoin<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, IEnumerable<TInner>>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: IEnumerable<TInner>) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
+        groupJoin<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, IEnumerable<TInner>>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: IEnumerable<TInner>) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
         /**
          * Gets the current zero based index.
          */
@@ -459,7 +456,7 @@ declare namespace Enumerable {
          *
          * @return {IEnumerable<TResult>} The new sequence.
          */
-        join<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, TInner>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: TInner) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
+        join<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, TInner>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: TInner) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
         /**
          * Joins the items of that sequence to one string.
          *
@@ -896,7 +893,7 @@ declare namespace Enumerable {
          */
         protected distinctInner(comparer: EqualityComparer<T>): IterableIterator<T>;
         /** @inheritdoc */
-        each<TResult>(func: EachFunc<T, TResult>, seed?: TResult): TResult | Symbol;
+        each(action: EachAction<T>): this;
         /** @inheritdoc */
         elementAt(index: number): T;
         /** @inheritdoc */
@@ -912,7 +909,7 @@ declare namespace Enumerable {
         /** @inheritdoc */
         firstOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /** @inheritdoc */
-        forEach<TResult>(func: EachFunc<T, TResult>, seed?: TResult): TResult | Symbol;
+        forEach(action: EachAction<T>): this;
         /** @inheritdoc */
         groupBy<TKey>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey>): IEnumerable<IGrouping<TKey, T>>;
         /**
@@ -920,7 +917,7 @@ declare namespace Enumerable {
          */
         protected groupByInner<TKey>(keySelector: Selector<T, TKey>, keyEqualityComparer: EqualityComparer<TKey>): IterableIterator<Grouping<TKey, T>>;
         /** @inheritdoc */
-        groupJoin<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, IEnumerable<TInner>>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: IEnumerable<TInner>) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
+        groupJoin<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, IEnumerable<TInner>>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: IEnumerable<TInner>) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
         /**
          * @see groupJoin()
          */
@@ -936,7 +933,7 @@ declare namespace Enumerable {
          */
         protected intersectInner(second: T[], comparer: EqualityComparer<T>): IterableIterator<T>;
         /** @inheritdoc */
-        join<TInner = T, TOuterKey = T | TInnerKey, TInnerKey = TOuterKey, TResult = JoinedItems<T, TInner>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: TInner) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
+        join<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, TInner>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: TInner) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
         /**
          * @see join()
          */
