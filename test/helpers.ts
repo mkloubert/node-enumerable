@@ -76,9 +76,8 @@ export interface ExecutionContext {
 export function createSequences<T>(items?: Enumerable.Sequence<T>): Enumerable.IEnumerable<T>[] {
     return [
         Enumerable.from(items),
-        // new Enumerable.Collection<T>(items),
-        // new Enumerable.List<T>(items),
-        // new Enumerable.ReadOnlyCollection<T>(items),
+        Enumerable.from(toIterator(items)),
+        Enumerable.from(toArray(items)),
     ];
 }
 
@@ -144,4 +143,39 @@ export function executeForSequences<T, TResult>(items: Enumerable.Sequence<T>, f
     }
 
     return results;
+}
+
+/**
+ * Creates a new array from a sequence.
+ * 
+ * @param {Enumerable.Sequence<T>} seq The sequence.
+ * 
+ * @return {T[]} The new array. 
+ */
+export function toArray<T>(seq: Enumerable.Sequence<T>): T[] {
+    let arr: T[] = [];
+    
+    if (seq) {
+        for (let item of <any>seq){
+            arr.push(item);
+        }
+    }
+
+    return arr;
+}
+
+
+/**
+ * Creates a new iterator from a sequence.
+ * 
+ * @param {Enumerable.Sequence<T>} seq The sequence.
+ * 
+ * @return {IterableIterator<T>} The new iterator. 
+ */
+export function *toIterator<T>(seq: Enumerable.Sequence<T>) {
+    if (seq) {
+        for (let item of <any>seq){
+            yield item;
+        }
+    }
 }
