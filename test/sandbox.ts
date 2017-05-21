@@ -25,18 +25,6 @@ import * as Enumerable from '../';
 import * as FS from 'fs';
 
 
-async function test() {
-    let seq1 = Enumerable.create(1, 2, 3);
+let seq1 = Enumerable.create(1, 2, 3);
 
-    let result: number = await seq1.async((ctx) => {
-        ctx.result = ctx.item * 10;
-        
-        ctx.resolve();
-    });
-
-    console.log(result);
-}
-
-test().then(() => {
-
-});
+let i = seq1.firstOrDefault((x) => 12 === x);
