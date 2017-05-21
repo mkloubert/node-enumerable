@@ -1,3 +1,6 @@
+[![npm](https://img.shields.io/npm/v/node-enumerable.svg)](https://www.npmjs.com/package/node-enumerable)
+[![npm](https://img.shields.io/npm/dt/node-enumerable.svg?label=npm%20downloads)](https://www.npmjs.com/package/node-enumerable)
+
 # node-enumerable
 
 [ES6](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015) ready [LINQ](https://en.wikipedia.org/wiki/Language_Integrated_Query) library written in [TypeScript](https://www.typescriptlang.org/).
