@@ -8,6 +8,11 @@
 
 [MIT license](https://raw.githubusercontent.com/mkloubert/node-enumerable/master/LICENSE)
 
+## Requirements
+
+* a [ES6](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015) environment like [NodeJS](https://nodejs.org/en/)
+* [TypeScript](https://www.typescriptlang.org/) 2.3 or later (when using defintion files)
+
 ## Installation
 
 Run
