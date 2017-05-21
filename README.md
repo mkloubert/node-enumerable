@@ -12,6 +12,9 @@
 1. [Requirements](#requirements-)
 2. [Installation](#installation-)
 3. [Usage](#usage-)
+   * [Create a sequence](#create-a-sequence-)
+   * [Work with them](#work-with-them-)
+     * [Async operations](#async-operations-)
 4. [Examples](#examples-)
    * [Filters](#filters-)
    * [Sort elements](#sort-elements-)
@@ -26,6 +29,10 @@
    * [Conversions](#conversions-)
    * [Count](#count-)
    * [More](#more-)
+     * [clone](#clone-)
+     * [defaultIfEmpty / defaultSequenceIfEmpty](#concat--concatarray-)
+     * [pushTo](#pushto-)
+     * [reset](#reset-)
 5. [Documentation](#documentation-)
 6. [License](#license-)
 7. [Tests](#tests-)
@@ -76,7 +83,7 @@ Download the latest version from [here](https://github.com/mkloubert/node-enumer
 
 ## Usage [[&uarr;](#table-of-contents)]
 
-### Create a sequence
+### Create a sequence [[&uarr;](#usage-)]
 
 ```javascript
 const Enumerable = require('node-enumerable');
@@ -138,7 +145,7 @@ let seq8 = Enumerable.buildMany((cancel, index) => {
 let seq9 = Enumerable.empty();
 ```
 
-### Work with them
+### Work with them [[&uarr;](#usage-)]
 
 ```javascript
 let seq = Enumerable.create(5979, 23979, null, '23979', 1781, 241279);
@@ -161,7 +168,7 @@ for (let item of newSeq) {
 }
 ```
 
-#### Async operations
+#### Async operations [[&uarr;](#work-with-them-)]
 
 ```javascript
 const FS = require('fs');
@@ -577,7 +584,7 @@ Enumerable.create(0, 1, 2)
 
 ### More [[&uarr;](#examples-)]
 
-#### clone
+#### clone [[&uarr;](#more-)]
 
 ```javascript
 let father = Enumerable.create(0, 1, 2);
@@ -590,7 +597,7 @@ for (let child of father.clone(3)) {
 // alt: father.clone().take(3)
 ```
 
-#### concat / concatArray
+#### concat / concatArray [[&uarr;](#more-)]
 
 ```javascript
 // 0, 1, 2, 'PZ', 'TM', 'MK'
@@ -602,7 +609,7 @@ Enumerable.create(0, 111, 222)
           .concatArray([ [ 'pz', 'tm' ], [ 'mk' ] ]);
 ```
 
-#### defaultIfEmpty / defaultSequenceIfEmpty
+#### defaultIfEmpty / defaultSequenceIfEmpty [[&uarr;](#more-)]
 
 ```javascript
 // 0, 1, 2
@@ -622,7 +629,7 @@ Enumerable.create()
           .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
 ```
 
-#### pushTo
+#### pushTo [[&uarr;](#more-)]
 
 ```javascript
 let arr = [];
@@ -632,7 +639,7 @@ Enumerable.create(0, 1, 2)
 // arr: [0, 1, 2]
 ```
 
-#### reset
+#### reset [[&uarr;](#more-)]
 
 ```javascript
 let seq = Enumerable.create(0, 1, 2);
