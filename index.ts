@@ -100,6 +100,18 @@ export interface AsyncActionContext<T> {
 export type Comparer<T, U = T> = (x: T, y: U) => number;
 
 /**
+ * A forEach function.
+ * 
+ * @template T Type of the items.
+ * @template TResult Type of the result(s).
+ * 
+ * @param {T} item The current item.
+ * @param {number} index The zero based index of the current item.
+ * @param {TResult} result The current result value.
+ */
+export type EachFunc<T, TResult> = (item: T, index: number, result: TResult) => TResult;
+
+/**
  * Checks if two values are equal.
  * 
  * @template T Type of the "left" value.
@@ -348,8 +360,8 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
     /**
      * Alias for forEach()
      */
-    each<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
-                        seed?: TResult): TResult | Symbol;
+    each<TResult>(func: EachFunc<T, TResult>,
+                  seed?: TResult): TResult | Symbol;
     /**
      * Returns an element at a specific index.
      * 
@@ -394,8 +406,8 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * 
      * @returns {(TResult|Symbol)} The result of the last action.
      */
-    forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
-                           seed?: TResult): TResult | Symbol;
+    forEach<TResult>(func: EachFunc<T, TResult>,
+                     seed?: TResult): TResult | Symbol;
     /**
      * Returns the first element of that sequence.
      * 
@@ -1210,8 +1222,8 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         }
     }
     /** @inheritdoc */
-    public each<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
-                               seed?: TResult): TResult | Symbol {
+    public each<TResult>(func: EachFunc<T, TResult>,
+                         seed?: TResult): TResult | Symbol {
         return this.forEach
                    .apply(this, arguments);
     }
@@ -1302,9 +1314,9 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return args.defaultValue;
     }
     /** @inheritdoc */
-    public forEach<TResult = any>(func: (item: T, index: number, result: TResult | Symbol) => TResult,
-                                  seed?: TResult): TResult | Symbol {
-        let result: TResult | Symbol = IS_EMPTY;
+    public forEach<TResult>(func: EachFunc<T, TResult>,
+                            seed?: TResult): TResult | Symbol {
+        let result: any = IS_EMPTY;
         if (arguments.length > 1) {
             result = seed;
         }

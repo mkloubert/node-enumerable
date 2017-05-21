@@ -28,3 +28,7 @@ import * as FS from 'fs';
 let seq1 = Enumerable.create(1, 2, 3);
 
 let i = seq1.firstOrDefault((x) => 12 === x);
+
+let a = seq1.forEach(x => {
+    
+});
