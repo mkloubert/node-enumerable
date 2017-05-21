@@ -548,11 +548,11 @@ Enumerable.create()
 
 // 0, 11, 22
 Enumerable.create(0, 11, 22)
-          .defaultSequenceIfEmpty('pz', 'tm', 'mk');
+          .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
           
 // 'pz', 'tm', 'mk'
 Enumerable.create()
-          .defaultSequenceIfEmpty('pz', 'tm', 'mk');
+          .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
 ```
 
 #### reset
