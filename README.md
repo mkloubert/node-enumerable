@@ -18,6 +18,8 @@
 
 ## Installation
 
+### NodeJS
+
 Run
 
 ```bash
@@ -31,12 +33,15 @@ inside project folder to install the module.
 ```html
 <html>
   <head>
+    <!-- node-enumerable -->
     <script type="text/javascript" src="js/enumerable.js"></script>
   </head>
 
-  <head>
+  <body>
     <script type="text/javascript">
     
+        // test code
+
         let seq = Enumerable.create(1, 2, 3);
 
         for (let item of seq) {
@@ -44,7 +49,7 @@ inside project folder to install the module.
         }
     
     </script>
-  </head>
+  </body>
 </html>
 ```
 
