@@ -504,7 +504,7 @@ let jsArray = Enumerable.create(1, 2, 3, 4)
   
 // toObject()
 let obj = Enumerable.create(1, 2, 3, 4)
-                    .toObject((index, item) => "item" + index);  
+                    .toObject((item, index) => "item" + index);  
 
 // toLookup()
 // 

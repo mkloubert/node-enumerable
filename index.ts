@@ -800,11 +800,11 @@ export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
      * @template TResult Type of the result.
      * @template TKey Type of the keys.
      * 
-     * @param {(index: number, item: T) => TKey} [keySelector] The selector for the keys.
+     * @param {(item: T, index: number) => TKey} [keySelector] The selector for the keys.
      * 
      * @returns TResult The new object.
      */
-    toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (index: number, item: T) => TKey): TResult;
+    toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (item: T, index: number) => TKey): TResult;
     /**
      * Produces the union of that sequence and another.
      * 
@@ -2026,9 +2026,9 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         return lookup;
     }
     /** @inheritdoc */
-    public toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (index: number, item: T) => TKey): TResult {
+    public toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (item: T, index: number) => TKey): TResult {
         if (!keySelector) {
-            keySelector = (index) => <any>index;
+            keySelector = (item, index) => <any>index;
         }
         
         let obj: any = {};
@@ -2037,7 +2037,7 @@ export abstract class EnumerableBase<T> implements IEnumerable<T> {
         for (let item of this) {
             ++i;
 
-            let key = keySelector(i, item);
+            let key = keySelector(item, i);
             obj[key] = item;
         }
 
