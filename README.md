@@ -576,6 +576,16 @@ Enumerable.create()
           .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
 ```
 
+#### pushTo
+
+```javascript
+let arr = [];
+Enumerable.create(0, 1, 2)
+          .pushTo(arr);
+
+// arr: [0, 1, 2]
+```
+
 #### reset
 
 ```javascript
