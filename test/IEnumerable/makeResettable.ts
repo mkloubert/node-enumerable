@@ -69,3 +69,45 @@ Helpers.execute(
             Assert.notStrictEqual(seq2.canReset, false);
         }
     });
+
+Helpers.execute(
+    'Testing numbers (array)...',
+    (ctx) => {
+        for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
+            if (0 === i % 10) {
+                ctx.log(`Testing with ${i} elements...`);
+            }
+
+            // fill test array
+            let arr: any[] = [];
+            for (let j = 0; j < i; j++) {
+                arr.push(j + 1);
+            }
+
+            let iterator = Helpers.toIterator(arr);
+
+            let seq1 = Enumerable.from(arr);
+
+            Assert.equal(seq1.canReset, true);
+            Assert.strictEqual(seq1.canReset, true);
+            Assert.notEqual(seq1.canReset, false);
+            Assert.notStrictEqual(seq1.canReset, false);
+
+            let seq2 = seq1.makeResettable();
+
+            Assert.equal(seq1 === seq2, true);
+            Assert.strictEqual(seq1 === seq2, true);
+            Assert.notEqual(seq1 === seq2, false);
+            Assert.notStrictEqual(seq1 === seq2, false);
+
+            Assert.notEqual(seq1 !== seq2, true);
+            Assert.notStrictEqual(seq1 !== seq2, true);
+            Assert.equal(seq1 !== seq2, false);
+            Assert.strictEqual(seq1 !== seq2, false);
+
+            Assert.equal(seq2.canReset, true);
+            Assert.strictEqual(seq2.canReset, true);
+            Assert.notEqual(seq2.canReset, false);
+            Assert.notStrictEqual(seq2.canReset, false);
+        }
+    });
