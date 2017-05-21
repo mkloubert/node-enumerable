@@ -13,7 +13,7 @@
 
 ## Requirements
 
-* a [ES6](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015) environment like [NodeJS](https://nodejs.org/en/)
+* an [ES6](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015) compatible environment like [modern browsers](https://en.wikipedia.org/wiki/ECMAScript#Implementations) or [NodeJS](https://nodejs.org/en/)
 * [TypeScript](https://www.typescriptlang.org/) 2.3 or later (when using defintion files)
 
 ## Installation
@@ -25,6 +25,28 @@ npm install node-enumerable --save
 ```
 
 inside project folder to install the module.
+
+### Browser
+
+```html
+<html>
+  <head>
+    <script type="text/javascript" src="js/enumerable.js"></script>
+  </head>
+
+  <head>
+    <script type="text/javascript">
+    
+        let seq = Enumerable.create(1, 2, 3);
+
+        for (let item of seq) {
+            alert(item);
+        }
+    
+    </script>
+  </head>
+</html>
+```
 
 ## Documentation
 
