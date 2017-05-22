@@ -1,0 +1,277 @@
+<!--
+    The MIT License (MIT)
+
+    node-enumerable (https://github.com/mkloubert/node-enumerable)
+    Copyright (c) Marcel Joachim Kloubert <marcel.kloubert@gmx.net>
+   
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to
+    deal in the Software without restriction, including without limitation the
+    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+    
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+   
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>node-enumeable Demos</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- CodeMirror -->
+    <link href="css/codemirror.css" rel="stylesheet">
+    <link href="css/codemirror/base16-light.css" rel="stylesheet">
+
+    <style type="text/css">
+
+        html,body {
+            height: 100%;
+            overflow-y: hidden;
+            padding-bottom: 46px;
+            padding-top: 24px;
+            width: 100%;
+        }
+
+        .tab-content {
+            height: 100%;
+        }
+
+        .tab-pane {
+            height: 100%;
+        }
+
+        .tab-pane .container-fluid {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .tab-pane .ne-col {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        #ne-playground .CodeMirror {
+            border: 0 none transparent;
+            height: 100%;
+        }
+
+        #ne-playground .ne-right table .ne-index {
+            width: 128px;
+        }
+
+        #ne-playground .ne-right table .ne-type {
+            padding-right: 8px;
+            text-align: right;
+            width: 128px;
+        }
+
+        #ne-playground .ne-right pre {
+            height: 100%;
+        }
+
+        #ne-footer .ne-col {
+            line-height: 50px;
+            text-align: center;
+        }
+
+        #ne-content {
+            height: 100%;
+            padding: 0;
+        }
+
+    </style>
+
+    <!-- CodeMirror -->
+    <script src="js/codemirror.js"></script>
+    <script src="js/codemirror/javascript/javascript.js"></script>
+
+    <!-- jQuery -->
+    <script src="js/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- node-ernumable -->
+    <script src="js/enumerable.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">node-enumeable Demos</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid" id="ne-content">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#ne-playground">Playground</a></li>
+            <li><a data-toggle="tab" href="#ne-documentation">Documentation</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="ne-playground" class="tab-pane fade in active">
+                <div class="container-fluid">
+                    <div class="ne-col col-xs-6 ne-left">
+                        <textarea id="ne-playground-editor"></textarea>
+                    </div>
+
+                    <div class="ne-col col-xs-6 ne-right">Press</div>
+                </div>
+            </div>
+
+            <div id="ne-documentation" class="tab-pane fade">
+                <iframe style="border: 0 none transparent; width: 100%; height: 100%;"
+                        src="https://mkloubert.github.io/node-enumerable/interfaces/_index_.enumerable.ienumerable.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-default navbar-fixed-bottom" id="ne-footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="ne-col col-xs-6 ne-left">
+                    <a href="https://github.com/mkloubert/node-enumerable/blob/master/LICENSE" target="_blank">Copyright</a> &copy;</a>
+                    <a href="https://github.com/mkloubert" target="_blank">Marcel Joachim Kloubert</a>
+                </div>
+
+                <div class="ne-col col-xs-6 ne-right"></div>
+            </div>
+        </div>
+    </nav>
+
+    <script type="text/javascript">
+        var pgEditor;
+        function ne_execute_code() {
+            var contentArea = $('#ne-playground .ne-right');
+            contentArea.html('');
+
+            try {
+                var code = pgEditor.getValue();
+                var result = eval(code);
+
+                var content;
+                if (result && ('function' === typeof result['next'] || Array.isArray(result))) {
+                    content = $('<table class="table table-striped">' + 
+                                '<thead>' + 
+                                '<tr>' + 
+                                '<th class="ne-index">Index</th>' + 
+                                '<th class="ne-value">Value</th>' + 
+                                '<th class="ne-type">Type</th>' + 
+                                '</tr>' + 
+                                '</thead>' + 
+                                '<tbody></tbody>' + 
+                                '</table>');
+
+                    var body = content.find('tbody');
+
+                    var appendValue = function(index, value) {
+                        var newRow = $('<tr>' + 
+                                        '<td class="ne-index"></td>' + 
+                                        '<td class="ne-value"></td>' + 
+                                        '<td class="ne-type"></td>' + 
+                                        '</tr>');
+
+                        var cellValue;
+                        try {
+                            cellValue = $('<span><span>');
+                            cellValue.text( JSON.stringify(value, null, 4) );
+                        }
+                        catch (e) {
+                            cellValue = $('<div class="alert alert-danger" role="alert"></div>');
+                            cellValue.text('ERROR: ' + e);
+                        }
+
+                        newRow.find('.ne-index').text(index + 1);
+                        newRow.find('.ne-value').append(cellValue);
+                        newRow.find('.ne-type').text(typeof value);
+
+                        newRow.appendTo(body);
+                    };
+
+                    if (Array.isArray(result)) {
+                        for (var index = 0; index < result.length; index++) {
+                            appendValue(index, result[index]);
+                        }
+                    }
+                    else {
+                        var index = -1;
+                        do {
+                            ++index;
+
+                            var item = result.next();
+                            if (!item || item.done) {
+                                break;
+                            }
+
+                            appendValue(index, item.value);
+                        }
+                        while (true);
+                    }
+                }
+                else {
+                    content = $('<pre><span class="ne-value-type"></span><span class="ne-value-value"></span></pre>');
+                    content.find('.ne-value-type').text( '[' + typeof result + '] ' );
+                    content.find('.ne-value-value').text( JSON.stringify(result, null, 4) );
+                }
+
+                if (content) {
+                    contentArea.append(content);
+                }
+            }
+            catch (e) {
+                var errorMsg = $('<div class="alert alert-danger" role="alert"></div>');
+                errorMsg.text('' + e);
+
+                errorMsg.appendTo(contentArea);
+            }
+        }
+
+        function ne_reload_examples() {
+            
+        }
+    
+        $(function() {
+            var initialCode = "var seq = Enumerable.create(5979, 23979, null, '23979', 1781, 241279);\n" + 
+                              "\n" +
+                              "seq.where((x) => x !== null)  // remove all elements that are (null)\n" +
+                              "   .skip(1)  // skip one element (5979)\n" +
+                              "   .take(3)  // take next remaining 3 elements (23979, 23979, 1781)\n" +
+                              "   .distinct()  // remove duplicates\n" +
+                              "   .select((x) => '' + x)\n" +
+                              "   .order();  // order by element ascending";
+
+            pgEditor = CodeMirror.fromTextArea(document.getElementById('ne-playground-editor'), {
+                lineNumbers: true,
+                mode: "text/javascript"
+            });
+
+            pgEditor.setValue(initialCode);
+        });
+
+        $(function() {
+            ne_reload_examples();
+        });
+
+    </script>
+
+    <a style="display: none;" accesskey="x" onclick="ne_execute_code();"></a>
+  </body>
+</html>
