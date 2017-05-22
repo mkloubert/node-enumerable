@@ -1,6 +1,10 @@
 **/*.map
-index.ts
+.vscode/**
+docs/**
 node_modules
-/pushall.sh
-/typedoc.cmd
-docs
+test/**/*.ts
+.gitignore
+index.ts
+pushall.sh
+tsconfig.json
+typedoc.cmd

@@ -15,7 +15,8 @@
    * [Create a sequence](#create-a-sequence-)
    * [Work with them](#work-with-them-)
      * [Async operations](#async-operations-)
-4. [Examples](#examples-)
+4. [Playground / demos](#playground--demos-)
+5. [Examples](#examples-)
    * [Filters](#filters-)
    * [Sort elements](#sort-elements-)
    * [Take / skip elements](#take--skip-elements-)
@@ -33,9 +34,9 @@
      * [defaultIfEmpty / defaultSequenceIfEmpty](#concat--concatarray-)
      * [pushTo](#pushto-)
      * [reset](#reset-)
-5. [Documentation](#documentation-)
-6. [License](#license-)
-7. [Tests](#tests-)
+6. [Documentation](#documentation-)
+7. [License](#license-)
+8. [Tests](#tests-)
 
 ## Requirements [[&uarr;](#table-of-contents)]
 
@@ -222,6 +223,10 @@ seq.async((context) => {
 ```
 
 The `context` argument of the `async()` method uses the [AsyncActionContext](https://mkloubert.github.io/node-enumerable/interfaces/_index_.enumerable.asyncactioncontext.html) interface.
+
+## Playground / demos [[&uarr;](#table-of-contents)]
+
+You can test all features in [your browser](https://mkloubert.github.io/demos/node-enumerable/).
 
 ## Examples [[&uarr;](#table-of-contents)]
 

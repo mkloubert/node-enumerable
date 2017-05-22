@@ -723,14 +723,6 @@ declare namespace Enumerable {
          */
         toArray(): T[];
         /**
-         * Converts that sequence to a "buffered" sequence.
-         *
-         * @param {number} [chunkSize] The chunk size. Default: 1
-         *
-         * @returns {IEnumerable<T>} The new sequence.
-         */
-        toBuffer(chunkSize?: number): IEnumerable<T>;
-        /**
          * Converts that sequence to a lookup object.
          *
          * @template TKey Type of the keys.
@@ -1031,12 +1023,6 @@ declare namespace Enumerable {
         protected takeWhileInner(predicate: Predicate<T>): IterableIterator<T>;
         /** @inheritdoc */
         toArray(): T[];
-        /** @inheritdoc */
-        toBuffer(chunkSize?: number): IEnumerable<T>;
-        /**
-         * @see toBuffer()
-         */
-        protected toBufferInner(chunkSize: number): IterableIterator<T>;
         /** @inheritdoc */
         toLookup<TKey extends PropertyKey, U = any>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey>): U;
         /** @inheritdoc */
