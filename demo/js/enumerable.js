@@ -1485,6 +1485,44 @@ var Enumerable;
             yield item;
         }
     }
+    /**
+     * Returns a sorted sequence.
+     *
+     * @template T Type of the items.
+     * @template U Type of the keys.
+     *
+     * @param {Sequence<T>} items The items to sort.
+     * @param {Selector<T,U>} [selector] The selector for the keys.
+     * @param {Comparer<U>} [comparer] The custom comparer for the keys.
+     *
+     * @return {IOrderedEnumerable<T>} The sorted sequence.
+     */
+    function sort(items, selector, comparer) {
+        if (!selector) {
+            return from(items).order(comparer);
+        }
+        return from(items).orderBy(selector, comparer);
+    }
+    Enumerable.sort = sort;
+    /**
+     * Returns a sorted sequence (descending).
+     *
+     * @template T Type of the items.
+     * @template U Type of the keys.
+     *
+     * @param {Sequence<T>} items The items to sort.
+     * @param {Selector<T,U>} [selector] The selector for the keys.
+     * @param {Comparer<U>} [comparer] The custom comparer for the keys.
+     *
+     * @return {IOrderedEnumerable<T>} The sorted sequence.
+     */
+    function sortDesc(items, selector, comparer) {
+        if (!selector) {
+            return from(items).orderDescending(comparer);
+        }
+        return from(items).orderByDescending(selector, comparer);
+    }
+    Enumerable.sortDesc = sortDesc;
     function asArray(arr) {
         if (!arr) {
             return arr;

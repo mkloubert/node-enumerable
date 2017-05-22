@@ -2717,6 +2717,46 @@ namespace Enumerable {
         }
     }
 
+    /**
+     * Returns a sorted sequence.
+     * 
+     * @template T Type of the items.
+     * @template U Type of the keys.
+     * 
+     * @param {Sequence<T>} items The items to sort. 
+     * @param {Selector<T,U>} [selector] The selector for the keys. 
+     * @param {Comparer<U>} [comparer] The custom comparer for the keys.
+     * 
+     * @return {IOrderedEnumerable<T>} The sorted sequence.
+     */
+    export function sort<T, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T> {
+        if (!selector) {
+            return from(items).order(<any>comparer);
+        }
+
+        return from(items).orderBy(selector, comparer);
+    }
+
+    /**
+     * Returns a sorted sequence (descending).
+     * 
+     * @template T Type of the items.
+     * @template U Type of the keys.
+     * 
+     * @param {Sequence<T>} items The items to sort. 
+     * @param {Selector<T,U>} [selector] The selector for the keys. 
+     * @param {Comparer<U>} [comparer] The custom comparer for the keys.
+     * 
+     * @return {IOrderedEnumerable<T>} The sorted sequence.
+     */
+    export function sortDesc<T, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T> {
+        if (!selector) {
+            return from(items).orderDescending(<any>comparer);
+        }
+
+        return from(items).orderByDescending(selector, comparer);
+    }
+
 
     function asArray<T>(arr: ArrayLike<T>): T[] {
         if (!arr) {

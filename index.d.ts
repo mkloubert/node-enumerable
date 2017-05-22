@@ -1,4 +1,4 @@
-// Type definitions for node-enumerable v1.1.0
+// Type definitions for node-enumerable v1.2.0
 // Project: https://github.com/mkloubert/node-enumerable/
 // Definitions by: Marcel Joachim Kloubert <https://github.com/mkloubert/>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
@@ -1271,5 +1271,31 @@ declare namespace Enumerable {
      * @returns {IEnumerable<number>} The new sequence.
      */
     function repeat<T>(item: T, count?: number): IEnumerable<T>;
+    /**
+     * Returns a sorted sequence.
+     *
+     * @template T Type of the items.
+     * @template U Type of the keys.
+     *
+     * @param {Sequence<T>} items The items to sort.
+     * @param {Selector<T,U>} [selector] The selector for the keys.
+     * @param {Comparer<U>} [comparer] The custom comparer for the keys.
+     *
+     * @return {IOrderedEnumerable<T>} The sorted sequence.
+     */
+    function sort<T, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T>;
+    /**
+     * Returns a sorted sequence (descending).
+     *
+     * @template T Type of the items.
+     * @template U Type of the keys.
+     *
+     * @param {Sequence<T>} items The items to sort.
+     * @param {Selector<T,U>} [selector] The selector for the keys.
+     * @param {Comparer<U>} [comparer] The custom comparer for the keys.
+     *
+     * @return {IOrderedEnumerable<T>} The sorted sequence.
+     */
+    function sortDesc<T, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T>;
 }
 export = Enumerable;
