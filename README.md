@@ -47,7 +47,7 @@
 
 ## Installation [[&uarr;](#table-of-contents)]
 
-### NodeJS
+### NodeJS [[&uarr;](#installation-)]
 
 Run
 
@@ -57,7 +57,7 @@ npm install node-enumerable --save
 
 inside project folder to install the module.
 
-### Browser
+### Browser [[&uarr;](#installation-)]
 
 Download the latest version from [here](https://github.com/mkloubert/node-enumerable/releases).
 
