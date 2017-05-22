@@ -219,7 +219,7 @@ seq.async((context) => {
     // OK
 
     console.log('Number of loaded files: ' + counter);  // 2
-}).catch(() => {
+}).catch((err) => {
     console.log('One action failed: ' + err);
 });
 ```
@@ -239,6 +239,11 @@ You can test all features in [your browser](https://mkloubert.github.io/demos/no
 // 1, 2, 4, 3
 Enumerable.create(1, 2, 4, 2, 3)
           .distinct();
+// distinctBy()
+// "grape", "passionfruit", "banana", "raspberry"
+Enumerable.create("grape", "passionfruit", "banana", "mango", 
+                  "orange", "raspberry", "apple", "blueberry")
+          .distinctBy(x => x.length);
  
 // except()
 // 2.0, 2.1, 2.3, 2.4, 2.5
@@ -373,10 +378,10 @@ Enumerable.create(11, 22, 33, 44)
 
 ```typescript
 // aggregate()
-// "Marcel Joachim Kloubert"
+// " Marcel Joachim Kloubert"
 Enumerable.create('Marcel', 'Joachim', 'Kloubert')
           .aggregate((accumulator, item) => {
-                         return accumulator += ' ' + x;
+                         return accumulator += ' ' + item;
                      }, '');
 
 // average()

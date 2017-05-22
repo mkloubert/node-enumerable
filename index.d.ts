@@ -1,8 +1,8 @@
-/**
- * node-enumerable (https://github.com/mkloubert/node-enumerable)
- *
- * Copyright (c) Marcel Joachim Kloubert <marcel.kloubert@gmx.net>
- */
+// Type definitions for node-enumerable v1.1.0
+// Project: https://github.com/mkloubert/node-enumerable/
+// Definitions by: Marcel Joachim Kloubert <https://github.com/mkloubert/>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+
 declare namespace Enumerable {
     /**
      * An async action.
@@ -334,6 +334,16 @@ declare namespace Enumerable {
          * @returns {IEnumerable<T>} The new sequence.
          */
         distinct(comparer?: EqualityComparer<T> | true): IEnumerable<T>;
+        /**
+         * Removes duplicate entries from that sequence by using a selector.
+         *
+         * @param {Selector<T,U>} selector The selector to use.
+         * @param {EqualityComparer<T>} [comparer] The custom equality comparer to use.
+         *                                         (true) indicates to do a === check.
+         *
+         * @returns {IEnumerable<T>} The new sequence.
+         */
+        distinctBy<U>(selector: Selector<T, U>, comparer?: EqualityComparer<U> | true): IEnumerable<T>;
         /**
          * Alias for forEach()
          */
@@ -895,10 +905,12 @@ declare namespace Enumerable {
         protected defaultSequenceIfEmptyInner(defaultSequence: Sequence<T>): IterableIterator<T>;
         /** @inheritdoc */
         distinct(comparer?: EqualityComparer<T> | true): IEnumerable<T>;
+        /** @inheritdoc */
+        distinctBy<U>(selector: Selector<T, U>, comparer?: EqualityComparer<U> | true): IEnumerable<T>;
         /**
          * @see distinct()
          */
-        protected distinctInner(comparer: EqualityComparer<T>): IterableIterator<T>;
+        protected distinctByInner<U>(selector: Selector<T, U>, comparer: EqualityComparer<U>): IterableIterator<T>;
         /** @inheritdoc */
         each(action: EachAction<T>): this;
         /** @inheritdoc */

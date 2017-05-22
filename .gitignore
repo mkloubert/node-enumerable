@@ -1,5 +1,6 @@
 **/*.map
-**/*.js
+/*.js
+/test/**/*.js
 /node_modules
 /pushall.sh
 /typedoc.cmd

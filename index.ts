@@ -377,6 +377,17 @@ namespace Enumerable {
          */
         distinct(comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**
+         * Removes duplicate entries from that sequence by using a selector.
+         * 
+         * @param {Selector<T,U>} selector The selector to use.
+         * @param {EqualityComparer<T>} [comparer] The custom equality comparer to use.
+         *                                         (true) indicates to do a === check.
+         * 
+         * @returns {IEnumerable<T>} The new sequence.
+         */
+        distinctBy<U>(selector: Selector<T, U>,
+                      comparer?: EqualityComparer<U> | true): IEnumerable<T>;
+        /**
          * Alias for forEach()
          */
         each(func: EachAction<T>): this;
@@ -1285,27 +1296,39 @@ namespace Enumerable {
         }
         /** @inheritdoc */
         public distinct(comparer?: EqualityComparer<T> | true): IEnumerable<T> {
+            return this.distinctBy(x => x, comparer);
+        }
+        /** @inheritdoc */
+        public distinctBy<U>(selector: Selector<T, U>,
+                             comparer?: EqualityComparer<U> | true): IEnumerable<T> {
+            if (!selector) {
+                selector = (i) => <any>i;
+            }
+            
             comparer = toEqualityComparerSafe(comparer);
 
-            return from(this.distinctInner(comparer));
+            return from(this.distinctByInner(selector, comparer));
         }
         /**
          * @see distinct()
          */
-        protected *distinctInner(comparer: EqualityComparer<T>) {
-            let temp: T[] = [];
+        protected *distinctByInner<U>(selector: Selector<T, U>,
+                                      comparer: EqualityComparer<U>) {
+            let temp: U[] = [];
             
             for (let item of this) {
+                let keyItem = selector(item);
+                
                 let found = false;
                 for (let t of temp) {
-                    if (comparer(item, t)) {
+                    if (comparer(keyItem, t)) {
                         found = true;
                         break;
                     }
                 }
 
                 if (!found) {
-                    temp.push(item);
+                    temp.push(keyItem);
                     yield item;
                 }
             }
