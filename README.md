@@ -11,6 +11,8 @@
 
 1. [Requirements](#requirements-)
 2. [Installation](#installation-)
+   * [NodeJS](#nodejs-)
+   * [Browser](#browser-)
 3. [Usage](#usage-)
    * [Create a sequence](#create-a-sequence-)
    * [Work with them](#work-with-them-)
