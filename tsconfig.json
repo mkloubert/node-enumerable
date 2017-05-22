@@ -2,9 +2,11 @@
     "compilerOptions": {
         "module": "commonjs",
         "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictNullChecks": false,
         "target": "es6",
         "lib": [
-            "es6"
+            "es6", "dom"
         ],
         "sourceMap": true,
         "rootDir": "."
