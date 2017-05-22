@@ -73,6 +73,10 @@
             height: 100%;
         }
 
+        #ne-playground .ne-right {
+            background-color: #eee;
+        }
+
         #ne-playground .ne-right table .ne-index {
             width: 128px;
         }
@@ -96,6 +100,37 @@
             height: 100%;
             padding: 0;
         }
+
+        #ne-execute-btn {
+            float: left;
+            margin-right: 8px;
+        }
+
+        #ne-intro-result {
+             position: relative;
+             height: 100%;
+        }
+
+        #ne-intro-result .ne-msg {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #ne-footer .ne-right img {
+            border: 0px none transparent;
+            height: 20px;
+            margin-left: 8px;
+            text-decoration: none;
+        }
+
+        #ne-footer .ne-right a {
+            text-decoration: none;
+        }
+
 
     </style>
 
@@ -122,8 +157,19 @@
 
     <div class="container-fluid" id="ne-content">
         <ul class="nav nav-tabs">
-            <li class="active"><a data-toggle="tab" href="#ne-playground">Playground</a></li>
-            <li><a data-toggle="tab" href="#ne-documentation">Documentation</a></li>
+            <li class="active">
+                <a data-toggle="tab" href="#ne-playground">
+                    <button disabled id="ne-execute-btn" class="btn btn-xs btn-primary" accesskey="x" title="Click here (or use access key 'x') to execute the code below">
+                        <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                    </button>
+
+                    <span>Playground</span>
+                </a>
+            </li>
+
+            <li>
+                <a data-toggle="tab" href="#ne-documentation">Documentation</a>
+            </li>
         </ul>
 
         <div class="tab-content">
@@ -133,7 +179,13 @@
                         <textarea id="ne-playground-editor"></textarea>
                     </div>
 
-                    <div class="ne-col col-xs-6 ne-right">Press</div>
+                    <div class="ne-col col-xs-6 ne-right">
+                        <div id="ne-intro-result">
+                            <span class="ne-msg">
+                                Press the <span class="glyphicon glyphicon-play" aria-hidden="true"></span> button next to <strong>Playground</strong> or use the access key <strong>x</strong> to execute the code on the left side.
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -152,7 +204,15 @@
                     <a href="https://github.com/mkloubert" target="_blank">Marcel Joachim Kloubert</a>
                 </div>
 
-                <div class="ne-col col-xs-6 ne-right"></div>
+                <div class="ne-col col-xs-6 ne-right">
+                    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9BX9ZJCAJHQ8U" title="Donate via PayPal" target="_blank">
+                        <img src="https://img.shields.io/badge/Donate-PayPal-green.svg">
+                    </a>
+
+                    <a href="https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fnode-enumerable" title="Donate via Flattr" target="_blank">
+                        <img src="https://api.flattr.com/button/flattr-badge-large.png">
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -244,10 +304,6 @@
             }
         }
 
-        function ne_reload_examples() {
-            
-        }
-    
         $(function() {
             var initialCode = "var seq = Enumerable.create(5979, 23979, null, '23979', 1781, 241279);\n" + 
                               "\n" +
@@ -267,11 +323,14 @@
         });
 
         $(function() {
-            ne_reload_examples();
+            var execBtn = $('#ne-execute-btn');
+            execBtn.click(function() {
+                ne_execute_code();
+            });
+
+            execBtn.prop('disabled', false);
         });
 
     </script>
-
-    <a style="display: none;" accesskey="x" onclick="ne_execute_code();"></a>
   </body>
 </html>
