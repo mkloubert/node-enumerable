@@ -272,9 +272,9 @@ namespace Enumerable {
          * 
          * @param {Selector<T, number>} [selector] The custom selector to use.
          * 
-         * @returns {number|Symbol} The average or IS_EMPTY if sequence is empty.
+         * @returns {number|symbol} The average or IS_EMPTY if sequence is empty.
          */
-        average(selector?: Selector<T, number>): number | Symbol;
+        average(selector?: Selector<T, number>): number | symbol;
         /**
          * Gets if that sequence can be resetted or not.
          */
@@ -413,7 +413,7 @@ namespace Enumerable {
          * 
          * @throws Element not found.
          */
-        elementAtOrDefault<U = Symbol>(index: number,
+        elementAtOrDefault<U = symbol>(index: number,
                                        defaultValue?: U): T | U;
         /**
          * Returns the items of that sequence except a list of specific ones.
@@ -456,7 +456,7 @@ namespace Enumerable {
          * 
          * @returns {T|U} The item or the default value.
          */
-        firstOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T,
+        firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                    defaultValue?: U): T | U;
         /**
          * Groups the items of that sequence by a key.
@@ -572,12 +572,12 @@ namespace Enumerable {
          * @template U Type of the default value.
          * 
          * @param {(Predicate<T>|T)} [predicateOrDefaultValue] The predicate or default value.
-         * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
+         * @param {(T|symbol)} [defaultValue] The default value. Default: NOT_FOUND
          *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
          * 
          * @returns {T|U} The item or the default value.
          */
-        lastOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T,
+        lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                   defaultValue?: U): T | U;
         /**
          * Returns a resettable version of that sequence.
@@ -590,19 +590,19 @@ namespace Enumerable {
          * 
          * @param {Comparer<U>} [comparer] The custom comparer to use.
          * 
-         * @returns {T|Symbol} The item or IS_EMPTY if that sequence is empty.
+         * @returns {T|symbol} The item or IS_EMPTY if that sequence is empty.
          */
         max<U = T>(valueSelector?: Selector<T, U>,
-                   comparer?: Comparer<U>): T | Symbol;
+                   comparer?: Comparer<U>): T | symbol;
         /**
          * Returns the minimum item of that sequence.
          * 
          * @param {Comparer<U>} [comparer] The custom comparer to use.
          * 
-         * @returns {T|Symbol} The item or IS_EMPTY if that sequence is empty.
+         * @returns {T|symbol} The item or IS_EMPTY if that sequence is empty.
          */
         min<U = T>(valueSelector?: Selector<T, U>,
-                   comparer?: Comparer<U>): T | Symbol;
+                   comparer?: Comparer<U>): T | symbol;
         /**
          * Removes all values that are no valid numbers.
          * 
@@ -666,9 +666,9 @@ namespace Enumerable {
         /**
          * Calculates the product of that sequence.
          * 
-         * @returns {(T | Symbol)} The product or IS_EMPTY if that sequence is empty.
+         * @returns {(T|symbol)} The product or IS_EMPTY if that sequence is empty.
          */
-        product(seed?: T): T | Symbol;
+        product(seed?: T): T | symbol;
         /**
          * Pushes the elements of that sequence to an array or stack-like object.
          * 
@@ -742,15 +742,15 @@ namespace Enumerable {
          * @template U Type of the default value.
          * 
          * @param {(Predicate<T>|T)} [predicateOrDefaultValue] The predicate or default value.
-         * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
+         * @param {(T|symbol)} [defaultValue] The default value. Default: NOT_FOUND
          *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
          * 
          * @returns {T|U} The item or the default value.
          * 
          * @throws Sequence contains for than one (matching) element.
          */
-        singleOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T,
-                                    defaultValue?: U): T | U;
+        singleOrDefault<U=symbol>(predicateOrDefaultValue?: Predicate<T> | T,
+                                  defaultValue?: U): T | U;
         /**
          * Skips a maximum number of items.
          * 
@@ -776,9 +776,9 @@ namespace Enumerable {
         /**
          * Calculates the sum of that sequence.
          * 
-         * @returns {(T | Symbol)} The sum or IS_EMPTY if that sequence is empty.
+         * @returns {(T|symbol)} The sum or IS_EMPTY if that sequence is empty.
          */
-        sum(seed?: T): T | Symbol;
+        sum(seed?: T): T | symbol;
         /**
          * Takes a maximum number of items.
          * 
@@ -1075,7 +1075,7 @@ namespace Enumerable {
             });
         }
         /** @inheritdoc */
-        public average(selector?: Selector<T, number>): number | Symbol {
+        public average(selector?: Selector<T, number>): number | symbol {
             if (!selector) {
                 selector = (i) => <any>i;
             }
@@ -1352,7 +1352,7 @@ namespace Enumerable {
             return <T>item;
         }
         /** @inheritdoc */
-        public elementAtOrDefault<U = Symbol>(index: number,
+        public elementAtOrDefault<U = symbol>(index: number,
                                               defaultValue?: U): T | U {
             index = parseInt(toStringSafe(index).trim());
 
@@ -1411,7 +1411,7 @@ namespace Enumerable {
             return <any>result;
         }
         /** @inheritdoc */
-        public firstOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T,
+        public firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                           defaultValue?: U): T | U {
             let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
                                             arguments.length);
@@ -1703,7 +1703,7 @@ namespace Enumerable {
             return lastIndex;
         }
         /** @inheritdoc */
-        public lastOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T,
+        public lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                          defaultValue?: U): T | U {
             let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
                                             arguments.length);
@@ -1734,7 +1734,7 @@ namespace Enumerable {
         }
         /** @inheritdoc */
         public max<U = T>(valueSelector?: Selector<T, U>,
-                          comparer?: Comparer<U>): T | Symbol {
+                          comparer?: Comparer<U>): T | symbol {
             if (!valueSelector) {
                 valueSelector = (i) => <any>i;
             }
@@ -1769,7 +1769,7 @@ namespace Enumerable {
         }
         /** @inheritdoc */
         public min<U = T>(valueSelector?: Selector<T, U>,
-                          comparer?: Comparer<U>): T | Symbol {
+                          comparer?: Comparer<U>): T | symbol {
             if (!valueSelector) {
                 valueSelector = (i) => <any>i;
             }
@@ -1853,7 +1853,7 @@ namespace Enumerable {
                                         comparer);
         }
         /** @inheritdoc */
-        public product(): T | Symbol {
+        public product(): T | symbol {
             return this.aggregate((acc, x) => IS_EMPTY !== acc ? (acc * <any>x) : x,
                                 <any>IS_EMPTY);
         }
@@ -1953,7 +1953,7 @@ namespace Enumerable {
             return <any>item;
         }
         /** @inheritdoc */
-        public singleOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T,
+        public singleOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                            defaultValue?: U): T | U {
             let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
                                             arguments.length);
@@ -2045,7 +2045,7 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
-        public sum(): T | Symbol {
+        public sum(): T | symbol {
             return this.aggregate((acc, x) => IS_EMPTY !== acc ? (acc + x) : x,
                                   <any>IS_EMPTY);
         }
