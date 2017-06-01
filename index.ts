@@ -197,11 +197,11 @@ namespace Enumerable {
         /**
          * Pushes one or more item to the stack.
          * 
-         * @param {...T[]} items The items to push.
+         * @param {...Array<T>} items The items to push.
          * 
          * @returns {number} The new length of the stack.
          */
-        push(...items: T[]): number;
+        push(...items: Array<T>): number;
     }  // interface Stack<T>
 
 
@@ -353,11 +353,11 @@ namespace Enumerable {
          * Returns the items of that sequence or a default item list
          * if that sequence is empty.
          * 
-         * @param {...T[]} defaultItems The default items.
+         * @param {...Array<T>} defaultItems The default items.
          * 
          * @returns {IEnumerable<T>} The (new) sequence.
          */
-        defaultIfEmpty(...defaultItems: T[]): IEnumerable<T>;
+        defaultIfEmpty(...defaultItems: Array<T>): IEnumerable<T>;
         /**
          * Returns the items of that sequence or a default item list
          * if that sequence is empty.
@@ -798,9 +798,9 @@ namespace Enumerable {
         /**
          * Creates a new array from the items of that sequence.
          * 
-         * @returns {T[]} The sequence as array.
+         * @returns {Array<T>} The sequence as array.
          */
-        toArray(): T[];
+        toArray(): Array<T>;
         /**
          * Converts that sequence to a lookup object.
          * 
@@ -1255,13 +1255,13 @@ namespace Enumerable {
             return this._current;
         }
         /** @inheritdoc */
-        public defaultIfEmpty(...defaultItems: T[]): IEnumerable<T> {
+        public defaultIfEmpty(...defaultItems: Array<T>): IEnumerable<T> {
             return from(this.defaultIfEmptyInner(defaultItems));
         }
         /**
          * @see defaultIfEmpty()
          */
-        protected *defaultIfEmptyInner(defaultItems: T[]) {
+        protected *defaultIfEmptyInner(defaultItems: Array<T>) {
             let hasItems = false;
             for (let item of this) {
                 hasItems = true;
@@ -1379,7 +1379,7 @@ namespace Enumerable {
         /**
          * @see except()
          */
-        protected *exceptInner(second: T[], comparer: EqualityComparer<T>) {
+        protected *exceptInner(second: Array<T>, comparer: EqualityComparer<T>) {
             for (let item of this) {
                 let found = false;
 
@@ -1455,7 +1455,7 @@ namespace Enumerable {
                                       keyEqualityComparer: EqualityComparer<TKey>) {
             interface GroupItem {
                 key: TKey,
-                values: T[],
+                values: Array<T>,
             };
 
             let groupList: GroupItem[] = [];
@@ -1587,7 +1587,7 @@ namespace Enumerable {
         /**
          * @see intersect()
          */
-        protected *intersectInner(second: T[], comparer: EqualityComparer<T>) {
+        protected *intersectInner(second: Array<T>, comparer: EqualityComparer<T>) {
             for (let item of this) {
                 for (let secondItem of second) {
                     if (comparer(item, secondItem)) {
@@ -2080,8 +2080,8 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
-        public toArray(): T[] {
-            let arr: T[] = [];
+        public toArray(): Array<T> {
+            let arr: Array<T> = [];
             for (let i of this) {
                 arr.push(i);
             }
@@ -2363,7 +2363,7 @@ namespace Enumerable {
         /**
          * Stores the items in the original order.
          */
-        protected _originalItems: T[];
+        protected _originalItems: Array<T>;
         /**
          * Stores the comparer for the sort keys.
          */
@@ -2579,11 +2579,11 @@ namespace Enumerable {
      * 
      * @template T Type of the items.
      * 
-     * @param {...T[]} items The items for the sequence. 
+     * @param {...Array<T>} items The items for the sequence. 
      * 
      * @returns {IEnumerable<T>} The new sequence.
      */
-    export function create<T = any>(...items: T[]): IEnumerable<T> {
+    export function create<T = any>(...items: Array<T>): IEnumerable<T> {
         return from(items);
     }  // create<T = any>()
 
@@ -2758,7 +2758,7 @@ namespace Enumerable {
     }
 
 
-    function asArray<T>(arr: ArrayLike<T>): T[] {
+    function asArray<T>(arr: ArrayLike<T>): Array<T> {
         if (!arr) {
             return <any>arr;
         }
@@ -2767,7 +2767,7 @@ namespace Enumerable {
             return arr;
         }
 
-        let newArray: T[] = [];
+        let newArray: Array<T> = [];
         for (let i = 0; i < arr.length; i++) {
             newArray.push(arr[i]);
         }
