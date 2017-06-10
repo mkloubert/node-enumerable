@@ -792,11 +792,11 @@ var Enumerable;
             throw 'Not supported';
         }
         /** @inheritdoc */
-        reverse(selector) {
-            if (!selector) {
-                return this.orderDescending();
-            }
-            return this.orderByDescending(selector);
+        reverse() {
+            let i = Number.MIN_SAFE_INTEGER;
+            return this.orderByDescending(() => {
+                return i++;
+            });
         }
         /** @inheritdoc */
         select(selector) {
@@ -1358,7 +1358,7 @@ var Enumerable;
      *
      * @template T Type of the items.
      *
-     * @param {...T[]} items The items for the sequence.
+     * @param {...Array<T>} items The items for the sequence.
      *
      * @returns {IEnumerable<T>} The new sequence.
      */
