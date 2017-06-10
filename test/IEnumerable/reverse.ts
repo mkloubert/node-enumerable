@@ -38,22 +38,15 @@ Helpers.execute(
             // fill test array
             let arr: any[] = [];
             for (let j = 0; j < i; j++) {
-                arr.push(j);
+                arr.push(j * 7);
             }
 
             let e = Enumerable.from(arr).reverse();
 
-            let expected = arr.sort((x, y) => {
-                if (x > y) {
-                    return -1;
-                }
-
-                if (x < y) {
-                    return 1;
-                }
-
-                return 0;
-            });
+            let expected: any[] = [];
+            for (let j = 0; j < i; j++) {
+                expected.push((i - j - 1) * 7);
+            }
 
             let actual: any[] = [];
             while (!e.next().done) {
