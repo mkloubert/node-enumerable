@@ -54,9 +54,9 @@ Helpers.execute(
 
             Assert.strictEqual(av, expectedAverage);
             if (expectedAverage !== Enumerable.IS_EMPTY) {
-                Assert.notStrictEqual('' + av, expectedAverage);
+                Assert.notStrictEqual('' + <any>av, expectedAverage);
                 Assert.notStrictEqual(av, '' + expectedAverage);
-                Assert.strictEqual('' + av, '' + expectedAverage);
+                Assert.strictEqual('' + <any>av, '' + expectedAverage);
             }
         }
     });

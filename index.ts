@@ -686,13 +686,11 @@ namespace Enumerable {
          */
         reset(): this;
         /**
-         * Reverses the order of that sequence by using optional keys.
-         * 
-         * @param {Selector<T,U>} The selector for the keys.
+         * Reverses the order of that sequence.
          * 
          * @return {IOrderedEnumerable<T>} The new sequence.
          */
-        reverse<U = T>(selector?: Selector<T, U>): IOrderedEnumerable<T>;
+        reverse(): IOrderedEnumerable<T>;
         /**
          * Projects the items of that sequence to new values / objects.
          * 
@@ -1871,12 +1869,12 @@ namespace Enumerable {
             throw 'Not supported';
         }
         /** @inheritdoc */
-        public reverse<U = T>(selector?: Selector<T, U>): IOrderedEnumerable<T> {
-            if (!selector) {
-                return this.orderDescending();
-            }
-
-            return this.orderByDescending(selector);
+        public reverse(): IOrderedEnumerable<T> {
+            let i = Number.MIN_SAFE_INTEGER;
+            
+            return this.orderByDescending(() => {
+                return i++;
+            });
         }
         /** @inheritdoc */
         public select<U>(selector: Selector<T, U>): IEnumerable<U> {
