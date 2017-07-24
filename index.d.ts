@@ -1,8 +1,8 @@
-// Type definitions for node-enumerable v1.2.0
-// Project: https://github.com/mkloubert/node-enumerable/
-// Definitions by: Marcel Joachim Kloubert <https://github.com/mkloubert/>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
-
+/**
+ * node-enumerable (https://github.com/mkloubert/node-enumerable)
+ *
+ * Copyright (c) Marcel Joachim Kloubert <marcel.kloubert@gmx.net>
+ */
 declare namespace Enumerable {
     /**
      * An async action.
@@ -163,11 +163,11 @@ declare namespace Enumerable {
         /**
          * Pushes one or more item to the stack.
          *
-         * @param {...T[]} items The items to push.
+         * @param {...Array<T>} items The items to push.
          *
          * @returns {number} The new length of the stack.
          */
-        push(...items: T[]): number;
+        push(...items: Array<T>): number;
     }
     /**
      * Indicates that something is empty.
@@ -232,9 +232,9 @@ declare namespace Enumerable {
          *
          * @param {Selector<T, number>} [selector] The custom selector to use.
          *
-         * @returns {number|Symbol} The average or IS_EMPTY if sequence is empty.
+         * @returns {number|symbol} The average or IS_EMPTY if sequence is empty.
          */
-        average(selector?: Selector<T, number>): number | Symbol;
+        average(selector?: Selector<T, number>): number | symbol;
         /**
          * Gets if that sequence can be resetted or not.
          */
@@ -311,11 +311,11 @@ declare namespace Enumerable {
          * Returns the items of that sequence or a default item list
          * if that sequence is empty.
          *
-         * @param {...T[]} defaultItems The default items.
+         * @param {...Array<T>} defaultItems The default items.
          *
          * @returns {IEnumerable<T>} The (new) sequence.
          */
-        defaultIfEmpty(...defaultItems: T[]): IEnumerable<T>;
+        defaultIfEmpty(...defaultItems: Array<T>): IEnumerable<T>;
         /**
          * Returns the items of that sequence or a default item list
          * if that sequence is empty.
@@ -370,7 +370,7 @@ declare namespace Enumerable {
          *
          * @throws Element not found.
          */
-        elementAtOrDefault<U = Symbol>(index: number, defaultValue?: U): T | U;
+        elementAtOrDefault<U = symbol>(index: number, defaultValue?: U): T | U;
         /**
          * Returns the items of that sequence except a list of specific ones.
          *
@@ -411,7 +411,7 @@ declare namespace Enumerable {
          *
          * @returns {T|U} The item or the default value.
          */
-        firstOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /**
          * Groups the items of that sequence by a key.
          *
@@ -510,12 +510,12 @@ declare namespace Enumerable {
          * @template U Type of the default value.
          *
          * @param {(Predicate<T>|T)} [predicateOrDefaultValue] The predicate or default value.
-         * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
+         * @param {(T|symbol)} [defaultValue] The default value. Default: NOT_FOUND
          *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
          *
          * @returns {T|U} The item or the default value.
          */
-        lastOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /**
          * Returns a resettable version of that sequence.
          *
@@ -527,17 +527,17 @@ declare namespace Enumerable {
          *
          * @param {Comparer<U>} [comparer] The custom comparer to use.
          *
-         * @returns {T|Symbol} The item or IS_EMPTY if that sequence is empty.
+         * @returns {T|symbol} The item or IS_EMPTY if that sequence is empty.
          */
-        max<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | Symbol;
+        max<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | symbol;
         /**
          * Returns the minimum item of that sequence.
          *
          * @param {Comparer<U>} [comparer] The custom comparer to use.
          *
-         * @returns {T|Symbol} The item or IS_EMPTY if that sequence is empty.
+         * @returns {T|symbol} The item or IS_EMPTY if that sequence is empty.
          */
-        min<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | Symbol;
+        min<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | symbol;
         /**
          * Removes all values that are no valid numbers.
          *
@@ -599,9 +599,9 @@ declare namespace Enumerable {
         /**
          * Calculates the product of that sequence.
          *
-         * @returns {(T | Symbol)} The product or IS_EMPTY if that sequence is empty.
+         * @returns {(T|symbol)} The product or IS_EMPTY if that sequence is empty.
          */
-        product(seed?: T): T | Symbol;
+        product(seed?: T): T | symbol;
         /**
          * Pushes the elements of that sequence to an array or stack-like object.
          *
@@ -619,13 +619,11 @@ declare namespace Enumerable {
          */
         reset(): this;
         /**
-         * Reverses the order of that sequence by using optional keys.
-         *
-         * @param {Selector<T,U>} The selector for the keys.
+         * Reverses the order of that sequence.
          *
          * @return {IOrderedEnumerable<T>} The new sequence.
          */
-        reverse<U = T>(selector?: Selector<T, U>): IOrderedEnumerable<T>;
+        reverse(): IOrderedEnumerable<T>;
         /**
          * Projects the items of that sequence to new values / objects.
          *
@@ -674,14 +672,14 @@ declare namespace Enumerable {
          * @template U Type of the default value.
          *
          * @param {(Predicate<T>|T)} [predicateOrDefaultValue] The predicate or default value.
-         * @param {(T | Symbol)} [defaultValue] The default value. Default: NOT_FOUND
+         * @param {(T|symbol)} [defaultValue] The default value. Default: NOT_FOUND
          *                                      If definded: predicateOrDefaultValue MUST be a function in this case!
          *
          * @returns {T|U} The item or the default value.
          *
          * @throws Sequence contains for than one (matching) element.
          */
-        singleOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        singleOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /**
          * Skips a maximum number of items.
          *
@@ -707,9 +705,9 @@ declare namespace Enumerable {
         /**
          * Calculates the sum of that sequence.
          *
-         * @returns {(T | Symbol)} The sum or IS_EMPTY if that sequence is empty.
+         * @returns {(T|symbol)} The sum or IS_EMPTY if that sequence is empty.
          */
-        sum(seed?: T): T | Symbol;
+        sum(seed?: T): T | symbol;
         /**
          * Takes a maximum number of items.
          *
@@ -729,9 +727,9 @@ declare namespace Enumerable {
         /**
          * Creates a new array from the items of that sequence.
          *
-         * @returns {T[]} The sequence as array.
+         * @returns {Array<T>} The sequence as array.
          */
-        toArray(): T[];
+        toArray(): Array<T>;
         /**
          * Converts that sequence to a lookup object.
          *
@@ -866,7 +864,7 @@ declare namespace Enumerable {
         /** @inheritdoc */
         async(action: AsyncAction<T>, previousValue?: any): Promise<any>;
         /** @inheritdoc */
-        average(selector?: Selector<T, number>): number | Symbol;
+        average(selector?: Selector<T, number>): number | symbol;
         /** @inheritdoc */
         readonly canReset: boolean;
         /** @inheritdoc */
@@ -892,11 +890,11 @@ declare namespace Enumerable {
         /** @inheritdoc */
         readonly current: IteratorResult<T>;
         /** @inheritdoc */
-        defaultIfEmpty(...defaultItems: T[]): IEnumerable<T>;
+        defaultIfEmpty(...defaultItems: Array<T>): IEnumerable<T>;
         /**
          * @see defaultIfEmpty()
          */
-        protected defaultIfEmptyInner(defaultItems: T[]): IterableIterator<T>;
+        protected defaultIfEmptyInner(defaultItems: Array<T>): IterableIterator<T>;
         /** @inheritdoc */
         defaultSequenceIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T>;
         /**
@@ -916,17 +914,17 @@ declare namespace Enumerable {
         /** @inheritdoc */
         elementAt(index: number): T;
         /** @inheritdoc */
-        elementAtOrDefault<U = Symbol>(index: number, defaultValue?: U): T | U;
+        elementAtOrDefault<U = symbol>(index: number, defaultValue?: U): T | U;
         /** @inheritdoc */
         except(second: Sequence<T>, comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**
          * @see except()
          */
-        protected exceptInner(second: T[], comparer: EqualityComparer<T>): IterableIterator<T>;
+        protected exceptInner(second: Array<T>, comparer: EqualityComparer<T>): IterableIterator<T>;
         /** @inheritdoc */
         first(predicate?: Predicate<T>): T;
         /** @inheritdoc */
-        firstOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /** @inheritdoc */
         forEach(action: EachAction<T>): this;
         /** @inheritdoc */
@@ -950,7 +948,7 @@ declare namespace Enumerable {
         /**
          * @see intersect()
          */
-        protected intersectInner(second: T[], comparer: EqualityComparer<T>): IterableIterator<T>;
+        protected intersectInner(second: Array<T>, comparer: EqualityComparer<T>): IterableIterator<T>;
         /** @inheritdoc */
         join<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, TInner>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: TInner) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
         /**
@@ -964,13 +962,13 @@ declare namespace Enumerable {
         /** @inheritdoc */
         lastIndexOf<U>(item: U, comparer?: EqualityComparer<T, U> | true): number;
         /** @inheritdoc */
-        lastOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /** @inheritdoc */
         makeResettable(): IEnumerable<T>;
         /** @inheritdoc */
-        max<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | Symbol;
+        max<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | symbol;
         /** @inheritdoc */
-        min<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | Symbol;
+        min<U = T>(valueSelector?: Selector<T, U>, comparer?: Comparer<U>): T | symbol;
         /** @inheritdoc */
         abstract next(value?: any): IteratorResult<T>;
         /** @inheritdoc */
@@ -988,13 +986,13 @@ declare namespace Enumerable {
         /** @inheritdoc */
         orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
         /** @inheritdoc */
-        product(): T | Symbol;
+        product(): T | symbol;
         /** @inheritdoc */
         pushTo(stack: Stack<T>): this;
         /** @inheritdoc */
         reset(): this;
         /** @inheritdoc */
-        reverse<U = T>(selector?: Selector<T, U>): IOrderedEnumerable<T>;
+        reverse(): IOrderedEnumerable<T>;
         /** @inheritdoc */
         select<U>(selector: Selector<T, U>): IEnumerable<U>;
         /** @inheritdoc */
@@ -1008,7 +1006,7 @@ declare namespace Enumerable {
         /** @inheritdoc */
         single(predicate?: Predicate<T>): T;
         /** @inheritdoc */
-        singleOrDefault<U = Symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        singleOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /** @inheritdoc */
         skip(count?: number): IEnumerable<T>;
         /** @inheritdoc */
@@ -1024,7 +1022,7 @@ declare namespace Enumerable {
          */
         protected skipWhileInner(predicate: Predicate<T>): IterableIterator<T>;
         /** @inheritdoc */
-        sum(): T | Symbol;
+        sum(): T | symbol;
         /** @inheritdoc */
         take(count?: number): IEnumerable<T>;
         /** @inheritdoc */
@@ -1034,7 +1032,7 @@ declare namespace Enumerable {
          */
         protected takeWhileInner(predicate: Predicate<T>): IterableIterator<T>;
         /** @inheritdoc */
-        toArray(): T[];
+        toArray(): Array<T>;
         /** @inheritdoc */
         toLookup<TKey extends PropertyKey, U = any>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey>): U;
         /** @inheritdoc */
@@ -1048,7 +1046,7 @@ declare namespace Enumerable {
          */
         protected whereInner(predicate: Predicate<T>): IterableIterator<T>;
         /** @inheritdoc */
-        zip<U, TResult>(second: Sequence<U>, resultSelector: (x: T, y: U) => TResult): IEnumerable<TResult>;
+        zip<U, TResult>(second: Sequence<U>, resultSelector: (x: T, y: U, index: number) => TResult): IEnumerable<TResult>;
         /**
          * @see zip()
          */
@@ -1148,7 +1146,7 @@ declare namespace Enumerable {
         /**
          * Stores the items in the original order.
          */
-        protected _originalItems: T[];
+        protected _originalItems: Array<T>;
         /**
          * Stores the comparer for the sort keys.
          */
@@ -1208,11 +1206,11 @@ declare namespace Enumerable {
      *
      * @template T Type of the items.
      *
-     * @param {...T[]} items The items for the sequence.
+     * @param {...Array<T>} items The items for the sequence.
      *
      * @returns {IEnumerable<T>} The new sequence.
      */
-    function create<T = any>(...items: T[]): IEnumerable<T>;
+    function create<T = any>(...items: Array<T>): IEnumerable<T>;
     /**
      * Creates an empty sequence.
      *
