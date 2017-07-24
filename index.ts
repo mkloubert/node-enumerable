@@ -2141,10 +2141,11 @@ namespace Enumerable {
         }
         /** @inheritdoc */
         public zip<U, TResult>(second: Sequence<U>,
-                               resultSelector: (x: T, y: U) => TResult): IEnumerable<TResult> {
+                               resultSelector: (x: T, y: U, index: number) => TResult): IEnumerable<TResult> {
             return from(this.zipInner(from(second),
-                                    resultSelector));
+                                      resultSelector));
         }
+
         /**
          * @see zip()
          */
@@ -2168,7 +2169,7 @@ namespace Enumerable {
                 }
 
                 yield resultSelector(itemThis.value, itemSecond.value,
-                                    ++i);
+                                     ++i);
             }
             while (true);
         }

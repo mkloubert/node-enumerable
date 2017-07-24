@@ -1,5 +1,9 @@
 # Change Log (node-enumerable)
 
+## 2.0.1 (May 24th, 2017; fixes)
+
+* bugfixes
+
 ## 1.2.0 (May 22nd, 2017; sort functions)
 
 * added `sort()` and `sortDesc()` functions
