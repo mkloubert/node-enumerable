@@ -1,6 +1,6 @@
 # Change Log (node-enumerable)
 
-## 3.0.0 (October 30th, 2017; improvements)
+## 3.0.1 (November 1st, 2017; improvements)
 
 * code cleanups and improvements
 * some small, but [important changes in api](https://github.com/mkloubert/node-enumerable/wiki#since-version-3x-)
