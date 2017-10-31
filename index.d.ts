@@ -1242,7 +1242,7 @@ declare namespace Enumerable {
      *
      * @returns {boolean} Is IS_EMPTY symbol or not.
      */
-    function isEmpty(val: any): boolean;
+    function isEmpty(val: any): val is symbol;
     /**
      * Checks if a value represents the NOT_FOUND symbol.
      *
@@ -1250,7 +1250,7 @@ declare namespace Enumerable {
      *
      * @returns {boolean} Is NOT_FOUND symbol or not.
      */
-    function notFound(val: any): boolean;
+    function notFound(val: any): val is symbol;
     /**
      * Creates a range of numbers.
      *

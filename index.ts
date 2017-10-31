@@ -985,7 +985,7 @@ namespace Enumerable {
 
             return new Promise<any>((resolve, reject) => {
                 let asyncResult: any;
-                let asyncCompleted = (err: any) => {
+                const ASYNC_COMPLETED = (err: any) => {
                     if (err) {
                         reject(err);
                     }
@@ -998,38 +998,38 @@ namespace Enumerable {
                     let i = -1;
                     let prevVal = previousValue;
                     let val: any;
-                    let nextItem = () => {
+                    const NEXT_ITEM = () => {
                         ++i;
                         
-                        let item = this.next();
-                        if (!item || item.done) {
-                            asyncCompleted(null);
+                        const ITEM = this.next();
+                        if (!ITEM || ITEM.done) {
+                            ASYNC_COMPLETED(null);
                             return;
                         }
 
-                        let ctx: AsyncActionContext<T> = {
+                        const CTX: AsyncActionContext<T> = {
                             cancel: function(result?: any) {
                                 if (arguments.length > 0) {
                                     asyncResult = result;
                                 }
 
-                                asyncCompleted(null);
+                                ASYNC_COMPLETED(null);
                             },
                             index: i,
                             isFirst: 0 === i,
-                            item: item.value,
+                            item: ITEM.value,
                             previousValue: prevVal,
                             reject: function(reason: any, result?: any) {
                                 if (arguments.length > 1) {
                                     asyncResult = result;
                                 }
 
-                                asyncCompleted(reason);
+                                ASYNC_COMPLETED(reason);
                             },
                             resolve: function(nextValue?: any) {
                                 prevVal = nextValue;
 
-                                nextItem();
+                                NEXT_ITEM();
                             },
                             result: undefined,
                             sequence: me,
@@ -1037,7 +1037,7 @@ namespace Enumerable {
                         };
 
                         // ctx.result
-                        Object.defineProperty(ctx, 'result', {
+                        Object.defineProperty(CTX, 'result', {
                             get: () => { return asyncResult; },
                             set: (newValue) => { asyncResult = newValue; },
 
@@ -1045,7 +1045,7 @@ namespace Enumerable {
                         });
 
                         // ctx.value
-                        Object.defineProperty(ctx, 'value', {
+                        Object.defineProperty(CTX, 'value', {
                             get: () => { return val; },
                             set: (newValue) => { val = newValue; },
 
@@ -1054,21 +1054,21 @@ namespace Enumerable {
 
                         try {
                             if (action) {
-                                action(ctx);
+                                action(CTX);
                             }
                             else {
-                                ctx.resolve();
+                                CTX.resolve();
                             }
                         }
                         catch (e) {
-                            ctx.reject(e);
+                            CTX.reject(e);
                         }
                     };
 
-                    nextItem();
+                    NEXT_ITEM();
                 }
                 catch (e) {
-                    asyncCompleted(e);
+                    ASYNC_COMPLETED(e);
                 }
             });
         }
@@ -1092,7 +1092,7 @@ namespace Enumerable {
             }
 
             return count > 0 ? (sum / count)
-                            : IS_EMPTY;
+                             : IS_EMPTY;
         }
         /** @inheritdoc */
         public get canReset(): boolean {
@@ -1111,16 +1111,15 @@ namespace Enumerable {
                             break;
                             
                         case 'float':
-                        case 'number':
-                            x = parseFloat(toStringSafe(x).trim());
+                            x = parseFloat( toStringSafe(x).trim() );
                             break;
 
                         case 'func':
                         case 'function':
                             if ('function' !== typeof x) {
-                                let funcResult = x;
+                                const FUNC_RESULT = x;
                                 x = function() {
-                                    return funcResult;
+                                    return FUNC_RESULT;
                                 };
                             }
                             break;
@@ -1128,24 +1127,24 @@ namespace Enumerable {
                         case 'null':
                             x = null;
                             break;
+
+                        case 'number':
+                            if ('number' !== typeof x) {
+                                x = parseFloat( toStringSafe(x).trim() );
+                            }
+                            break;
                        
                         case 'object':
-                            if ('undefined' === typeof x) {
-                                x = undefined;
-                            }
-                            else if (null === x) {
-                                x = null;
-                            }
-                            else {
+                            if (!isNullOrUndefined(x)) {
                                 if ('object' !== typeof x) {
-                                    x = JSON.parse(toStringSafe(x));
+                                    x = JSON.parse( toStringSafe(x) );
                                 }
                             }
                             break;
 
                         case 'int':
                         case 'integer':
-                            x = parseInt(toStringSafe(x).trim());
+                            x = parseInt( toStringSafe(x).trim() );
                             break;
                         
                         case 'string':
@@ -1153,14 +1152,16 @@ namespace Enumerable {
                             break;
 
                         case 'symbol':
-                            let desc = x;
-                            if (!isNullOrUndefined(desc)) {
-                                if ('number' !== typeof desc) {
-                                    desc = toStringSafe(desc);
+                            if ('symbol' !== typeof x) {
+                                let desc = x;
+                                if (!isNullOrUndefined(desc)) {
+                                    if ('number' !== typeof desc) {
+                                        desc = toStringSafe(desc);
+                                    }
                                 }
-                            }
 
-                            x = Symbol(desc);
+                                x = Symbol(desc);
+                            }
                             break;
 
                         case 'undefined':
@@ -1187,7 +1188,7 @@ namespace Enumerable {
          */
         protected *cloneInner<U>(count: number,
                                  itemSelector: Selector<T, U>) {
-            let items = this.toArray();
+            const ITEMS = this.toArray();
 
             while (true) {
                 if (!isNaN(count)) {
@@ -1196,7 +1197,7 @@ namespace Enumerable {
                     }
                 }
 
-                let seq: any = from(items);
+                let seq: any = from(ITEMS);
                 if (itemSelector) {
                     seq = seq.select(itemSelector);
                 }
@@ -1222,9 +1223,9 @@ namespace Enumerable {
 
             if (sequences) {
                 for (let i = 0; i < sequences.length; i++) {
-                    let seq = sequences[i];
+                    const SEQ = sequences[i];
 
-                    for (let item of from(seq)) {
+                    for (let item of from(SEQ)) {
                         yield item;
                     }
                 }
@@ -1263,6 +1264,7 @@ namespace Enumerable {
             let hasItems = false;
             for (let item of this) {
                 hasItems = true;
+
                 yield item;
             }
 
@@ -1283,6 +1285,7 @@ namespace Enumerable {
             let hasItems = false;
             for (let item of this) {
                 hasItems = true;
+
                 yield item;
             }
 
@@ -1312,21 +1315,22 @@ namespace Enumerable {
          */
         protected *distinctByInner<U>(selector: Selector<T, U>,
                                       comparer: EqualityComparer<U>) {
-            let temp: U[] = [];
+            const TEMP: U[] = [];
             
             for (let item of this) {
-                let keyItem = selector(item);
+                const KEY_ITEM = selector(item);
                 
                 let found = false;
-                for (let t of temp) {
-                    if (comparer(keyItem, t)) {
+                for (let t of TEMP) {
+                    if (comparer(KEY_ITEM, t)) {
                         found = true;
                         break;
                     }
                 }
 
                 if (!found) {
-                    temp.push(keyItem);
+                    TEMP.push(KEY_ITEM);
+
                     yield item;
                 }
             }
@@ -1340,14 +1344,14 @@ namespace Enumerable {
         public elementAt(index: number): T {
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
-            let item = this.elementAtOrDefault(index,
-                                            ELEMENT_NOT_FOUND);
+            const ITEM = this.elementAtOrDefault(index,
+                                                 ELEMENT_NOT_FOUND);
 
-            if (ELEMENT_NOT_FOUND === item) {
+            if (ELEMENT_NOT_FOUND === ITEM) {
                 throw "Element not found";
             }
 
-            return <T>item;
+            return <T>ITEM;
         }
         /** @inheritdoc */
         public elementAtOrDefault<U = symbol>(index: number,
@@ -1371,8 +1375,8 @@ namespace Enumerable {
         public except(second: Sequence<T>,
                       comparer?: EqualityComparer<T> | true): IEnumerable<T> {
             return from(this.exceptInner(from(second).distinct()
-                                                    .toArray(),
-                                        toEqualityComparerSafe(comparer)));
+                                                     .toArray(),
+                                         toEqualityComparerSafe(comparer)));
         }
         /**
          * @see except()
@@ -1399,28 +1403,28 @@ namespace Enumerable {
 
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
-            let result = this.firstOrDefault(predicate,
-                                            ELEMENT_NOT_FOUND);
+            const RESULT = this.firstOrDefault(predicate,
+                                               ELEMENT_NOT_FOUND);
             
-            if (ELEMENT_NOT_FOUND === result) {
+            if (ELEMENT_NOT_FOUND === RESULT) {
                 throw 'Element not found';
             }
 
-            return <any>result;
+            return <any>RESULT;
         }
         /** @inheritdoc */
         public firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                           defaultValue?: U): T | U {
-            let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
-                                            arguments.length);
+            const ARGS = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
+                                               arguments.length);
 
             for (let item of this) {
-                if (args.predicate(item)) {
+                if (ARGS.predicate(item)) {
                     return item;
                 }
             }
 
-            return args.defaultValue;
+            return ARGS.defaultValue;
         }
         /** @inheritdoc */
         public forEach(action: EachAction<T>): this {
@@ -1456,14 +1460,14 @@ namespace Enumerable {
                 values: Array<T>,
             };
 
-            let groupList: GroupItem[] = [];
+            const GROUP_LIST: GroupItem[] = [];
 
             for (let item of this) {
-                let key = keySelector(item);
+                const KEY = keySelector(item);
 
                 let grp: GroupItem;
-                for (let g of groupList) {
-                    if (keyEqualityComparer(key, g.key)) {
+                for (let g of GROUP_LIST) {
+                    if (keyEqualityComparer(KEY, g.key)) {
                         grp = g;
                         break;
                     }
@@ -1471,18 +1475,18 @@ namespace Enumerable {
 
                 if (!grp) {
                     grp = {
-                        key: key,
+                        key: KEY,
                         values: [],
                     };
 
-                    groupList.push(grp);
+                    GROUP_LIST.push(grp);
                 }
 
                 grp.values
-                .push(item);
+                   .push(item);
             }
 
-            for (let grp of groupList) {
+            for (let grp of GROUP_LIST) {
                 yield new Grouping(grp.key, from(grp.values));
             }
         }
@@ -1535,22 +1539,22 @@ namespace Enumerable {
             keyEqualityComparer: EqualityComparer<TOuterKey, TInnerKey>
         )
         {
-            let outerGroups = createGroupArrayForSequence(this, outerKeySelector);
-            let innerGroups = createGroupArrayForSequence(inner, innerKeySelector);
+            const OUTER_GROUPS = createGroupArrayForSequence(this, outerKeySelector);
+            const INNER_GROUPS = createGroupArrayForSequence(inner, innerKeySelector);
 
-            while (outerGroups.length > 0) {
-                let outerGrp = outerGroups.shift();
+            while (OUTER_GROUPS.length > 0) {
+                const OUTER_GRP = OUTER_GROUPS.shift();
 
-                for (let i = 0; i < innerGroups.length; i++) {
-                    let innerGrp = innerGroups[i];
+                for (let i = 0; i < INNER_GROUPS.length; i++) {
+                    const INNER_GRP = INNER_GROUPS[i];
 
-                    if (!keyEqualityComparer(outerGrp.key, innerGrp.key)) {
+                    if (!keyEqualityComparer(OUTER_GRP.key, INNER_GRP.key)) {
                         continue;
                     }
 
-                    for (let j = 0; j < outerGrp.values.length; j++) {
-                        yield resultSelector(outerGrp.values[j],
-                                             from(innerGrp.values));
+                    for (let j = 0; j < OUTER_GRP.values.length; j++) {
+                        yield resultSelector(OUTER_GRP.values[j],
+                                             from(INNER_GRP.values));
                     }
                 }
             }
@@ -1590,6 +1594,7 @@ namespace Enumerable {
                 for (let secondItem of second) {
                     if (comparer(item, secondItem)) {
                         yield item;
+
                         break;
                     }
                 }
@@ -1629,9 +1634,9 @@ namespace Enumerable {
             keyEqualityComparer = toEqualityComparerSafe(keyEqualityComparer);
 
             return from(this.joinInner(from(inner),
-                                    outerKeySelector, innerKeySelector,
-                                    resultSelector,
-                                    keyEqualityComparer));
+                                       outerKeySelector, innerKeySelector,
+                                       resultSelector,
+                                       keyEqualityComparer));
         }
         /**
          * @see join()
@@ -1643,23 +1648,23 @@ namespace Enumerable {
             resultSelector: (outer: T, inner: TInner) => TResult,
             keyEqualityComparer: EqualityComparer<TOuterKey, TInnerKey>
         ) {
-            let outerGroups = createGroupArrayForSequence(this, outerKeySelector);
-            let innerGroups = createGroupArrayForSequence(inner, innerKeySelector);
+            const OUTER_GROUPS = createGroupArrayForSequence(this, outerKeySelector);
+            const INNER_GROUPS = createGroupArrayForSequence(inner, innerKeySelector);
 
-            while (outerGroups.length > 0) {
-                let outerGrp = outerGroups.shift();
+            while (OUTER_GROUPS.length > 0) {
+                const OUTER_GRP = OUTER_GROUPS.shift();
 
-                for (let i = 0; i < innerGroups.length; i++) {
-                    let innerGrp = innerGroups[i];
+                for (let i = 0; i < INNER_GROUPS.length; i++) {
+                    const INNER_GRP = INNER_GROUPS[i];
 
-                    if (!keyEqualityComparer(outerGrp.key, innerGrp.key)) {
+                    if (!keyEqualityComparer(OUTER_GRP.key, INNER_GRP.key)) {
                         continue;
                     }
 
-                    for (let j = 0; j < outerGrp.values.length; j++) {
-                        for (let k = 0; k < innerGrp.values.length; k++) {
-                            yield resultSelector(outerGrp.values[j],
-                                                innerGrp.values[k]);
+                    for (let j = 0; j < OUTER_GRP.values.length; j++) {
+                        for (let k = 0; k < INNER_GRP.values.length; k++) {
+                            yield resultSelector(OUTER_GRP.values[j],
+                                                 INNER_GRP.values[k]);
                         }
                     }
                 }
@@ -1668,7 +1673,7 @@ namespace Enumerable {
         /** @inheritdoc */
         public joinToString(separator?: any): string {
             return this.toArray()
-                    .join(toStringSafe(separator));
+                       .join( toStringSafe(separator) );
         }
         /** @inheritdoc */
         public last(predicate?: Predicate<T>): T {
@@ -1676,12 +1681,13 @@ namespace Enumerable {
 
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
-            let result = this.lastOrDefault(predicate, ELEMENT_NOT_FOUND);
-            if (ELEMENT_NOT_FOUND === result) {
+            const RESULT = this.lastOrDefault(predicate, ELEMENT_NOT_FOUND);
+
+            if (ELEMENT_NOT_FOUND === RESULT) {
                 throw 'Element not found';
             }
 
-            return <any>result;
+            return <any>RESULT;
         }
         /** @inheritdoc */
         public lastIndexOf<U>(item: U,
@@ -1703,15 +1709,15 @@ namespace Enumerable {
         /** @inheritdoc */
         public lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                          defaultValue?: U): T | U {
-            let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
-                                            arguments.length);
+            const ARGS = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
+                                               arguments.length);
 
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
             let result: any = ELEMENT_NOT_FOUND;
 
             for (let item of this) {
-                if (args.predicate(item)) {
+                if (ARGS.predicate(item)) {
                     result = item;
                 }
             }
@@ -1720,7 +1726,7 @@ namespace Enumerable {
                 return result;
             }
 
-            return args.defaultValue;
+            return ARGS.defaultValue;
         }
         /** @inheritdoc */
         public makeResettable(): IEnumerable<T> {
@@ -1744,22 +1750,22 @@ namespace Enumerable {
 
             let isFirst = true;
             for (let item of this) {
-                let value = valueSelector(item);
+                const VALUE = valueSelector(item);
 
-                let updateResult = () => {
+                const UPDATE_RESULT = () => {
                     result = item;
-                    maxValue = value;
+                    maxValue = VALUE;
                 };
 
                 if (!isFirst) {
-                    if (comparer(value, maxValue) > 0) {
-                        updateResult();
+                    if (comparer(VALUE, maxValue) > 0) {
+                        UPDATE_RESULT();
                     }
                 }
                 else {
                     isFirst = false;
 
-                    updateResult();
+                    UPDATE_RESULT();
                 }
             }
 
@@ -1779,22 +1785,22 @@ namespace Enumerable {
 
             let isFirst = true;
             for (let item of this) {
-                let value = valueSelector(item);
+                const VALUE = valueSelector(item);
 
-                let updateResult = () => {
+                const UPDATE_RESULT = () => {
                     result = item;
-                    minValue = value;
+                    minValue = VALUE;
                 };
 
                 if (!isFirst) {
-                    if (comparer(value, minValue) < 0) {
-                        updateResult();
+                    if (comparer(VALUE, minValue) < 0) {
+                        UPDATE_RESULT();
                     }
                 }
                 else {
                     isFirst = false;
 
-                    updateResult();
+                    UPDATE_RESULT();
                 }
             }
 
@@ -1805,10 +1811,11 @@ namespace Enumerable {
         /** @inheritdoc */
         public noNAN(checkForInt?: boolean): IEnumerable<T> {
             return this.where(x => {
-                let str = toStringSafe(x).trim();
-                let nr = !checkForInt ? parseFloat(str) : parseInt(str);
+                const STR = toStringSafe(x).trim();
 
-                return !isNaN(nr);
+                return !isNaN(
+                    !checkForInt ? parseFloat(STR) : parseInt(STR)
+                );
             });
         }
         /** @inheritdoc */
@@ -1821,10 +1828,9 @@ namespace Enumerable {
 
             return <any>this.where(x => {
                 return type.toLowerCase() === typeof x ||
-                    '' === type;
+                       '' === type;
             });
         }
-
         /** @inheritdoc */
         public order(comparer?: Comparer<T>): IOrderedEnumerable<T> {
             return this.orderBy(x => x,
@@ -1834,7 +1840,7 @@ namespace Enumerable {
         public orderBy<U>(selector: Selector<T, U>,
                           comparer?: Comparer<U>): IOrderedEnumerable<T> {
             return new OrderedEnumerable(this,
-                                        selector, comparer);
+                                         selector, comparer);
         }
         /** @inheritdoc */
         public orderByDescending<U>(selector: Selector<T, U>,
@@ -1848,18 +1854,18 @@ namespace Enumerable {
         /** @inheritdoc */
         public orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T> {
             return this.orderByDescending(x => x,
-                                        comparer);
+                                          comparer);
         }
         /** @inheritdoc */
         public product(): T | symbol {
             return this.aggregate((acc, x) => IS_EMPTY !== acc ? (acc * <any>x) : x,
-                                <any>IS_EMPTY);
+                                  <any>IS_EMPTY);
         }
         /** @inheritdoc */
         public pushTo(stack: Stack<T>): this {
             if (stack) {
                 stack.push
-                    .apply(stack, this.toArray());
+                     .apply(stack, this.toArray());
             }
             
             return this;
@@ -1899,9 +1905,9 @@ namespace Enumerable {
             }
 
             for (let s of this) {
-                let seq = from(selector(s));
+                const SEQ = from(selector(s));
 
-                for (let item of seq) {
+                for (let item of SEQ) {
                     yield item;
                 }
             }
@@ -1909,27 +1915,27 @@ namespace Enumerable {
         /** @inheritdoc */
         public sequenceEqual<U>(other: Sequence<U>,
                                 equalityComparer?: EqualityComparer<T, U> | true): boolean {
-            let otherSeq = from(other);
+            const OTHER_SEQ = from(other);
             equalityComparer = toEqualityComparerSafe(equalityComparer);
 
             do {
-                let x = getNextIteratorResultSafe(this);
-                if (x.done) {
+                const X = getNextIteratorResultSafe(this);
+                if (X.done) {
                     break;
                 }
 
-                let y = getNextIteratorResultSafe(otherSeq);
-                if (y.done) {
+                const Y = getNextIteratorResultSafe(OTHER_SEQ);
+                if (Y.done) {
                     return false;
                 }
 
-                if (!equalityComparer(x.value, y.value)) {
+                if (!equalityComparer(X.value, Y.value)) {
                     return false;
                 }
             }
             while (true);
 
-            if (!getNextIteratorResultSafe(otherSeq).done) {
+            if (!getNextIteratorResultSafe(OTHER_SEQ).done) {
                 return false;
             }
             
@@ -1941,27 +1947,27 @@ namespace Enumerable {
 
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
-            let item = this.singleOrDefault(predicate,
-                                            ELEMENT_NOT_FOUND);
+            const ITEM = this.singleOrDefault(predicate,
+                                              ELEMENT_NOT_FOUND);
 
-            if (ELEMENT_NOT_FOUND === item) {
+            if (ELEMENT_NOT_FOUND === ITEM) {
                 throw 'Element not found';
             }
 
-            return <any>item;
+            return <any>ITEM;
         }
         /** @inheritdoc */
         public singleOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                            defaultValue?: U): T | U {
-            let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
-                                            arguments.length);
+            const ARGS = getOrDefaultArguments(predicateOrDefaultValue, defaultValue,
+                                               arguments.length);
 
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
             let result: any = ELEMENT_NOT_FOUND;
 
             for (let item of this) {
-                if (!args.predicate(item)) {
+                if (!ARGS.predicate(item)) {
                     continue;
                 }
 
@@ -1976,7 +1982,7 @@ namespace Enumerable {
                 return result;
             }
 
-            return args.defaultValue;
+            return ARGS.defaultValue;
         }
         /** @inheritdoc */
         public skip(count?: number): IEnumerable<T> {
@@ -2003,9 +2009,9 @@ namespace Enumerable {
 
             do
             {
-                let iteratorItem = this.next();
+                const ITERATOR_ITEM = this.next();
 
-                hasRemainingItems = iteratorItem && !iteratorItem.done;
+                hasRemainingItems = ITERATOR_ITEM && !ITERATOR_ITEM.done;
                 if (!hasRemainingItems) {
                     continue;
                 }
@@ -2017,7 +2023,7 @@ namespace Enumerable {
                     isFirst = false;
                 }
 
-                item = iteratorItem.value;
+                item = ITERATOR_ITEM.value;
             }
             while (hasRemainingItems);
         }
@@ -2079,25 +2085,24 @@ namespace Enumerable {
         }
         /** @inheritdoc */
         public toArray(): Array<T> {
-            let arr: Array<T> = [];
+            const ARR: Array<T> = [];
+
             for (let i of this) {
-                arr.push(i);
+                ARR.push(i);
             }
 
-            return arr;
+            return ARR;
         }
         /** @inheritdoc */
         public toLookup<TKey extends PropertyKey, U = any>(keySelector: Selector<T, TKey>,
                                                            keyEqualityComparer?: EqualityComparer<TKey>): U {
-            let lookup: any = {};
+            const LOOKUP: any = {};
 
             for (let grp of this.groupBy(keySelector, keyEqualityComparer)) {
-                let key: any = grp.key;
-
-                lookup[key] = grp;
+                LOOKUP[ grp.key ] = grp;
             }
 
-            return lookup;
+            return LOOKUP;
         }
         /** @inheritdoc */
         public toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (item: T, index: number) => TKey): TResult {
@@ -2105,17 +2110,16 @@ namespace Enumerable {
                 keySelector = (item, index) => <any>index;
             }
             
-            let obj: any = {};
+            const OBJ: any = {};
             
             let i = -1;
             for (let item of this) {
                 ++i;
 
-                let key = keySelector(item, i);
-                obj[key] = item;
+                OBJ[ keySelector(item, i) ] = item;
             }
 
-            return obj;
+            return OBJ;
         }
         /** @inheritdoc */
         public union(second: Sequence<T>,
@@ -2158,17 +2162,17 @@ namespace Enumerable {
             let i = -1;
             do
             {
-                let itemThis = this.next();
-                if (!itemThis || itemThis.done) {
+                const ITEM_THIS = this.next();
+                if (!ITEM_THIS || ITEM_THIS.done) {
                     break;
                 }
 
-                let itemSecond = second.next();
-                if (!itemSecond || itemSecond.done) {
+                const ITEM_SECOND = second.next();
+                if (!ITEM_SECOND || ITEM_SECOND.done) {
                     break;
                 }
 
-                yield resultSelector(itemThis.value, itemSecond.value,
+                yield resultSelector(ITEM_THIS.value, ITEM_SECOND.value,
                                      ++i);
             }
             while (true);
@@ -2290,19 +2294,19 @@ namespace Enumerable {
         public next(): IteratorResult<T> {
             let result: IteratorResult<T>;
 
-            let nextIndex = this._index + 1;
-            if (nextIndex >= this._array.length) {
+            const NEXT_INDEX = this._index + 1;
+            if (NEXT_INDEX >= this._array.length) {
                 result = {
                     done: true,
                     value: undefined,
                 };
             }
             else {
-                this._index = nextIndex;
+                this._index = NEXT_INDEX;
                 
                 result = {
                     done: false,
-                    value: this._array[nextIndex],
+                    value: this._array[NEXT_INDEX],
                 };
             }
 
@@ -2383,7 +2387,7 @@ namespace Enumerable {
                     selector: Selector<T, U>, comparer: Comparer<U, U>) {
             super(seq);
 
-            let me = this;
+            const ME = this;
 
             this._orderComparer = toComparerSafe(comparer);
             
@@ -2396,11 +2400,11 @@ namespace Enumerable {
 
             this._sequence = from(this._originalItems.map(x => {
                 return {
-                    sortBy: me.selector(x),
+                    sortBy: ME.selector(x),
                     value: x,
                 };
             }).sort(function(x, y) {
-                return me.comparer(x.sortBy, y.sortBy);
+                return ME.comparer(x.sortBy, y.sortBy);
             }).map(function(x) {
                 return x.value;
             }));
@@ -2421,7 +2425,7 @@ namespace Enumerable {
         /** @inheritdoc */
         public then(comparer?: Comparer<T>): IOrderedEnumerable<T> {
             return this.thenBy(x => x,
-                            comparer);
+                               comparer);
         }
         /** @inheritdoc */
         public thenBy<U>(selector: Selector<T, U>,
@@ -2432,29 +2436,29 @@ namespace Enumerable {
             
             comparer = toComparerSafe(comparer);
         
-            let thisSelector = this._orderSelector;
-            let thisComparer = this._orderComparer;
+            const THIS_SELECTOR = this.selector;
+            const THIS_COMPARER = this.comparer;
         
             return from(this._originalItems)
                 .orderBy(x => {
                             return {
-                                level_0: thisSelector(x),
+                                level_0: THIS_SELECTOR(x),
                                 level_1: selector(x),
                             };
-                        },
-                        (x, y) => {
-                            let comp0 = thisComparer(x.level_0, y.level_0);
-                            if (0 != comp0) {
-                                return comp0;
-                            }
+                         },
+                         (x, y) => {
+                             const COMP_0 = THIS_COMPARER(x.level_0, y.level_0);
+                             if (0 != COMP_0) {
+                                 return COMP_0;
+                             }
                             
-                            let comp1 = comparer(x.level_1, y.level_1);
-                            if (0 != comp1) {
-                                return comp1;
-                            }
+                             const COMP_1 = comparer(x.level_1, y.level_1);
+                             if (0 != COMP_1) {
+                                 return COMP_1;
+                             }
                             
-                            return 0;
-                        });
+                             return 0;
+                         });
         }
         /** @inheritdoc */
         public thenByDescending<U>(selector: Selector<T, U>,
@@ -2466,9 +2470,7 @@ namespace Enumerable {
             comparer = toComparerSafe(comparer);
         
             return this.thenBy(selector,
-                            (x, y) => {
-                                return comparer(y, x);
-                            });
+                               (x, y) => comparer(y, x));
         }
         /** @inheritdoc */
         public thenDescending(comparer?: Comparer<T>): IOrderedEnumerable<T> {
@@ -2509,7 +2511,7 @@ namespace Enumerable {
                 }
             }
 
-            let cancel = function(flag?: boolean) {
+            const CANCEL = function(flag?: boolean) {
                 if (arguments.length < 1) {
                     flag = true;
                 }
@@ -2517,9 +2519,9 @@ namespace Enumerable {
                 run = !flag;
             };
 
-            let newItem = factory(cancel, i);
+            const NEW_ITEM = factory(CANCEL, i);
             if (run) {
-                yield newItem;
+                yield NEW_ITEM;
             }
         }
     }
@@ -2554,7 +2556,7 @@ namespace Enumerable {
                 }
             }
 
-            let cancel = function(flag?: boolean) {
+            const CANCEL = function(flag?: boolean) {
                 if (arguments.length < 1) {
                     flag = true;
                 }
@@ -2562,10 +2564,10 @@ namespace Enumerable {
                 run = !flag;
             };
 
-            let seq: any = factory(cancel, i);
+            const SEQ: any = factory(CANCEL, i);
             if (run) {
-                if (!isNullOrUndefined(seq)) {
-                    for (let item of seq) {
+                if (!isNullOrUndefined(SEQ)) {
+                    for (let item of SEQ) {
                         yield item;
                     }
                 }
@@ -2628,12 +2630,9 @@ namespace Enumerable {
      * @return {IEnumerable<string>} The new sequence.
      */
     export function fromString(val: any): IEnumerable<string> {
-        if (isNullOrUndefined(val)) {
-            val = '';
-        }
-        val = '' + val;
-
-        return new ArrayEnumerable<string>(val.split(''));
+        return new ArrayEnumerable<string>(
+            toStringSafe(val).split('')
+        );
     }  // fromString()
 
     /**
@@ -2643,8 +2642,8 @@ namespace Enumerable {
      * 
      * @returns {boolean} Is IS_EMPTY symbol or not.
      */
-    export function isEmpty(val: any): boolean {
-        return val === IS_EMPTY;
+    export function isEmpty(val: any): val is symbol {
+        return IS_EMPTY === val;
     }  // isEmpty()
 
     /**
@@ -2654,8 +2653,8 @@ namespace Enumerable {
      * 
      * @returns {boolean} Is NOT_FOUND symbol or not.
      */
-    export function notFound(val: any): boolean {
-        return val === NOT_FOUND;
+    export function notFound(val: any): val is symbol {
+        return NOT_FOUND === val;
     }  // notFound()
 
     /**
@@ -2766,12 +2765,13 @@ namespace Enumerable {
             return arr;
         }
 
-        let newArray: Array<T> = [];
+        const NEW_ARRAY: Array<T> = [];
+
         for (let i = 0; i < arr.length; i++) {
-            newArray.push(arr[i]);
+            NEW_ARRAY.push(arr[i]);
         }
 
-        return newArray;
+        return NEW_ARRAY;
     }
 
     function createGroupArrayForSequence<T, TKey>(seq: IEnumerable<T>,
@@ -2832,7 +2832,7 @@ namespace Enumerable {
 
     function isNullOrUndefined(val: any): boolean {
         return null === val ||
-            'undefined' === typeof val;
+               'undefined' === typeof val;
     }
 
     function toComparerSafe<T, U>(comparer: Comparer<T, U>): Comparer<T, U> {
@@ -2874,9 +2874,9 @@ namespace Enumerable {
         }
 
         if ('function' !== typeof predicate) {
-            let result = !!predicate;
+            const RESULT = !!predicate;
             
-            predicate = () => result;
+            predicate = () => RESULT;
         }
 
         return predicate;
