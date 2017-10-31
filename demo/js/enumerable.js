@@ -89,7 +89,7 @@ var Enumerable;
             let me = this;
             return new Promise((resolve, reject) => {
                 let asyncResult;
-                let asyncCompleted = (err) => {
+                const ASYNC_COMPLETED = (err) => {
                     if (err) {
                         reject(err);
                     }
@@ -101,66 +101,66 @@ var Enumerable;
                     let i = -1;
                     let prevVal = previousValue;
                     let val;
-                    let nextItem = () => {
+                    const NEXT_ITEM = () => {
                         ++i;
-                        let item = this.next();
-                        if (!item || item.done) {
-                            asyncCompleted(null);
+                        const ITEM = this.next();
+                        if (!ITEM || ITEM.done) {
+                            ASYNC_COMPLETED(null);
                             return;
                         }
-                        let ctx = {
+                        const CTX = {
                             cancel: function (result) {
                                 if (arguments.length > 0) {
                                     asyncResult = result;
                                 }
-                                asyncCompleted(null);
+                                ASYNC_COMPLETED(null);
                             },
                             index: i,
                             isFirst: 0 === i,
-                            item: item.value,
+                            item: ITEM.value,
                             previousValue: prevVal,
                             reject: function (reason, result) {
                                 if (arguments.length > 1) {
                                     asyncResult = result;
                                 }
-                                asyncCompleted(reason);
+                                ASYNC_COMPLETED(reason);
                             },
                             resolve: function (nextValue) {
                                 prevVal = nextValue;
-                                nextItem();
+                                NEXT_ITEM();
                             },
                             result: undefined,
                             sequence: me,
                             value: undefined,
                         };
                         // ctx.result
-                        Object.defineProperty(ctx, 'result', {
+                        Object.defineProperty(CTX, 'result', {
                             get: () => { return asyncResult; },
                             set: (newValue) => { asyncResult = newValue; },
                             enumerable: true,
                         });
                         // ctx.value
-                        Object.defineProperty(ctx, 'value', {
+                        Object.defineProperty(CTX, 'value', {
                             get: () => { return val; },
                             set: (newValue) => { val = newValue; },
                             enumerable: true,
                         });
                         try {
                             if (action) {
-                                action(ctx);
+                                action(CTX);
                             }
                             else {
-                                ctx.resolve();
+                                CTX.resolve();
                             }
                         }
                         catch (e) {
-                            ctx.reject(e);
+                            CTX.reject(e);
                         }
                     };
-                    nextItem();
+                    NEXT_ITEM();
                 }
                 catch (e) {
-                    asyncCompleted(e);
+                    ASYNC_COMPLETED(e);
                 }
             });
         }
@@ -198,29 +198,27 @@ var Enumerable;
                             x = !!x;
                             break;
                         case 'float':
-                        case 'number':
                             x = parseFloat(toStringSafe(x).trim());
                             break;
                         case 'func':
                         case 'function':
                             if ('function' !== typeof x) {
-                                let funcResult = x;
+                                const FUNC_RESULT = x;
                                 x = function () {
-                                    return funcResult;
+                                    return FUNC_RESULT;
                                 };
                             }
                             break;
                         case 'null':
                             x = null;
                             break;
+                        case 'number':
+                            if ('number' !== typeof x) {
+                                x = parseFloat(toStringSafe(x).trim());
+                            }
+                            break;
                         case 'object':
-                            if ('undefined' === typeof x) {
-                                x = undefined;
-                            }
-                            else if (null === x) {
-                                x = null;
-                            }
-                            else {
+                            if (!isNullOrUndefined(x)) {
                                 if ('object' !== typeof x) {
                                     x = JSON.parse(toStringSafe(x));
                                 }
@@ -234,13 +232,15 @@ var Enumerable;
                             x = '' + x;
                             break;
                         case 'symbol':
-                            let desc = x;
-                            if (!isNullOrUndefined(desc)) {
-                                if ('number' !== typeof desc) {
-                                    desc = toStringSafe(desc);
+                            if ('symbol' !== typeof x) {
+                                let desc = x;
+                                if (!isNullOrUndefined(desc)) {
+                                    if ('number' !== typeof desc) {
+                                        desc = toStringSafe(desc);
+                                    }
                                 }
+                                x = Symbol(desc);
                             }
-                            x = Symbol(desc);
                             break;
                         case 'undefined':
                             x = undefined;
@@ -261,14 +261,14 @@ var Enumerable;
          * @see concatArray()
          */
         *cloneInner(count, itemSelector) {
-            let items = this.toArray();
+            const ITEMS = this.toArray();
             while (true) {
                 if (!isNaN(count)) {
                     if (count-- < 1) {
                         break;
                     }
                 }
-                let seq = from(items);
+                let seq = from(ITEMS);
                 if (itemSelector) {
                     seq = seq.select(itemSelector);
                 }
@@ -292,8 +292,8 @@ var Enumerable;
             }
             if (sequences) {
                 for (let i = 0; i < sequences.length; i++) {
-                    let seq = sequences[i];
-                    for (let item of from(seq)) {
+                    const SEQ = sequences[i];
+                    for (let item of from(SEQ)) {
                         yield item;
                     }
                 }
@@ -372,18 +372,18 @@ var Enumerable;
          * @see distinct()
          */
         *distinctByInner(selector, comparer) {
-            let temp = [];
+            const TEMP = [];
             for (let item of this) {
-                let keyItem = selector(item);
+                const KEY_ITEM = selector(item);
                 let found = false;
-                for (let t of temp) {
-                    if (comparer(keyItem, t)) {
+                for (let t of TEMP) {
+                    if (comparer(KEY_ITEM, t)) {
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    temp.push(keyItem);
+                    TEMP.push(KEY_ITEM);
                     yield item;
                 }
             }
@@ -396,11 +396,11 @@ var Enumerable;
         /** @inheritdoc */
         elementAt(index) {
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
-            let item = this.elementAtOrDefault(index, ELEMENT_NOT_FOUND);
-            if (ELEMENT_NOT_FOUND === item) {
+            const ITEM = this.elementAtOrDefault(index, ELEMENT_NOT_FOUND);
+            if (ELEMENT_NOT_FOUND === ITEM) {
                 throw "Element not found";
             }
-            return item;
+            return ITEM;
         }
         /** @inheritdoc */
         elementAtOrDefault(index, defaultValue) {
@@ -442,21 +442,21 @@ var Enumerable;
         first(predicate) {
             predicate = toPredicateSafe(predicate);
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
-            let result = this.firstOrDefault(predicate, ELEMENT_NOT_FOUND);
-            if (ELEMENT_NOT_FOUND === result) {
+            const RESULT = this.firstOrDefault(predicate, ELEMENT_NOT_FOUND);
+            if (ELEMENT_NOT_FOUND === RESULT) {
                 throw 'Element not found';
             }
-            return result;
+            return RESULT;
         }
         /** @inheritdoc */
         firstOrDefault(predicateOrDefaultValue, defaultValue) {
-            let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue, arguments.length);
+            const ARGS = getOrDefaultArguments(predicateOrDefaultValue, defaultValue, arguments.length);
             for (let item of this) {
-                if (args.predicate(item)) {
+                if (ARGS.predicate(item)) {
                     return item;
                 }
             }
-            return args.defaultValue;
+            return ARGS.defaultValue;
         }
         /** @inheritdoc */
         forEach(action) {
@@ -482,27 +482,27 @@ var Enumerable;
          */
         *groupByInner(keySelector, keyEqualityComparer) {
             ;
-            let groupList = [];
+            const GROUP_LIST = [];
             for (let item of this) {
-                let key = keySelector(item);
+                const KEY = keySelector(item);
                 let grp;
-                for (let g of groupList) {
-                    if (keyEqualityComparer(key, g.key)) {
+                for (let g of GROUP_LIST) {
+                    if (keyEqualityComparer(KEY, g.key)) {
                         grp = g;
                         break;
                     }
                 }
                 if (!grp) {
                     grp = {
-                        key: key,
+                        key: KEY,
                         values: [],
                     };
-                    groupList.push(grp);
+                    GROUP_LIST.push(grp);
                 }
                 grp.values
                     .push(item);
             }
-            for (let grp of groupList) {
+            for (let grp of GROUP_LIST) {
                 yield new Grouping(grp.key, from(grp.values));
             }
         }
@@ -536,17 +536,17 @@ var Enumerable;
          * @see groupJoin()
          */
         *groupJoinInner(inner, outerKeySelector, innerKeySelector, resultSelector, keyEqualityComparer) {
-            let outerGroups = createGroupArrayForSequence(this, outerKeySelector);
-            let innerGroups = createGroupArrayForSequence(inner, innerKeySelector);
-            while (outerGroups.length > 0) {
-                let outerGrp = outerGroups.shift();
-                for (let i = 0; i < innerGroups.length; i++) {
-                    let innerGrp = innerGroups[i];
-                    if (!keyEqualityComparer(outerGrp.key, innerGrp.key)) {
+            const OUTER_GROUPS = createGroupArrayForSequence(this, outerKeySelector);
+            const INNER_GROUPS = createGroupArrayForSequence(inner, innerKeySelector);
+            while (OUTER_GROUPS.length > 0) {
+                const OUTER_GRP = OUTER_GROUPS.shift();
+                for (let i = 0; i < INNER_GROUPS.length; i++) {
+                    const INNER_GRP = INNER_GROUPS[i];
+                    if (!keyEqualityComparer(OUTER_GRP.key, INNER_GRP.key)) {
                         continue;
                     }
-                    for (let j = 0; j < outerGrp.values.length; j++) {
-                        yield resultSelector(outerGrp.values[j], from(innerGrp.values));
+                    for (let j = 0; j < OUTER_GRP.values.length; j++) {
+                        yield resultSelector(OUTER_GRP.values[j], from(INNER_GRP.values));
                     }
                 }
             }
@@ -615,18 +615,18 @@ var Enumerable;
          * @see join()
          */
         *joinInner(inner, outerKeySelector, innerKeySelector, resultSelector, keyEqualityComparer) {
-            let outerGroups = createGroupArrayForSequence(this, outerKeySelector);
-            let innerGroups = createGroupArrayForSequence(inner, innerKeySelector);
-            while (outerGroups.length > 0) {
-                let outerGrp = outerGroups.shift();
-                for (let i = 0; i < innerGroups.length; i++) {
-                    let innerGrp = innerGroups[i];
-                    if (!keyEqualityComparer(outerGrp.key, innerGrp.key)) {
+            const OUTER_GROUPS = createGroupArrayForSequence(this, outerKeySelector);
+            const INNER_GROUPS = createGroupArrayForSequence(inner, innerKeySelector);
+            while (OUTER_GROUPS.length > 0) {
+                const OUTER_GRP = OUTER_GROUPS.shift();
+                for (let i = 0; i < INNER_GROUPS.length; i++) {
+                    const INNER_GRP = INNER_GROUPS[i];
+                    if (!keyEqualityComparer(OUTER_GRP.key, INNER_GRP.key)) {
                         continue;
                     }
-                    for (let j = 0; j < outerGrp.values.length; j++) {
-                        for (let k = 0; k < innerGrp.values.length; k++) {
-                            yield resultSelector(outerGrp.values[j], innerGrp.values[k]);
+                    for (let j = 0; j < OUTER_GRP.values.length; j++) {
+                        for (let k = 0; k < INNER_GRP.values.length; k++) {
+                            yield resultSelector(OUTER_GRP.values[j], INNER_GRP.values[k]);
                         }
                     }
                 }
@@ -641,11 +641,11 @@ var Enumerable;
         last(predicate) {
             predicate = toPredicateSafe(predicate);
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
-            let result = this.lastOrDefault(predicate, ELEMENT_NOT_FOUND);
-            if (ELEMENT_NOT_FOUND === result) {
+            const RESULT = this.lastOrDefault(predicate, ELEMENT_NOT_FOUND);
+            if (ELEMENT_NOT_FOUND === RESULT) {
                 throw 'Element not found';
             }
-            return result;
+            return RESULT;
         }
         /** @inheritdoc */
         lastIndexOf(item, comparer) {
@@ -662,18 +662,18 @@ var Enumerable;
         }
         /** @inheritdoc */
         lastOrDefault(predicateOrDefaultValue, defaultValue) {
-            let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue, arguments.length);
+            const ARGS = getOrDefaultArguments(predicateOrDefaultValue, defaultValue, arguments.length);
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
             let result = ELEMENT_NOT_FOUND;
             for (let item of this) {
-                if (args.predicate(item)) {
+                if (ARGS.predicate(item)) {
                     result = item;
                 }
             }
             if (ELEMENT_NOT_FOUND !== result) {
                 return result;
             }
-            return args.defaultValue;
+            return ARGS.defaultValue;
         }
         /** @inheritdoc */
         makeResettable() {
@@ -692,19 +692,19 @@ var Enumerable;
             let maxValue;
             let isFirst = true;
             for (let item of this) {
-                let value = valueSelector(item);
-                let updateResult = () => {
+                const VALUE = valueSelector(item);
+                const UPDATE_RESULT = () => {
                     result = item;
-                    maxValue = value;
+                    maxValue = VALUE;
                 };
                 if (!isFirst) {
-                    if (comparer(value, maxValue) > 0) {
-                        updateResult();
+                    if (comparer(VALUE, maxValue) > 0) {
+                        UPDATE_RESULT();
                     }
                 }
                 else {
                     isFirst = false;
-                    updateResult();
+                    UPDATE_RESULT();
                 }
             }
             return result;
@@ -719,19 +719,19 @@ var Enumerable;
             let minValue;
             let isFirst = true;
             for (let item of this) {
-                let value = valueSelector(item);
-                let updateResult = () => {
+                const VALUE = valueSelector(item);
+                const UPDATE_RESULT = () => {
                     result = item;
-                    minValue = value;
+                    minValue = VALUE;
                 };
                 if (!isFirst) {
-                    if (comparer(value, minValue) < 0) {
-                        updateResult();
+                    if (comparer(VALUE, minValue) < 0) {
+                        UPDATE_RESULT();
                     }
                 }
                 else {
                     isFirst = false;
-                    updateResult();
+                    UPDATE_RESULT();
                 }
             }
             return result;
@@ -739,9 +739,8 @@ var Enumerable;
         /** @inheritdoc */
         noNAN(checkForInt) {
             return this.where(x => {
-                let str = toStringSafe(x).trim();
-                let nr = !checkForInt ? parseFloat(str) : parseInt(str);
-                return !isNaN(nr);
+                const STR = toStringSafe(x).trim();
+                return !isNaN(!checkForInt ? parseFloat(STR) : parseInt(STR));
             });
         }
         /** @inheritdoc */
@@ -792,11 +791,11 @@ var Enumerable;
             throw 'Not supported';
         }
         /** @inheritdoc */
-        reverse(selector) {
-            if (!selector) {
-                return this.orderDescending();
-            }
-            return this.orderByDescending(selector);
+        reverse() {
+            let i = Number.MIN_SAFE_INTEGER;
+            return this.orderByDescending(() => {
+                return i++;
+            });
         }
         /** @inheritdoc */
         select(selector) {
@@ -819,30 +818,30 @@ var Enumerable;
                 selector = (x) => [x];
             }
             for (let s of this) {
-                let seq = from(selector(s));
-                for (let item of seq) {
+                const SEQ = from(selector(s));
+                for (let item of SEQ) {
                     yield item;
                 }
             }
         }
         /** @inheritdoc */
         sequenceEqual(other, equalityComparer) {
-            let otherSeq = from(other);
+            const OTHER_SEQ = from(other);
             equalityComparer = toEqualityComparerSafe(equalityComparer);
             do {
-                let x = getNextIteratorResultSafe(this);
-                if (x.done) {
+                const X = getNextIteratorResultSafe(this);
+                if (X.done) {
                     break;
                 }
-                let y = getNextIteratorResultSafe(otherSeq);
-                if (y.done) {
+                const Y = getNextIteratorResultSafe(OTHER_SEQ);
+                if (Y.done) {
                     return false;
                 }
-                if (!equalityComparer(x.value, y.value)) {
+                if (!equalityComparer(X.value, Y.value)) {
                     return false;
                 }
             } while (true);
-            if (!getNextIteratorResultSafe(otherSeq).done) {
+            if (!getNextIteratorResultSafe(OTHER_SEQ).done) {
                 return false;
             }
             return true;
@@ -851,19 +850,19 @@ var Enumerable;
         single(predicate) {
             predicate = toPredicateSafe(predicate);
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
-            let item = this.singleOrDefault(predicate, ELEMENT_NOT_FOUND);
-            if (ELEMENT_NOT_FOUND === item) {
+            const ITEM = this.singleOrDefault(predicate, ELEMENT_NOT_FOUND);
+            if (ELEMENT_NOT_FOUND === ITEM) {
                 throw 'Element not found';
             }
-            return item;
+            return ITEM;
         }
         /** @inheritdoc */
         singleOrDefault(predicateOrDefaultValue, defaultValue) {
-            let args = getOrDefaultArguments(predicateOrDefaultValue, defaultValue, arguments.length);
+            const ARGS = getOrDefaultArguments(predicateOrDefaultValue, defaultValue, arguments.length);
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
             let result = ELEMENT_NOT_FOUND;
             for (let item of this) {
-                if (!args.predicate(item)) {
+                if (!ARGS.predicate(item)) {
                     continue;
                 }
                 if (ELEMENT_NOT_FOUND !== result) {
@@ -874,7 +873,7 @@ var Enumerable;
             if (ELEMENT_NOT_FOUND !== result) {
                 return result;
             }
-            return args.defaultValue;
+            return ARGS.defaultValue;
         }
         /** @inheritdoc */
         skip(count) {
@@ -898,8 +897,8 @@ var Enumerable;
             let isFirst = true;
             let item;
             do {
-                let iteratorItem = this.next();
-                hasRemainingItems = iteratorItem && !iteratorItem.done;
+                const ITERATOR_ITEM = this.next();
+                hasRemainingItems = ITERATOR_ITEM && !ITERATOR_ITEM.done;
                 if (!hasRemainingItems) {
                     continue;
                 }
@@ -909,7 +908,7 @@ var Enumerable;
                 else {
                     isFirst = false;
                 }
-                item = iteratorItem.value;
+                item = ITERATOR_ITEM.value;
             } while (hasRemainingItems);
         }
         /** @inheritdoc */
@@ -965,34 +964,32 @@ var Enumerable;
         }
         /** @inheritdoc */
         toArray() {
-            let arr = [];
+            const ARR = [];
             for (let i of this) {
-                arr.push(i);
+                ARR.push(i);
             }
-            return arr;
+            return ARR;
         }
         /** @inheritdoc */
         toLookup(keySelector, keyEqualityComparer) {
-            let lookup = {};
+            const LOOKUP = {};
             for (let grp of this.groupBy(keySelector, keyEqualityComparer)) {
-                let key = grp.key;
-                lookup[key] = grp;
+                LOOKUP[grp.key] = grp;
             }
-            return lookup;
+            return LOOKUP;
         }
         /** @inheritdoc */
         toObject(keySelector) {
             if (!keySelector) {
                 keySelector = (item, index) => index;
             }
-            let obj = {};
+            const OBJ = {};
             let i = -1;
             for (let item of this) {
                 ++i;
-                let key = keySelector(item, i);
-                obj[key] = item;
+                OBJ[keySelector(item, i)] = item;
             }
-            return obj;
+            return OBJ;
         }
         /** @inheritdoc */
         union(second, comparer) {
@@ -1027,15 +1024,15 @@ var Enumerable;
             }
             let i = -1;
             do {
-                let itemThis = this.next();
-                if (!itemThis || itemThis.done) {
+                const ITEM_THIS = this.next();
+                if (!ITEM_THIS || ITEM_THIS.done) {
                     break;
                 }
-                let itemSecond = second.next();
-                if (!itemSecond || itemSecond.done) {
+                const ITEM_SECOND = second.next();
+                if (!ITEM_SECOND || ITEM_SECOND.done) {
                     break;
                 }
-                yield resultSelector(itemThis.value, itemSecond.value, ++i);
+                yield resultSelector(ITEM_THIS.value, ITEM_SECOND.value, ++i);
             } while (true);
         }
     } // EnumerableBase<T>
@@ -1130,18 +1127,18 @@ var Enumerable;
         /** @inheritdoc */
         next() {
             let result;
-            let nextIndex = this._index + 1;
-            if (nextIndex >= this._array.length) {
+            const NEXT_INDEX = this._index + 1;
+            if (NEXT_INDEX >= this._array.length) {
                 result = {
                     done: true,
                     value: undefined,
                 };
             }
             else {
-                this._index = nextIndex;
+                this._index = NEXT_INDEX;
                 result = {
                     done: false,
-                    value: this._array[nextIndex],
+                    value: this._array[NEXT_INDEX],
                 };
             }
             this._current = result;
@@ -1198,7 +1195,7 @@ var Enumerable;
          */
         constructor(seq, selector, comparer) {
             super(seq);
-            let me = this;
+            const ME = this;
             this._orderComparer = toComparerSafe(comparer);
             if (!selector) {
                 selector = (i) => i;
@@ -1207,11 +1204,11 @@ var Enumerable;
             this._originalItems = seq.toArray();
             this._sequence = from(this._originalItems.map(x => {
                 return {
-                    sortBy: me.selector(x),
+                    sortBy: ME.selector(x),
                     value: x,
                 };
             }).sort(function (x, y) {
-                return me.comparer(x.sortBy, y.sortBy);
+                return ME.comparer(x.sortBy, y.sortBy);
             }).map(function (x) {
                 return x.value;
             }));
@@ -1238,22 +1235,22 @@ var Enumerable;
                 selector = (i) => i;
             }
             comparer = toComparerSafe(comparer);
-            let thisSelector = this._orderSelector;
-            let thisComparer = this._orderComparer;
+            const THIS_SELECTOR = this.selector;
+            const THIS_COMPARER = this.comparer;
             return from(this._originalItems)
                 .orderBy(x => {
                 return {
-                    level_0: thisSelector(x),
+                    level_0: THIS_SELECTOR(x),
                     level_1: selector(x),
                 };
             }, (x, y) => {
-                let comp0 = thisComparer(x.level_0, y.level_0);
-                if (0 != comp0) {
-                    return comp0;
+                const COMP_0 = THIS_COMPARER(x.level_0, y.level_0);
+                if (0 != COMP_0) {
+                    return COMP_0;
                 }
-                let comp1 = comparer(x.level_1, y.level_1);
-                if (0 != comp1) {
-                    return comp1;
+                const COMP_1 = comparer(x.level_1, y.level_1);
+                if (0 != COMP_1) {
+                    return COMP_1;
                 }
                 return 0;
             });
@@ -1264,9 +1261,7 @@ var Enumerable;
                 selector = (i) => i;
             }
             comparer = toComparerSafe(comparer);
-            return this.thenBy(selector, (x, y) => {
-                return comparer(y, x);
-            });
+            return this.thenBy(selector, (x, y) => comparer(y, x));
         }
         /** @inheritdoc */
         thenDescending(comparer) {
@@ -1300,15 +1295,15 @@ var Enumerable;
                     continue;
                 }
             }
-            let cancel = function (flag) {
+            const CANCEL = function (flag) {
                 if (arguments.length < 1) {
                     flag = true;
                 }
                 run = !flag;
             };
-            let newItem = factory(cancel, i);
+            const NEW_ITEM = factory(CANCEL, i);
             if (run) {
-                yield newItem;
+                yield NEW_ITEM;
             }
         }
     }
@@ -1337,16 +1332,16 @@ var Enumerable;
                     continue;
                 }
             }
-            let cancel = function (flag) {
+            const CANCEL = function (flag) {
                 if (arguments.length < 1) {
                     flag = true;
                 }
                 run = !flag;
             };
-            let seq = factory(cancel, i);
+            const SEQ = factory(CANCEL, i);
             if (run) {
-                if (!isNullOrUndefined(seq)) {
-                    for (let item of seq) {
+                if (!isNullOrUndefined(SEQ)) {
+                    for (let item of SEQ) {
                         yield item;
                     }
                 }
@@ -1358,7 +1353,7 @@ var Enumerable;
      *
      * @template T Type of the items.
      *
-     * @param {...T[]} items The items for the sequence.
+     * @param {...Array<T>} items The items for the sequence.
      *
      * @returns {IEnumerable<T>} The new sequence.
      */
@@ -1405,11 +1400,7 @@ var Enumerable;
      * @return {IEnumerable<string>} The new sequence.
      */
     function fromString(val) {
-        if (isNullOrUndefined(val)) {
-            val = '';
-        }
-        val = '' + val;
-        return new ArrayEnumerable(val.split(''));
+        return new ArrayEnumerable(toStringSafe(val).split(''));
     } // fromString()
     Enumerable.fromString = fromString;
     /**
@@ -1420,7 +1411,7 @@ var Enumerable;
      * @returns {boolean} Is IS_EMPTY symbol or not.
      */
     function isEmpty(val) {
-        return val === Enumerable.IS_EMPTY;
+        return Enumerable.IS_EMPTY === val;
     } // isEmpty()
     Enumerable.isEmpty = isEmpty;
     /**
@@ -1431,7 +1422,7 @@ var Enumerable;
      * @returns {boolean} Is NOT_FOUND symbol or not.
      */
     function notFound(val) {
-        return val === Enumerable.NOT_FOUND;
+        return Enumerable.NOT_FOUND === val;
     } // notFound()
     Enumerable.notFound = notFound;
     /**
@@ -1530,11 +1521,11 @@ var Enumerable;
         if (Array.isArray(arr)) {
             return arr;
         }
-        let newArray = [];
+        const NEW_ARRAY = [];
         for (let i = 0; i < arr.length; i++) {
-            newArray.push(arr[i]);
+            NEW_ARRAY.push(arr[i]);
         }
-        return newArray;
+        return NEW_ARRAY;
     }
     function createGroupArrayForSequence(seq, keySelector) {
         return seq.groupBy(keySelector).select(grp => {
@@ -1618,8 +1609,8 @@ var Enumerable;
             predicate = () => !!defaultValue;
         }
         if ('function' !== typeof predicate) {
-            let result = !!predicate;
-            predicate = () => result;
+            const RESULT = !!predicate;
+            predicate = () => RESULT;
         }
         return predicate;
     }
