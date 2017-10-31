@@ -174,6 +174,10 @@ declare namespace Enumerable {
      */
     const IS_EMPTY: symbol;
     /**
+     * Indicates that something is an enumerable (sequence).
+     */
+    const IS_ENUMERABLE: symbol;
+    /**
      * Indicates if something was not found.
      */
     const NOT_FOUND: symbol;
@@ -853,6 +857,10 @@ declare namespace Enumerable {
          * Stores the current index.
          */
         protected _index: number;
+        /**
+         * Indicates that that instance is an enumerable (sequence).
+         */
+        readonly IS_ENUMERABLE: symbol;
         /** @inheritdoc */
         [Symbol.iterator](): Iterator<T>;
         /** @inheritdoc */
@@ -1181,6 +1189,24 @@ declare namespace Enumerable {
         thenDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
     }
     /**
+     * Keeps sure that a value is a sequence.
+     *
+     * @param {any} val The value to cast (if needed).
+     *
+     * @return {IEnumerable<T>} The value as sequence. Can return (null) or (undefined), if 'val' is one of these values.
+     */
+    function asEnumerable<T = any>(val: any): IEnumerable<T>;
+    /**
+     * Returns a value as function.
+     *
+     * @param {any} val The function or a value that can be converted to a lambda expression string.
+     * @param {boolean} throwException Throw an exception on parse errors or return (false).
+     *
+     * @return {T} 'val' as function or (false) on error, if 'throwException' is (false).
+     *             Can be (null) or (undefined) if 'val' has a same value or is an empty string (representation).
+     */
+    function asFunc<T extends Function = Function>(val: any, throwException?: boolean): T | false;
+    /**
      * Builds a sequence.
      *
      * @template T Type of the items.
@@ -1243,6 +1269,14 @@ declare namespace Enumerable {
      * @returns {boolean} Is IS_EMPTY symbol or not.
      */
     function isEmpty(val: any): val is symbol;
+    /**
+     * Checks if a value represents an enumerable (sequence).
+     *
+     * @param {any} val The value to check.
+     *
+     * @returns {boolean} Is enumerable (sequence) or not.
+     */
+    function isEnumerable(val: any): val is IEnumerable<any>;
     /**
      * Checks if a value represents the NOT_FOUND symbol.
      *

@@ -210,6 +210,10 @@ namespace Enumerable {
      */
     export const IS_EMPTY = Symbol('IS_EMPTY');
     /**
+     * Indicates that something is an enumerable (sequence).
+     */
+    export const IS_ENUMERABLE = Symbol('IS_ENUMERABLE');
+    /**
      * Indicates if something was not found.
      */
     export const NOT_FOUND = Symbol('NOT_FOUND');
@@ -931,6 +935,11 @@ namespace Enumerable {
          * Stores the current index.
          */
         protected _index = -1;
+
+        /**
+         * Indicates that that instance is an enumerable (sequence).
+         */
+        public readonly IS_ENUMERABLE = IS_ENUMERABLE;
         
         /** @inheritdoc */
         public [Symbol.iterator](): Iterator<T> {
@@ -2481,6 +2490,82 @@ namespace Enumerable {
 
 
     /**
+     * Keeps sure that a value is a sequence.
+     * 
+     * @param {any} val The value to cast (if needed).
+     * 
+     * @return {IEnumerable<T>} The value as sequence. Can return (null) or (undefined), if 'val' is one of these values.
+     */
+    export function asEnumerable<T = any>(val: any): IEnumerable<T> {
+        if (isNullOrUndefined(val)) {
+            return val;
+        }
+
+        if (isEnumerable(val)) {
+            return val;
+        }
+
+        return from<T>(val);
+    }
+
+    /**
+     * Returns a value as function.
+     * 
+     * @param {any} val The function or a value that can be converted to a lambda expression string. 
+     * @param {boolean} throwException Throw an exception on parse errors or return (false).
+     * 
+     * @return {T} 'val' as function or (false) on error, if 'throwException' is (false).
+     *             Can be (null) or (undefined) if 'val' has a same value or is an empty string (representation).
+     */
+    export function asFunc<T extends Function = Function>(val: any, throwException: boolean = true): T | false {
+        if ('function' === typeof val) {
+            return val;
+        }
+
+        if (isNullOrUndefined(val)) {
+            return val;
+        }
+
+        const LAMBDA = toStringSafe(val);
+        if ('' === LAMBDA.trim()) {
+            return undefined;
+        }
+
+        const MATCHES = LAMBDA.match(/^(\s*)([\(]?)([^\)]*)([\)]?)(\s*)(=>)/m);
+        if (MATCHES) {
+            if ((("" === MATCHES[2]) && ("" !== MATCHES[4])) ||
+                (("" !== MATCHES[2]) && ("" === MATCHES[4]))) {
+                
+                if (throwException) {
+                    throw "Syntax error in '" + LAMBDA + "' expression";
+                }
+                
+                return false;
+            }
+            
+            let lambdaBody = LAMBDA.substr(MATCHES[0].length)
+                                   .trim();
+            
+            if ("" !== lambdaBody) {
+                if (';' !== lambdaBody.substr(-1)) {
+                    lambdaBody = 'return ' + lambdaBody + ';';
+                }
+            }
+            
+            let func: T;
+            eval('func = function(' + MATCHES[3] + ') { ' + lambdaBody + ' };');
+    
+            return func;
+        }
+
+        if (throwException) {
+            throw "'" + val + "' is no valid lambda expression";
+        }
+
+        return false;
+    }
+
+    /**
      * Builds a sequence.
      * 
      * @template T Type of the items. 
@@ -2645,6 +2730,21 @@ namespace Enumerable {
     export function isEmpty(val: any): val is symbol {
         return IS_EMPTY === val;
     }  // isEmpty()
+
+    /**
+     * Checks if a value represents an enumerable (sequence).
+     * 
+     * @param {any} val The value to check.
+     * 
+     * @returns {boolean} Is enumerable (sequence) or not.
+     */
+    export function isEnumerable(val: any): val is IEnumerable<any> {
+        if (!isNullOrUndefined(val)) {
+            return val['IS_ENUMERABLE'] === IS_ENUMERABLE;
+        }
+
+        return false;
+    }  // isEnumerable()
 
     /**
      * Checks if a value represents the NOT_FOUND symbol.
@@ -2883,6 +2983,10 @@ namespace Enumerable {
     }
 
     function toStringSafe(val: any): string {
+        if ('string' === typeof val) {
+            return val;
+        }
+
         if (isNullOrUndefined(val)) {
             val = '';
         }
