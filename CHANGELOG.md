@@ -1,5 +1,11 @@
 # Change Log (node-enumerable)
 
+## 3.1.0 (November 1st, 2017; functions)
+
+* added `isSequence()` function
+* added `popFrom()` function
+* added `shiftFrom()` function
+
 ## 3.0.1 (November 1st, 2017; improvements)
 
 * code cleanups and improvements

@@ -94,7 +94,7 @@ var Enumerable;
         }
         /** @inheritdoc */
         async(action, previousValue) {
-            let me = this;
+            const ME = this;
             return new Promise((resolve, reject) => {
                 let asyncResult;
                 const ASYNC_COMPLETED = (err) => {
@@ -138,7 +138,7 @@ var Enumerable;
                                 NEXT_ITEM();
                             },
                             result: undefined,
-                            sequence: me,
+                            sequence: ME,
                             value: undefined,
                         };
                         // ctx.result
@@ -1500,6 +1500,29 @@ var Enumerable;
     } // isEnumerable()
     Enumerable.isEnumerable = isEnumerable;
     /**
+     * Checks if a value can be used as enumerable (sequence).
+     *
+     * @param {any} val The value to check.
+     *
+     * @return {boolean} Is sequence or not.
+     */
+    function isSequence(val) {
+        if (!isNullOrUndefined(val)) {
+            if ('function' === typeof val[Symbol.iterator]) {
+                // Iterator<T>
+                return true;
+            }
+            if (Array.isArray(val)) {
+                return true;
+            }
+            if ('string' === typeof val) {
+                return true;
+            }
+        }
+        return false;
+    } // isSequence()
+    Enumerable.isSequence = isSequence;
+    /**
      * Checks if a value represents the NOT_FOUND symbol.
      *
      * @param {any} val The value to check.
@@ -1510,6 +1533,24 @@ var Enumerable;
         return Enumerable.NOT_FOUND === val;
     } // notFound()
     Enumerable.notFound = notFound;
+    /**
+     * Creates a sequence from a stack by popping its elements.
+     *
+     * @param {PoppableStack<T>} stack The stack from where to pop.
+     *
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    function popFrom(stack) {
+        return from(popFromInner(stack));
+    } // popFrom()
+    Enumerable.popFrom = popFrom;
+    function* popFromInner(stack) {
+        if (stack) {
+            while (stack.length > 0) {
+                yield stack.pop();
+            }
+        }
+    }
     /**
      * Creates a range of numbers.
      *
@@ -1559,6 +1600,24 @@ var Enumerable;
                 }
             }
             yield item;
+        }
+    }
+    /**
+     * Creates a sequence from a stack by shifting its elements.
+     *
+     * @param {PoppableStack<T>} stack The stack from where to shift.
+     *
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    function shiftFrom(stack) {
+        return from(shiftFromInner(stack));
+    } // shiftFrom()
+    Enumerable.shiftFrom = shiftFrom;
+    function* shiftFromInner(stack) {
+        if (stack) {
+            while (stack.length > 0) {
+                yield stack.shift();
+            }
         }
     }
     /**

@@ -128,6 +128,21 @@ declare namespace Enumerable {
         outer: TOuter;
     }
     /**
+     * A collection that can be popped.
+     */
+    interface PoppableStack<T> {
+        /**
+         * The length of the stack.
+         */
+        length: number;
+        /**
+         * Pops an element.
+         *
+         * @return {T} The popped element.
+         */
+        pop: () => T;
+    }
+    /**
      * A predicate / condition.
      *
      * @template T Type of the item to check.
@@ -154,6 +169,21 @@ declare namespace Enumerable {
      * @template T Type of the items.
      */
     type Sequence<T> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
+    /**
+     * A collection that can be shifted.
+     */
+    interface ShiftableStack<T> {
+        /**
+         * The length of the stack.
+         */
+        length: number;
+        /**
+         * Shifts an element.
+         *
+         * @return {T} The shifted element.
+         */
+        shift: () => T;
+    }
     /**
      * A stack.
      *
@@ -1276,7 +1306,15 @@ declare namespace Enumerable {
      *
      * @returns {boolean} Is enumerable (sequence) or not.
      */
-    function isEnumerable(val: any): val is IEnumerable<any>;
+    function isEnumerable<T = any>(val: any): val is IEnumerable<T>;
+    /**
+     * Checks if a value can be used as enumerable (sequence).
+     *
+     * @param {any} val The value to check.
+     *
+     * @return {boolean} Is sequence or not.
+     */
+    function isSequence<T = any>(val: any): val is Sequence<T>;
     /**
      * Checks if a value represents the NOT_FOUND symbol.
      *
@@ -1285,6 +1323,14 @@ declare namespace Enumerable {
      * @returns {boolean} Is NOT_FOUND symbol or not.
      */
     function notFound(val: any): val is symbol;
+    /**
+     * Creates a sequence from a stack by popping its elements.
+     *
+     * @param {PoppableStack<T>} stack The stack from where to pop.
+     *
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    function popFrom<T>(stack: PoppableStack<T>): IEnumerable<T>;
     /**
      * Creates a range of numbers.
      *
@@ -1303,6 +1349,14 @@ declare namespace Enumerable {
      * @returns {IEnumerable<number>} The new sequence.
      */
     function repeat<T>(item: T, count?: number): IEnumerable<T>;
+    /**
+     * Creates a sequence from a stack by shifting its elements.
+     *
+     * @param {PoppableStack<T>} stack The stack from where to shift.
+     *
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    function shiftFrom<T>(stack: ShiftableStack<T>): IEnumerable<T>;
     /**
      * Returns a sorted sequence.
      *

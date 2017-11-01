@@ -159,6 +159,22 @@ namespace Enumerable {
     }  // JoinedItems<TOuter, TInner>
 
     /**
+     * A collection that can be popped.
+     */
+    export interface PoppableStack<T> {
+        /**
+         * The length of the stack.
+         */
+        length: number;
+        /**
+         * Pops an element.
+         * 
+         * @return {T} The popped element.
+         */
+        pop: () => T;
+    }  // PoppableStack<T>
+
+    /**
      * A predicate / condition.
      * 
      * @template T Type of the item to check.
@@ -189,6 +205,22 @@ namespace Enumerable {
     export type Sequence<T> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
 
     /**
+     * A collection that can be shifted.
+     */
+    export interface ShiftableStack<T> {
+        /**
+         * The length of the stack.
+         */
+        length: number;
+        /**
+         * Shifts an element.
+         * 
+         * @return {T} The shifted element.
+         */
+        shift: () => T;
+    }  // ShiftableStack<T>
+
+    /**
      * A stack.
      * 
      * @template T The type of the items.
@@ -203,7 +235,6 @@ namespace Enumerable {
          */
         push(...items: Array<T>): number;
     }  // interface Stack<T>
-
 
     /**
      * Indicates that something is empty.
@@ -990,7 +1021,7 @@ namespace Enumerable {
         }
         /** @inheritdoc */
         public async(action: AsyncAction<T>, previousValue?: any): Promise<any> {
-            let me = this;
+            const ME = this;
 
             return new Promise<any>((resolve, reject) => {
                 let asyncResult: any;
@@ -1041,7 +1072,7 @@ namespace Enumerable {
                                 NEXT_ITEM();
                             },
                             result: undefined,
-                            sequence: me,
+                            sequence: ME,
                             value: undefined,
                         };
 
@@ -2738,13 +2769,39 @@ namespace Enumerable {
      * 
      * @returns {boolean} Is enumerable (sequence) or not.
      */
-    export function isEnumerable(val: any): val is IEnumerable<any> {
+    export function isEnumerable<T = any>(val: any): val is IEnumerable<T> {
         if (!isNullOrUndefined(val)) {
             return val['IS_ENUMERABLE'] === IS_ENUMERABLE;
         }
 
         return false;
     }  // isEnumerable()
+
+    /**
+     * Checks if a value can be used as enumerable (sequence).
+     * 
+     * @param {any} val The value to check.
+     * 
+     * @return {boolean} Is sequence or not. 
+     */
+    export function isSequence<T = any>(val: any): val is Sequence<T> {
+        if (!isNullOrUndefined(val)) {
+            if ('function' === typeof val[Symbol.iterator]) {
+                // Iterator<T>
+                return true;
+            }
+
+            if (Array.isArray(val)) {
+                return true;
+            }
+
+            if ('string' === typeof val) {
+                return true;
+            }
+        }
+
+        return false;
+    }  // isSequence()
 
     /**
      * Checks if a value represents the NOT_FOUND symbol.
@@ -2756,6 +2813,27 @@ namespace Enumerable {
     export function notFound(val: any): val is symbol {
         return NOT_FOUND === val;
     }  // notFound()
+
+    /**
+     * Creates a sequence from a stack by popping its elements.
+     * 
+     * @param {PoppableStack<T>} stack The stack from where to pop.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    export function popFrom<T>(stack: PoppableStack<T>): IEnumerable<T> {
+        return from(
+            popFromInner(stack)
+        );
+    }  // popFrom()
+
+    function *popFromInner<T>(stack: PoppableStack<T>) {
+        if (stack) {
+            while (stack.length > 0) {
+                yield stack.pop();
+            }
+        }
+    }
 
     /**
      * Creates a range of numbers.
@@ -2812,6 +2890,27 @@ namespace Enumerable {
             }
 
             yield item;
+        }
+    }
+
+    /**
+     * Creates a sequence from a stack by shifting its elements.
+     * 
+     * @param {PoppableStack<T>} stack The stack from where to shift.
+     * 
+     * @return {IEnumerable<T>} The new sequence.
+     */
+    export function shiftFrom<T>(stack: ShiftableStack<T>): IEnumerable<T> {
+        return from(
+            shiftFromInner(stack)
+        );
+    }  // shiftFrom()
+
+    function *shiftFromInner<T>(stack: ShiftableStack<T>) {
+        if (stack) {
+            while (stack.length > 0) {
+                yield stack.shift();
+            }
         }
     }
 
