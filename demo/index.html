@@ -75,6 +75,7 @@
 
         #ne-playground .ne-right {
             background-color: #eee;
+            overflow: auto;
         }
 
         #ne-playground .ne-right table .ne-index {
@@ -229,7 +230,7 @@
 
                 var content;
                 if (result && ('function' === typeof result['next'] || Array.isArray(result))) {
-                    content = $('<table class="table table-striped">' + 
+                    content = $('<table class="table table-striped table-hover">' + 
                                 '<thead>' + 
                                 '<tr>' + 
                                 '<th class="ne-index">Index</th>' + 
