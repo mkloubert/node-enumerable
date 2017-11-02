@@ -62,6 +62,26 @@ Helpers.execute(
         Assert.equal('' + actual.length, expected.length);
         Assert.equal('' + actual.length, '' + expected.length);
         Assert.strictEqual('' + actual.length, '' + expected.length);
+
+        for (let i = 0; i < expected.length; i++) {
+            const A = actual[i];
+            const E = expected[i];
+
+            Assert.strictEqual(A.length, E.length);
+            Assert.equal(A.length, E.length);
+            Assert.strictEqual('' + A.length, '' + E.length);
+            Assert.equal('' + A.length, E.length);
+            Assert.equal(A.length, '' + E.length);
+
+            Assert.strictEqual(A, E);
+            Assert.equal(A, E);
+            Assert.strictEqual('' + A, '' + E);
+            Assert.equal('' + A, E);
+            Assert.equal('' + A, '' + E);
+            Assert.equal(A, '' + E);
+            Assert.strictEqual('' + A, E);
+            Assert.strictEqual(A, '' + E);
+        }
     });
 
 Helpers.execute(
@@ -89,4 +109,26 @@ Helpers.execute(
         Assert.equal('' + actual.length, expected.length);
         Assert.equal('' + actual.length, '' + expected.length);
         Assert.strictEqual('' + actual.length, '' + expected.length);
+
+        for (let i = 0; i < expected.length; i++) {
+            const A = actual[i];
+            const E = expected[i];
+
+            Assert.strictEqual(A.length, E.length);
+            Assert.equal(A.length, E.length);
+            Assert.strictEqual('' + A.length, '' + E.length);
+            Assert.equal('' + A.length, E.length);
+            Assert.equal(A.length, '' + E.length);
+            Assert.notStrictEqual('' + A.length, E.length);
+            Assert.notStrictEqual(A.length, '' + E.length);
+
+            Assert.strictEqual(A, E);
+            Assert.equal(A, E);
+            Assert.strictEqual('' + A, '' + E);
+            Assert.equal('' + A, E);
+            Assert.equal('' + A, '' + E);
+            Assert.equal(A, '' + E);
+            Assert.strictEqual('' + A, E);
+            Assert.strictEqual(A, '' + E);
+        }
     });
