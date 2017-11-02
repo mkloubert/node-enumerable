@@ -218,6 +218,12 @@ declare namespace Enumerable {
      */
     interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
         /**
+         * Handles current items as number and returns their absolute values.
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        abs(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Applies an accumulator function over that sequence.
          * If specified 'seed' is used as the initial accumulator value,
          * and (if specified) the 'resultSelector' is used to select the result value.
@@ -288,6 +294,12 @@ declare namespace Enumerable {
          * @throws Target type is not supported
          */
         cast<U = any>(type?: string): IEnumerable<U>;
+        /**
+         * Handles current items as float values and returns the smallest value greater than or equal to them.
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        ceil(): IEnumerable<number>;
         /**
          * Clones that sequence multiply times.
          *
@@ -415,16 +427,6 @@ declare namespace Enumerable {
          */
         except(second: Sequence<T>, comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**
-         * Invokes a function for each element of that sequence.
-         *
-         * @template TResult Type of the result.
-         *
-         * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
-         *
-         * @returns this
-         */
-        forEach(func: EachAction<T>): this;
-        /**
          * Returns the first element of that sequence.
          *
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -446,6 +448,22 @@ declare namespace Enumerable {
          * @returns {T|U} The item or the default value.
          */
         firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        /**
+         * Handles current items as float values and return the greatest value less than or equal to them.
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        floor(): IEnumerable<number>;
+        /**
+         * Invokes a function for each element of that sequence.
+         *
+         * @template TResult Type of the result.
+         *
+         * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
+         *
+         * @returns this
+         */
+        forEach(func: EachAction<T>): this;
         /**
          * Groups the items of that sequence by a key.
          *
@@ -645,6 +663,14 @@ declare namespace Enumerable {
          */
         pushTo(stack: Stack<T>): this;
         /**
+         * Randomizes the order of that sequence.
+         *
+         * @param {Function} sortValueProvider A custom function that provides a random sort value.
+         *
+         * @return {IOrderedEnumerable<T>} The new sequence.
+         */
+        rand(sortValueProvider?: () => any): IOrderedEnumerable<T>;
+        /**
          * Returns that sequence.
          *
          * @returns {this}
@@ -658,6 +684,12 @@ declare namespace Enumerable {
          * @return {IOrderedEnumerable<T>} The new sequence.
          */
         reverse(): IOrderedEnumerable<T>;
+        /**
+         * Handles current items as float values and return their nearest values.
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        round(): IEnumerable<number>;
         /**
          * Projects the items of that sequence to new values / objects.
          *
@@ -894,6 +926,8 @@ declare namespace Enumerable {
         /** @inheritdoc */
         [Symbol.iterator](): Iterator<T>;
         /** @inheritdoc */
+        abs(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
         aggregate<TAccumulate = T, TResult = T>(func: (accumulator: TAccumulate, item: T) => TAccumulate, seed?: TAccumulate, resultSelector?: (accumulator: TAccumulate) => TResult): TResult;
         /** @inheritdoc */
         all(predicate: Predicate<T>): boolean;
@@ -907,6 +941,8 @@ declare namespace Enumerable {
         readonly canReset: boolean;
         /** @inheritdoc */
         cast<U>(type?: string): IEnumerable<U>;
+        /** @inheritdoc */
+        ceil(): IEnumerable<number>;
         /** @inheritdoc */
         clone<U = T>(count?: number, itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>>;
         /**
@@ -963,6 +999,8 @@ declare namespace Enumerable {
         first(predicate?: Predicate<T>): T;
         /** @inheritdoc */
         firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        /** @inheritdoc */
+        floor(): IEnumerable<number>;
         /** @inheritdoc */
         forEach(action: EachAction<T>): this;
         /** @inheritdoc */
@@ -1028,9 +1066,13 @@ declare namespace Enumerable {
         /** @inheritdoc */
         pushTo(stack: Stack<T>): this;
         /** @inheritdoc */
+        rand(sortValueProvider?: () => any): IOrderedEnumerable<T>;
+        /** @inheritdoc */
         reset(): this;
         /** @inheritdoc */
         reverse(): IOrderedEnumerable<T>;
+        /** @inheritdoc */
+        round(): IEnumerable<number>;
         /** @inheritdoc */
         select<U>(selector: Selector<T, U>): IEnumerable<U>;
         /** @inheritdoc */

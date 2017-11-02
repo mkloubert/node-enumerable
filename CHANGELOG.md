@@ -1,5 +1,13 @@
 # Change Log (node-enumerable)
 
+## 3.2.0 (November 2nd, 2017; methods)
+
+* added `abs()` method
+* added `ceil()` method
+* added `floor()` method
+* added `rand()` method
+* added `round()` method
+
 ## 3.1.1 (November 1st, 2017; functions)
 
 * added `isSequence()` function

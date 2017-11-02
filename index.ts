@@ -256,6 +256,12 @@ namespace Enumerable {
      */
     export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
         /**
+         * Handles current items as number and returns their absolute values.
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        abs(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Applies an accumulator function over that sequence.
          * If specified 'seed' is used as the initial accumulator value,
          * and (if specified) the 'resultSelector' is used to select the result value.
@@ -329,6 +335,12 @@ namespace Enumerable {
          * @throws Target type is not supported
          */
         cast<U = any>(type?: string): IEnumerable<U>;
+        /**
+         * Handles current items as float values and returns the smallest value greater than or equal to them.
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        ceil(): IEnumerable<number>;
         /**
          * Clones that sequence multiply times.
          * 
@@ -461,16 +473,6 @@ namespace Enumerable {
         except(second: Sequence<T>,
                comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**
-         * Invokes a function for each element of that sequence.
-         * 
-         * @template TResult Type of the result.
-         * 
-         * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
-         * 
-         * @returns this
-         */
-        forEach(func: EachAction<T>): this;
-        /**
          * Returns the first element of that sequence.
          * 
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -493,6 +495,23 @@ namespace Enumerable {
          */
         firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                    defaultValue?: U): T | U;
+        /**
+         * Handles current items as float values and return the greatest value less than or equal to them.
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        floor(): IEnumerable<number>;
+
+        /**
+         * Invokes a function for each element of that sequence.
+         * 
+         * @template TResult Type of the result.
+         * 
+         * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
+         * 
+         * @returns this
+         */
+        forEach(func: EachAction<T>): this;
         /**
          * Groups the items of that sequence by a key.
          * 
@@ -713,6 +732,14 @@ namespace Enumerable {
          */
         pushTo(stack: Stack<T>): this;
         /**
+         * Randomizes the order of that sequence.
+         * 
+         * @param {Function} sortValueProvider A custom function that provides a random sort value.
+         * 
+         * @return {IOrderedEnumerable<T>} The new sequence.
+         */
+        rand(sortValueProvider?: () => any): IOrderedEnumerable<T>;
+        /**
          * Returns that sequence.
          * 
          * @returns {this} 
@@ -726,6 +753,12 @@ namespace Enumerable {
          * @return {IOrderedEnumerable<T>} The new sequence.
          */
         reverse(): IOrderedEnumerable<T>;
+        /**
+         * Handles current items as float values and return their nearest values.
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        round(): IEnumerable<number>;
         /**
          * Projects the items of that sequence to new values / objects.
          * 
@@ -976,6 +1009,26 @@ namespace Enumerable {
         public [Symbol.iterator](): Iterator<T> {
             return this;
         }
+
+        /** @inheritdoc */
+        public abs(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select((x: any) => {
+                if ('number' !== typeof x) {
+                    if (handleAsInt) {
+                        x = parseInt( toStringSafe(x).trim() );
+                    }
+                    else {
+                        x = parseFloat( toStringSafe(x).trim() );
+                    }
+                }
+
+                if (!isNaN(x)) {
+                    x = Math.abs(x);
+                }
+
+                return x;
+            });
+        }
         /** @inheritdoc */
         public aggregate<TAccumulate = T, TResult = T>(func: (accumulator: TAccumulate, item: T) => TAccumulate,
                                                        seed?: TAccumulate,
@@ -1214,6 +1267,20 @@ namespace Enumerable {
                 }
 
                 return <U>x;
+            });
+        }
+        /** @inheritdoc */
+        public ceil(): IEnumerable<number> {
+            return this.select((x: any) => {
+                if ('number' !== typeof x) {
+                    x = parseFloat( toStringSafe(x).trim() );
+                }
+
+                if (!isNaN(x)) {
+                    x = Math.ceil(x);
+                }
+
+                return x;
             });
         }
         /** @inheritdoc */
@@ -1465,6 +1532,20 @@ namespace Enumerable {
             }
 
             return ARGS.defaultValue;
+        }
+        /** @inheritdoc */
+        public floor(): IEnumerable<number> {
+            return this.select((x: any) => {
+                if ('number' !== typeof x) {
+                    x = parseFloat( toStringSafe(x).trim() );
+                }
+
+                if (!isNaN(x)) {
+                    x = Math.floor(x);
+                }
+
+                return x;
+            });
         }
         /** @inheritdoc */
         public forEach(action: EachAction<T>): this {
@@ -1911,6 +1992,23 @@ namespace Enumerable {
             return this;
         }
         /** @inheritdoc */
+        public rand(sortValueProvider?: () => any) {
+            if (!sortValueProvider) {
+                sortValueProvider = () => {
+                    try {
+                        return Math.random() * Number.MAX_SAFE_INTEGER;
+                    }
+                    catch (e) {
+                        return 0;
+                    }
+                };
+            }
+
+            return this.orderBy(x => {
+                return sortValueProvider();
+            });
+        }
+        /** @inheritdoc */
         public reset(): this {
             throw 'Not supported';
         }
@@ -1920,6 +2018,20 @@ namespace Enumerable {
             
             return this.orderByDescending(() => {
                 return i++;
+            });
+        }
+        /** @inheritdoc */
+        public round(): IEnumerable<number> {
+            return this.select((x: any) => {
+                if ('number' !== typeof x) {
+                    x = parseFloat( toStringSafe(x).trim() );
+                }
+
+                if (!isNaN(x)) {
+                    x = Math.round(x);
+                }
+
+                return x;
             });
         }
         /** @inheritdoc */
