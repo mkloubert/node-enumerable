@@ -35,6 +35,7 @@
      * [clone](#clone-)
      * [concat / concatArray](#concat--concatarray-)
      * [defaultIfEmpty / defaultSequenceIfEmpty](#defaultifempty--defaultsequenceifempty-)
+     * [popFrom / shiftFrom](#popfrom--shiftfrom-)
      * [pushTo](#pushto-)
      * [reset](#reset-)
 6. [Documentation](#documentation-)
@@ -639,6 +640,26 @@ Enumerable.create(0, 11, 22)
 // 'pz', 'tm', 'mk'
 Enumerable.create()
           .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
+```
+
+#### popFrom / shiftFrom [[&uarr;](#more-)]
+
+```javascript
+let arr1 = [ 11, 22, 33 ];
+for (let item of Enumerable.popFrom(arr1)) {
+    // [0] 33
+    // [1] 22
+    // [2] 11
+}
+// arr1 is empty now
+
+let arr2 = [ 111, 222, 333 ];
+for (let item of Enumerable.shiftFrom(arr2)) {
+    // [0] 111
+    // [1] 222
+    // [2] 333
+}
+// arr2 is empty now
 ```
 
 #### pushTo [[&uarr;](#more-)]
