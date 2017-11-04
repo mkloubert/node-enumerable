@@ -1984,10 +1984,6 @@ namespace Enumerable {
                                Math.log(base);
             }
 
-            // log10(100) = 2
-
-            // logE(100) / logE(10)
-            
             return this.select(x => {
                 return invokeForValidNumber(x,
                                             x => logFunc(x),
