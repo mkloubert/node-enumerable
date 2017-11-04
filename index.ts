@@ -342,6 +342,14 @@ namespace Enumerable {
          */
         ceil(): IEnumerable<number>;
         /**
+         * Splits the given sequence into chunks of the given size.
+         * 
+         * @param {number} [size] The chunk size. Default: 1
+         * 
+         * @return {IEnumerable<IEnumerable<T>>} The sequence of chunks.
+         */
+        chunk(size?: number): IEnumerable<IEnumerable<T>>;
+        /**
          * Clones that sequence multiply times.
          * 
          * @template U The type of the target sequences.
@@ -496,12 +504,17 @@ namespace Enumerable {
         firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                    defaultValue?: U): T | U;
         /**
+         * Returns a flattened sequence that contains the concatenation of all the nested sequences elements.
+         * 
+         * @return {IEnumerable<U>} The flatten items.
+         */
+        flatten<U = T>(): IEnumerable<U>;
+        /**
          * Handles current items as float values and return the greatest value less than or equal to them.
          * 
          * @return {IEnumerable<number>} The new sequence.
          */
         floor(): IEnumerable<number>;
-
         /**
          * Invokes a function for each element of that sequence.
          * 
@@ -665,6 +678,15 @@ namespace Enumerable {
          * @return {IEnumerable<T>} The filtered sequence.
          */
         noNAN(checkForInt?: boolean): IEnumerable<T>;
+        /**
+         * Filters the items of that sequence based on a given predicate and returns those items that do not match the predicate.
+         * 
+         * @param {Predicate<T>} [predicate] The optional predicate to use.
+         *                                   If no predicate is defined, all values that are empty, (false), (null), (undefined), e.g., are taken.
+         * 
+         * @return {IEnumerable<T>} The filtered sequence.
+         */
+        not(predicate?: Predicate<T>): IEnumerable<T>;
         /**
          * Removes empty items.
          * 
@@ -1284,6 +1306,32 @@ namespace Enumerable {
             });
         }
         /** @inheritdoc */
+        public chunk(size?: number): IEnumerable<IEnumerable<T>> {
+            size = parseInt( toStringSafe(size).trim() );
+            if (isNaN(size)) {
+                size = 1;
+            }
+
+            return from( this.chunkInner(size) );
+        }
+        /**
+         * @see chunk()
+         */
+        protected *chunkInner(size: number) {
+            let currentChunk: T[];
+
+            while (true)
+            {
+                const ARR = this.getNextChunkArray(size);
+                if (ARR.length > 0) {
+                    yield from(ARR);
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        /** @inheritdoc */
         public clone<U = T>(count?: number,
                             itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>> {
             count = parseInt(toStringSafe(count).trim());
@@ -1534,6 +1582,16 @@ namespace Enumerable {
             return ARGS.defaultValue;
         }
         /** @inheritdoc */
+        public flatten<U = T>(): IEnumerable<U> {
+            return this.selectMany((x: any) => {
+                if (!isSequence(x)) {
+                    x = [ x ];
+                }
+
+                return x;
+            });
+        }
+        /** @inheritdoc */
         public floor(): IEnumerable<number> {
             return this.select((x: any) => {
                 if ('number' !== typeof x) {
@@ -1559,6 +1617,22 @@ namespace Enumerable {
             }
 
             return this;
+        }
+        /**
+         * @see chunkInner()
+         */
+        protected getNextChunkArray(size: number): T[] {
+            const ARR: T[] = [];
+
+            for (let item of this) {
+                ARR.push(item);
+
+                if (ARR.length >= size) {
+                    break;
+                }
+            }
+
+            return ARR;
         }
         /** @inheritdoc */
         public groupBy<TKey>(keySelector: Selector<T, TKey>,
@@ -1938,6 +2012,20 @@ namespace Enumerable {
                     !checkForInt ? parseFloat(STR) : parseInt(STR)
                 );
             });
+        }
+        /** @inheritdoc */
+        public not(predicate?: Predicate<T>): IEnumerable<T> {
+            let predicateToUse: Predicate<T>;
+            if (arguments.length < 1) {
+                predicateToUse = (x) => !x;
+            }
+            else {
+                predicate = toPredicateSafe(predicate);
+
+                predicateToUse = (x) => !predicate(x);
+            }
+
+            return this.where(x => predicateToUse(x));
         }
         /** @inheritdoc */
         public notEmpty(): IEnumerable<T> {

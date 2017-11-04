@@ -4,7 +4,10 @@
 
 * added `abs()` method
 * added `ceil()` method
+* added `chunk()` method
+* added `flatten()` method
 * added `floor()` method
+* added `not()` method
 * added `rand()` method
 * added `round()` method
 

@@ -59,6 +59,23 @@ var Enumerable;
             return this;
         }
         /** @inheritdoc */
+        abs(handleAsInt) {
+            return this.select((x) => {
+                if ('number' !== typeof x) {
+                    if (handleAsInt) {
+                        x = parseInt(toStringSafe(x).trim());
+                    }
+                    else {
+                        x = parseFloat(toStringSafe(x).trim());
+                    }
+                }
+                if (!isNaN(x)) {
+                    x = Math.abs(x);
+                }
+                return x;
+            });
+        }
+        /** @inheritdoc */
         aggregate(func, seed, resultSelector) {
             if (!func) {
                 func = (acc, item) => acc + item;
@@ -259,6 +276,41 @@ var Enumerable;
                 }
                 return x;
             });
+        }
+        /** @inheritdoc */
+        ceil() {
+            return this.select((x) => {
+                if ('number' !== typeof x) {
+                    x = parseFloat(toStringSafe(x).trim());
+                }
+                if (!isNaN(x)) {
+                    x = Math.ceil(x);
+                }
+                return x;
+            });
+        }
+        /** @inheritdoc */
+        chunk(size) {
+            size = parseInt(toStringSafe(size).trim());
+            if (isNaN(size)) {
+                size = 1;
+            }
+            return from(this.chunkInner(size));
+        }
+        /**
+         * @see chunk()
+         */
+        *chunkInner(size) {
+            let currentChunk;
+            while (true) {
+                const ARR = this.getNextChunkArray(size);
+                if (ARR.length > 0) {
+                    yield from(ARR);
+                }
+                else {
+                    break;
+                }
+            }
         }
         /** @inheritdoc */
         clone(count, itemSelector) {
@@ -467,6 +519,27 @@ var Enumerable;
             return ARGS.defaultValue;
         }
         /** @inheritdoc */
+        flatten() {
+            return this.selectMany((x) => {
+                if (!isSequence(x)) {
+                    x = [x];
+                }
+                return x;
+            });
+        }
+        /** @inheritdoc */
+        floor() {
+            return this.select((x) => {
+                if ('number' !== typeof x) {
+                    x = parseFloat(toStringSafe(x).trim());
+                }
+                if (!isNaN(x)) {
+                    x = Math.floor(x);
+                }
+                return x;
+            });
+        }
+        /** @inheritdoc */
         forEach(action) {
             let i = -1;
             for (let item of this) {
@@ -476,6 +549,19 @@ var Enumerable;
                 }
             }
             return this;
+        }
+        /**
+         * @see chunkInner()
+         */
+        getNextChunkArray(size) {
+            const ARR = [];
+            for (let item of this) {
+                ARR.push(item);
+                if (ARR.length >= size) {
+                    break;
+                }
+            }
+            return ARR;
         }
         /** @inheritdoc */
         groupBy(keySelector, keyEqualityComparer) {
@@ -752,6 +838,18 @@ var Enumerable;
             });
         }
         /** @inheritdoc */
+        not(predicate) {
+            let predicateToUse;
+            if (arguments.length < 1) {
+                predicateToUse = (x) => !x;
+            }
+            else {
+                predicate = toPredicateSafe(predicate);
+                predicateToUse = (x) => !predicate(x);
+            }
+            return this.where(x => predicateToUse(x));
+        }
+        /** @inheritdoc */
         notEmpty() {
             return this.where(x => !!x);
         }
@@ -795,6 +893,22 @@ var Enumerable;
             return this;
         }
         /** @inheritdoc */
+        rand(sortValueProvider) {
+            if (!sortValueProvider) {
+                sortValueProvider = () => {
+                    try {
+                        return Math.random() * Number.MAX_SAFE_INTEGER;
+                    }
+                    catch (e) {
+                        return 0;
+                    }
+                };
+            }
+            return this.orderBy(x => {
+                return sortValueProvider();
+            });
+        }
+        /** @inheritdoc */
         reset() {
             throw 'Not supported';
         }
@@ -803,6 +917,18 @@ var Enumerable;
             let i = Number.MIN_SAFE_INTEGER;
             return this.orderByDescending(() => {
                 return i++;
+            });
+        }
+        /** @inheritdoc */
+        round() {
+            return this.select((x) => {
+                if ('number' !== typeof x) {
+                    x = parseFloat(toStringSafe(x).trim());
+                }
+                if (!isNaN(x)) {
+                    x = Math.round(x);
+                }
+                return x;
             });
         }
         /** @inheritdoc */

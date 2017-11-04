@@ -301,6 +301,14 @@ declare namespace Enumerable {
          */
         ceil(): IEnumerable<number>;
         /**
+         * Splits the given sequence into chunks of the given size.
+         *
+         * @param {number} [size] The chunk size. Default: 1
+         *
+         * @return {IEnumerable<IEnumerable<T>>} The sequence of chunks.
+         */
+        chunk(size?: number): IEnumerable<IEnumerable<T>>;
+        /**
          * Clones that sequence multiply times.
          *
          * @template U The type of the target sequences.
@@ -448,6 +456,12 @@ declare namespace Enumerable {
          * @returns {T|U} The item or the default value.
          */
         firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
+        /**
+         * Returns a flattened sequence that contains the concatenation of all the nested sequences elements.
+         *
+         * @return {IEnumerable<U>} The flatten items.
+         */
+        flatten<U = T>(): IEnumerable<U>;
         /**
          * Handles current items as float values and return the greatest value less than or equal to them.
          *
@@ -598,6 +612,15 @@ declare namespace Enumerable {
          * @return {IEnumerable<T>} The filtered sequence.
          */
         noNAN(checkForInt?: boolean): IEnumerable<T>;
+        /**
+         * Filters the items of that sequence based on a given predicate and returns those items that do not match the predicate.
+         *
+         * @param {Predicate<T>} [predicate] The optional predicate to use.
+         *                                   If no predicate is defined, all values that are empty, (false), (null), (undefined), e.g., are taken.
+         *
+         * @return {IEnumerable<T>} The filtered sequence.
+         */
+        not(predicate?: Predicate<T>): IEnumerable<T>;
         /**
          * Removes empty items.
          *
@@ -944,6 +967,12 @@ declare namespace Enumerable {
         /** @inheritdoc */
         ceil(): IEnumerable<number>;
         /** @inheritdoc */
+        chunk(size?: number): IEnumerable<IEnumerable<T>>;
+        /**
+         * @see chunk()
+         */
+        protected chunkInner(size: number): IterableIterator<IEnumerable<T>>;
+        /** @inheritdoc */
         clone<U = T>(count?: number, itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>>;
         /**
          * @see concatArray()
@@ -1000,9 +1029,15 @@ declare namespace Enumerable {
         /** @inheritdoc */
         firstOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /** @inheritdoc */
+        flatten<U = T>(): IEnumerable<U>;
+        /** @inheritdoc */
         floor(): IEnumerable<number>;
         /** @inheritdoc */
         forEach(action: EachAction<T>): this;
+        /**
+         * @see chunkInner()
+         */
+        protected getNextChunkArray(size: number): T[];
         /** @inheritdoc */
         groupBy<TKey>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey>): IEnumerable<IGrouping<TKey, T>>;
         /**
@@ -1049,6 +1084,8 @@ declare namespace Enumerable {
         abstract next(value?: any): IteratorResult<T>;
         /** @inheritdoc */
         noNAN(checkForInt?: boolean): IEnumerable<T>;
+        /** @inheritdoc */
+        not(predicate?: Predicate<T>): IEnumerable<T>;
         /** @inheritdoc */
         notEmpty(): IEnumerable<T>;
         /** @inheritdoc */

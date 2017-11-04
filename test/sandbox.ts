@@ -94,3 +94,15 @@ let j = Enumerable.from(persons)
                 });
 
 k.forEach(i => console.log(i));
+
+let seq = Enumerable.range(0, 10);
+for (let chunk of seq.chunk(3)) {
+    // [0] => [0, 1, 2]
+    // [1] => [3, 4, 5]
+    // [2] => [6, 7, 8]
+    // [3] => [9]
+    const ARR = chunk.toArray();
+    if (ARR) {
+        
+    }
+}

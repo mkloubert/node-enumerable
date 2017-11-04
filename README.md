@@ -31,7 +31,9 @@
    * [Checks / conditions](#checks--conditions-)
    * [Conversions](#conversions-)
    * [Count](#count-)
+   * [Math](#math-)
    * [More](#more-)
+     * [chunk](#chunk-)
      * [clone](#clone-)
      * [concat / concatArray](#concat--concatarray-)
      * [defaultIfEmpty / defaultSequenceIfEmpty](#defaultifempty--defaultsequenceifempty-)
@@ -290,6 +292,11 @@ Enumerable.create("grape", "passionfruit", "banana", "mango",
 // 4, 3, 2, 1
 Enumerable.create(1, 2, 3, 4)
           .reverse();
+
+// rand()
+// e.g.: 2, 5, 7, 8, 0, 4, 6, 9, 3, 1
+Enumerable.range(0, 10)
+          .rand();
 ```
 
 ### Take / skip elements [[&uarr;](#examples-)]
@@ -518,6 +525,11 @@ Enumerable.create("grape", "passionfruit", "blueberry",
 ### Projection [[&uarr;](#examples-)]
 
 ```javascript
+// flatten()
+// 1, (false), 3, 44, '555', 66.6, (true)
+Enumerable.from( [ [ 1, false, 3 ], 44, [ '555', 66.6, true ] ] )
+          .flatten();
+
 // select()
 // "MARCEL", "KLOUBERT"
 Enumerable.create("Marcel", "Kloubert")
@@ -544,16 +556,21 @@ Enumerable.create('Marcel', 'Bill', 'Albert')
 // (false)
 Enumerable.create(1, 2, '3', 4)
           .all((x) => typeof x !== "string");
-          
-// contains()
-// (true)
-Enumerable.create(1, 2, '3')
-          .contains(3);
 
 // any()
 // (true)
 Enumerable.create(1, 2, '3', 4)
           .any((x) => typeof x === "string");
+
+// contains()
+// (true)
+Enumerable.create(1, 2, '3')
+          .contains(3);
+
+// not()
+// 1, 2, 4
+Enumerable.create(1, 2, '3', 4)
+          .not((x) => typeof x === "string");
  
 // sequenceEqual()
 // (false)         
@@ -595,7 +612,43 @@ Enumerable.create(0, 1, 2)
           .count((x) => x > 0);
 ```
 
+### Math [[&uarr;](#math-)]
+
+```javascript
+// abs()
+// 1, 22.57, 444, NaN, -333.85, NaN
+Enumerable.create(-1, 22.57, 444, true, -333.85, false);
+          .abs();
+
+// ceil()
+// -1, 23, 444, NaN, -333, NaN
+Enumerable.create(-1, 22.47, 444, null, -333.85, false);
+          .ceil();
+
+// floor()
+// -1, 23, 444, NaN, -334, NaN
+Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, true);
+          .floor();
+
+// round()
+// -1, 23, 444, NaN, -334, 2, NaN
+Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, 1.5, true);
+          .round();
+```
+
 ### More [[&uarr;](#examples-)]
+
+#### Chunk [[&uarr;](#more-)]
+
+```javascript
+let seq = Enumerable.range(0, 10);
+for (let chunk of seq.chunk(3)) {
+    // [0] => [0, 1, 2]
+    // [1] => [3, 4, 5]
+    // [2] => [6, 7, 8]
+    // [3] => [9]
+}
+```
 
 #### clone [[&uarr;](#more-)]
 
