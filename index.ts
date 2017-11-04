@@ -831,6 +831,10 @@ namespace Enumerable {
         sequenceEqual<U>(other: Sequence<U>,
                          equalityComparer?: EqualityComparer<T, U> | true): boolean;
         /**
+         * Alias for rand()
+         */
+        shuffle(sortValueProvider?: () => any): IOrderedEnumerable<T>;
+        /**
          * Returns the one and only element of that sequence.
          * 
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -1051,20 +1055,7 @@ namespace Enumerable {
         /** @inheritdoc */
         public abs(handleAsInt?: boolean): IEnumerable<number> {
             return this.select((x: any) => {
-                if ('number' !== typeof x) {
-                    if (handleAsInt) {
-                        x = parseInt( toStringSafe(x).trim() );
-                    }
-                    else {
-                        x = parseFloat( toStringSafe(x).trim() );
-                    }
-                }
-
-                if (!isNaN(x)) {
-                    x = Math.abs(x);
-                }
-
-                return x;
+                return invokeForValidNumber(x, x => Math.abs(x), handleAsInt);
             });
         }
         /** @inheritdoc */
@@ -1310,15 +1301,7 @@ namespace Enumerable {
         /** @inheritdoc */
         public ceil(): IEnumerable<number> {
             return this.select((x: any) => {
-                if ('number' !== typeof x) {
-                    x = parseFloat( toStringSafe(x).trim() );
-                }
-
-                if (!isNaN(x)) {
-                    x = Math.ceil(x);
-                }
-
-                return x;
+                return invokeForValidNumber(x, x => Math.ceil(x));
             });
         }
         /** @inheritdoc */
@@ -1610,15 +1593,7 @@ namespace Enumerable {
         /** @inheritdoc */
         public floor(): IEnumerable<number> {
             return this.select((x: any) => {
-                if ('number' !== typeof x) {
-                    x = parseFloat( toStringSafe(x).trim() );
-                }
-
-                if (!isNaN(x)) {
-                    x = Math.floor(x);
-                }
-
-                return x;
+                return invokeForValidNumber(x, x => Math.floor(x));
             });
         }
         /** @inheritdoc */
@@ -2131,14 +2106,7 @@ namespace Enumerable {
         /** @inheritdoc */
         public rand(sortValueProvider?: () => any) {
             if (!sortValueProvider) {
-                sortValueProvider = () => {
-                    try {
-                        return Math.random() * Number.MAX_SAFE_INTEGER;
-                    }
-                    catch (e) {
-                        return 0;
-                    }
-                };
+                sortValueProvider = () => Math.random();
             }
 
             return this.orderBy(x => {
@@ -2160,15 +2128,7 @@ namespace Enumerable {
         /** @inheritdoc */
         public round(): IEnumerable<number> {
             return this.select((x: any) => {
-                if ('number' !== typeof x) {
-                    x = parseFloat( toStringSafe(x).trim() );
-                }
-
-                if (!isNaN(x)) {
-                    x = Math.round(x);
-                }
-
-                return x;
+                return invokeForValidNumber(x, x => Math.round(x));
             });
         }
         /** @inheritdoc */
@@ -2229,6 +2189,11 @@ namespace Enumerable {
             }
             
             return true;
+        }
+        /** @inheritdoc */
+        public shuffle(sortValueProvider?: () => any) {
+            return this.rand
+                       .apply(this, arguments);
         }
         /** @inheritdoc */
         public single(predicate?: Predicate<T>): T {
@@ -2999,6 +2964,26 @@ namespace Enumerable {
             toStringSafe(val).split('')
         );
     }  // fromString()
+
+    function invokeForValidNumber(x: any, action: (n: number) => any,
+                             handleAsInt = false) {
+        if ('number' !== typeof x) {
+            if (!handleAsInt) {
+                x = parseFloat( toStringSafe(x).trim() );
+            }
+            else {
+                x = parseInt( toStringSafe(x).trim() );
+            }
+        }
+
+        if (!isNaN(x)) {
+            if (action) {
+                x = action(x);
+            }
+        }
+
+        return x;
+    }  // invokeForNumber()
 
     /**
      * Checks if a value represents the IS_EMPTY symbol.

@@ -1,5 +1,9 @@
 # Change Log (node-enumerable)
 
+## 3.5.0 (November 5th, 2017; methods)
+
+* added `shuffle()` method
+
 ## 3.4.1 (November 4th, 2017; methods)
 
 * added `abs()` method

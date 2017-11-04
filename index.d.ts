@@ -762,6 +762,10 @@ declare namespace Enumerable {
          */
         sequenceEqual<U>(other: Sequence<U>, equalityComparer?: EqualityComparer<T, U> | true): boolean;
         /**
+         * Alias for rand()
+         */
+        shuffle(sortValueProvider?: () => any): IOrderedEnumerable<T>;
+        /**
          * Returns the one and only element of that sequence.
          *
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -1144,6 +1148,8 @@ declare namespace Enumerable {
         protected selectManyInner<U>(selector: Selector<T, Sequence<U>>): IterableIterator<U>;
         /** @inheritdoc */
         sequenceEqual<U>(other: Sequence<U>, equalityComparer?: EqualityComparer<T, U> | true): boolean;
+        /** @inheritdoc */
+        shuffle(sortValueProvider?: () => any): any;
         /** @inheritdoc */
         single(predicate?: Predicate<T>): T;
         /** @inheritdoc */

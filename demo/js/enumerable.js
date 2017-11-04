@@ -61,18 +61,7 @@ var Enumerable;
         /** @inheritdoc */
         abs(handleAsInt) {
             return this.select((x) => {
-                if ('number' !== typeof x) {
-                    if (handleAsInt) {
-                        x = parseInt(toStringSafe(x).trim());
-                    }
-                    else {
-                        x = parseFloat(toStringSafe(x).trim());
-                    }
-                }
-                if (!isNaN(x)) {
-                    x = Math.abs(x);
-                }
-                return x;
+                return invokeForValidNumber(x, x => Math.abs(x), handleAsInt);
             });
         }
         /** @inheritdoc */
@@ -280,13 +269,7 @@ var Enumerable;
         /** @inheritdoc */
         ceil() {
             return this.select((x) => {
-                if ('number' !== typeof x) {
-                    x = parseFloat(toStringSafe(x).trim());
-                }
-                if (!isNaN(x)) {
-                    x = Math.ceil(x);
-                }
-                return x;
+                return invokeForValidNumber(x, x => Math.ceil(x));
             });
         }
         /** @inheritdoc */
@@ -530,13 +513,7 @@ var Enumerable;
         /** @inheritdoc */
         floor() {
             return this.select((x) => {
-                if ('number' !== typeof x) {
-                    x = parseFloat(toStringSafe(x).trim());
-                }
-                if (!isNaN(x)) {
-                    x = Math.floor(x);
-                }
-                return x;
+                return invokeForValidNumber(x, x => Math.floor(x));
             });
         }
         /** @inheritdoc */
@@ -924,14 +901,7 @@ var Enumerable;
         /** @inheritdoc */
         rand(sortValueProvider) {
             if (!sortValueProvider) {
-                sortValueProvider = () => {
-                    try {
-                        return Math.random() * Number.MAX_SAFE_INTEGER;
-                    }
-                    catch (e) {
-                        return 0;
-                    }
-                };
+                sortValueProvider = () => Math.random();
             }
             return this.orderBy(x => {
                 return sortValueProvider();
@@ -951,13 +921,7 @@ var Enumerable;
         /** @inheritdoc */
         round() {
             return this.select((x) => {
-                if ('number' !== typeof x) {
-                    x = parseFloat(toStringSafe(x).trim());
-                }
-                if (!isNaN(x)) {
-                    x = Math.round(x);
-                }
-                return x;
+                return invokeForValidNumber(x, x => Math.round(x));
             });
         }
         /** @inheritdoc */
@@ -1008,6 +972,11 @@ var Enumerable;
                 return false;
             }
             return true;
+        }
+        /** @inheritdoc */
+        shuffle(sortValueProvider) {
+            return this.rand
+                .apply(this, arguments);
         }
         /** @inheritdoc */
         single(predicate) {
@@ -1629,6 +1598,22 @@ var Enumerable;
         return new ArrayEnumerable(toStringSafe(val).split(''));
     } // fromString()
     Enumerable.fromString = fromString;
+    function invokeForValidNumber(x, action, handleAsInt = false) {
+        if ('number' !== typeof x) {
+            if (!handleAsInt) {
+                x = parseFloat(toStringSafe(x).trim());
+            }
+            else {
+                x = parseInt(toStringSafe(x).trim());
+            }
+        }
+        if (!isNaN(x)) {
+            if (action) {
+                x = action(x);
+            }
+        }
+        return x;
+    } // invokeForNumber()
     /**
      * Checks if a value represents the IS_EMPTY symbol.
      *
@@ -1924,4 +1909,4 @@ var Enumerable;
     }
 })(Enumerable || (Enumerable = {}));
 
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=enumerable.js.map

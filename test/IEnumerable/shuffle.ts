@@ -37,7 +37,7 @@ Helpers.execute(
             }
 
             const SEQ = Enumerable.from( ARR )
-                                  .rand()
+                                  .shuffle()
             let j = -1;
             for (let item of SEQ) {
                 ++j;
@@ -75,7 +75,7 @@ Helpers.execute(
             }
 
             const SEQ = Enumerable.from( ARR )
-                                  .rand(() => Math.random())
+                                  .shuffle(() => Math.random())
             let j = -1;
             for (let item of SEQ) {
                 ++j;

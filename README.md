@@ -297,7 +297,7 @@ Enumerable.create(1, 2, 3, 4)
 // rand()
 // e.g.: 2, 5, 7, 8, 0, 4, 6, 9, 3, 1
 Enumerable.range(0, 10)
-          .rand();
+          .rand();  // alt: shuffle()
 ```
 
 ### Take / skip elements [[&uarr;](#examples-)]
