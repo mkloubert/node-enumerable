@@ -37,6 +37,7 @@
      * [clone](#clone-)
      * [concat / concatArray](#concat--concatarray-)
      * [defaultIfEmpty / defaultSequenceIfEmpty](#defaultifempty--defaultsequenceifempty-)
+     * [intersperse / intersperseArray](#intersperse--interspersearray-)
      * [popFrom / shiftFrom](#popfrom--shiftfrom-)
      * [pushTo](#pushto-)
      * [reset](#reset-)
@@ -695,17 +696,16 @@ Enumerable.create()
           .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
 ```
 
-#### intersperse [[&uarr;](#more-)]
+#### intersperse / intersperseArray [[&uarr;](#more-)]
 
 ```javascript
-let seq = Enumerable.range(0, 3);
-for (let chunk of seq.intersperse('-')) {
-    // [0] => 0
-    // [1] => '-'
-    // [2] => 1
-    // [3] => '-'
-    // [4] => 2
-}
+// 0, '-', 1, '-', 2
+Enumerable.range(0, 3)
+          .intersperse('-');
+
+// -- or --
+Enumerable.range(0, 3)
+          .intersperseArray( ['-'] );
 ```
 
 #### popFrom / shiftFrom [[&uarr;](#more-)]

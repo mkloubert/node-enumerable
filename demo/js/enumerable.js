@@ -669,14 +669,15 @@ var Enumerable;
          * @see intersperseInner()
          */
         *intersperseInner(separators) {
+            if (!separators) {
+                separators = [];
+            }
             let isFirst = true;
             for (let item of this) {
                 // separator(s)
                 if (!isFirst) {
-                    if (separators) {
-                        for (let s of separators) {
-                            yield s;
-                        }
+                    for (let s of separators) {
+                        yield s;
                     }
                 }
                 else {
@@ -684,6 +685,10 @@ var Enumerable;
                 }
                 yield item;
             }
+        }
+        /** @inheritdoc */
+        intersperseArray(separators) {
+            return from(this.intersperseInner(from(separators).toArray()));
         }
         /** @inheritdoc */
         intersect(second, comparer) {

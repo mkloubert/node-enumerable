@@ -576,11 +576,19 @@ namespace Enumerable {
         /**
          * Returns all elements of the collection separated by the given separator(s).
          * 
-         * @param {U[]} {separators} One or more separator.
+         * @param {U[]} [separators] One or more separator.
          * 
          * @return {IEnumerable<T|U>} The new sequence.
          */
         intersperse<U = T>(...separators: U[]): IEnumerable<T | U>;
+        /**
+         * Returns all elements of the collection separated by the given separator(s).
+         * 
+         * @param {Sequence<U>} separators The separators.
+         * 
+         * @return {IEnumerable<T|U>} The new sequence.
+         */
+        intersperseArray<U = T>(separators: Sequence<U>): IEnumerable<T | U>;
         /**
          * Returns the intersection between this and a second sequence.
          * 
@@ -1790,14 +1798,16 @@ namespace Enumerable {
          * @see intersperseInner()
          */
         protected *intersperseInner<U>(separators: U[]): Iterator<T | U> {
+            if (!separators) {
+                separators = [];
+            }
+
             let isFirst = true;
             for (let item of this) {
                 // separator(s)
                 if (!isFirst) {
-                    if (separators) {
-                        for (let s of separators) {
-                            yield s;
-                        }
+                    for (let s of separators) {
+                        yield s;
                     }
                 }
                 else {
@@ -1806,6 +1816,12 @@ namespace Enumerable {
 
                 yield item;
             }
+        }
+        /** @inheritdoc */
+        public intersperseArray<U = T>(separators: Sequence<U>): IEnumerable<T | U> {
+            return from(this.intersperseInner(
+                from(separators).toArray(),
+            ));
         }
         /** @inheritdoc */
         public intersect(second: Sequence<T>,
