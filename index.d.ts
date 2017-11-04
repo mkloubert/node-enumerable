@@ -519,6 +519,14 @@ declare namespace Enumerable {
          */
         indexOf<U>(item: U, comparer?: EqualityComparer<T, U> | true): number;
         /**
+         * Returns all elements of the collection separated by the given separator(s).
+         *
+         * @param {U[]} {separators} One or more separator.
+         *
+         * @return {IEnumerable<T|U>} The new sequence.
+         */
+        intersperse<U = T>(...separators: U[]): IEnumerable<T | U>;
+        /**
          * Returns the intersection between this and a second sequence.
          *
          * @param {Sequence<T>} second The second sequence.
@@ -1054,6 +1062,12 @@ declare namespace Enumerable {
         readonly index: number;
         /** @inheritdoc */
         indexOf<U>(item: U, comparer?: EqualityComparer<T, U> | true): number;
+        /** @inheritdoc */
+        intersperse<U = T>(...separators: U[]): IEnumerable<T | U>;
+        /**
+         * @see intersperseInner()
+         */
+        protected intersperseInner<U>(separators: U[]): Iterator<T | U>;
         /** @inheritdoc */
         intersect(second: Sequence<T>, comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**

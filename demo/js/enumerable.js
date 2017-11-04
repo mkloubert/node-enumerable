@@ -662,6 +662,30 @@ var Enumerable;
             return -1;
         }
         /** @inheritdoc */
+        intersperse(...separators) {
+            return from(this.intersperseInner(separators));
+        }
+        /**
+         * @see intersperseInner()
+         */
+        *intersperseInner(separators) {
+            let isFirst = true;
+            for (let item of this) {
+                // separator(s)
+                if (!isFirst) {
+                    if (separators) {
+                        for (let s of separators) {
+                            yield s;
+                        }
+                    }
+                }
+                else {
+                    isFirst = false;
+                }
+                yield item;
+            }
+        }
+        /** @inheritdoc */
         intersect(second, comparer) {
             return from(this.intersectInner(from(second).distinct()
                 .toArray(), toEqualityComparerSafe(comparer)));

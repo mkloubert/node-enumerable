@@ -1,12 +1,13 @@
 # Change Log (node-enumerable)
 
-## 3.2.0 (November 2nd, 2017; methods)
+## 3.3.1 (November 4th, 2017; methods)
 
 * added `abs()` method
 * added `ceil()` method
 * added `chunk()` method
 * added `flatten()` method
 * added `floor()` method
+* added `intersperse()` method
 * added `not()` method
 * added `rand()` method
 * added `round()` method

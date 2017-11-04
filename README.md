@@ -695,6 +695,19 @@ Enumerable.create()
           .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
 ```
 
+#### intersperse [[&uarr;](#more-)]
+
+```javascript
+let seq = Enumerable.range(0, 3);
+for (let chunk of seq.intersperse('-')) {
+    // [0] => 0
+    // [1] => '-'
+    // [2] => 1
+    // [3] => '-'
+    // [4] => 2
+}
+```
+
 #### popFrom / shiftFrom [[&uarr;](#more-)]
 
 ```javascript
