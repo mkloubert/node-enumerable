@@ -666,6 +666,16 @@ namespace Enumerable {
         lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                   defaultValue?: U): T | U;
         /**
+         * Handles current items as base numbers and calculates the natural logarithm (base e) of a them.
+         * 
+         * @param {number} [base] The custom base. Default: e
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        log(base?: number, handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Returns a resettable version of that sequence.
          * 
          * @returns {IEnumerable<T>} The resettable version of that sequence.
@@ -1960,6 +1970,29 @@ namespace Enumerable {
             }
 
             return ARGS.defaultValue;
+        }
+        /** @inheritdoc */
+        public log(base?: number, handleAsInt?: boolean): IEnumerable<number> {
+            let logFunc: (n: number) => number;
+
+            base = parseFloat( toStringSafe(base).trim() );
+            if (isNaN(base)) {
+                logFunc = a => Math.log(a);
+            }
+            else {
+                logFunc = a => Math.log(a) / 
+                               Math.log(base);
+            }
+
+            // log10(100) = 2
+
+            // logE(100) / logE(10)
+            
+            return this.select(x => {
+                return invokeForValidNumber(x,
+                                            x => logFunc(x),
+                                            handleAsInt);
+            });
         }
         /** @inheritdoc */
         public makeResettable(): IEnumerable<T> {

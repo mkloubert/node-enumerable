@@ -2,6 +2,7 @@
 
 ## 3.5.0 (November 5th, 2017; methods)
 
+* added `log()` method
 * added `pow()` method
 * added `shuffle()` method
 

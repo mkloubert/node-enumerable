@@ -776,6 +776,23 @@ var Enumerable;
             return ARGS.defaultValue;
         }
         /** @inheritdoc */
+        log(base, handleAsInt) {
+            let logFunc;
+            base = parseFloat(toStringSafe(base).trim());
+            if (isNaN(base)) {
+                logFunc = a => Math.log(a);
+            }
+            else {
+                logFunc = a => Math.log(a) /
+                    Math.log(base);
+            }
+            // log10(100) = 2
+            // logE(100) / logE(10)
+            return this.select(x => {
+                return invokeForValidNumber(x, x => logFunc(x), handleAsInt);
+            });
+        }
+        /** @inheritdoc */
         makeResettable() {
             if (this.canReset) {
                 return this;
