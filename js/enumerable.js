@@ -887,6 +887,16 @@ var Enumerable;
             return this.orderByDescending(x => x, comparer);
         }
         /** @inheritdoc */
+        pow(exponent, handleAsInt) {
+            exponent = parseFloat(toStringSafe(exponent).trim());
+            if (isNaN(exponent)) {
+                exponent = 2;
+            }
+            return this.select((x) => {
+                return invokeForValidNumber(x, x => Math.pow(x, exponent), handleAsInt);
+            });
+        }
+        /** @inheritdoc */
         product() {
             return this.aggregate((acc, x) => Enumerable.IS_EMPTY !== acc ? (acc * x) : x, Enumerable.IS_EMPTY);
         }

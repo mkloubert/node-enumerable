@@ -72,7 +72,7 @@ declare namespace Enumerable {
      *
      * @template TResult The type of the result.
      *
-     * @param {((cancel: (flag?: boolean) => void)} cancel The callback to cancel the building.
+     * @param {((cancel: (flag?: boolean) => void)} cancel The callback to cancel the operation.
      * @param {number} index The zero based index of that invocation.
      *
      * @return {TResult} The result.
@@ -218,7 +218,10 @@ declare namespace Enumerable {
      */
     interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
         /**
-         * Handles current items as number and returns their absolute values.
+         * Handles current items as numbers and returns their absolute values.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
          *
          * @return {IEnumerable<number>} The new sequence.
          */
@@ -688,6 +691,16 @@ declare namespace Enumerable {
          */
         orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
         /**
+         * Handles current items as base numbers and take them to a specific power.
+         *
+         * @param {number} [exponent] The exponent. Default: 2
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Calculates the product of that sequence.
          *
          * @returns {(T|symbol)} The product or IS_EMPTY if that sequence is empty.
@@ -1126,6 +1139,8 @@ declare namespace Enumerable {
         orderByDescending<U>(selector: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T>;
         /** @inheritdoc */
         orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
+        /** @inheritdoc */
+        pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         product(): T | symbol;
         /** @inheritdoc */

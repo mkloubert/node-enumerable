@@ -2,6 +2,7 @@
 
 ## 3.5.0 (November 5th, 2017; methods)
 
+* added `pow()` method
 * added `shuffle()` method
 
 ## 3.4.1 (November 4th, 2017; methods)

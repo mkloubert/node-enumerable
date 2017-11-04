@@ -98,7 +98,7 @@ namespace Enumerable {
      * 
      * @template TResult The type of the result.
      * 
-     * @param {((cancel: (flag?: boolean) => void)} cancel The callback to cancel the building.
+     * @param {((cancel: (flag?: boolean) => void)} cancel The callback to cancel the operation.
      * @param {number} index The zero based index of that invocation.
      * 
      * @return {TResult} The result.
@@ -256,7 +256,10 @@ namespace Enumerable {
      */
     export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
         /**
-         * Handles current items as number and returns their absolute values.
+         * Handles current items as numbers and returns their absolute values.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
          * 
          * @return {IEnumerable<number>} The new sequence.
          */
@@ -756,6 +759,16 @@ namespace Enumerable {
          */
         orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
         /**
+         * Handles current items as base numbers and take them to a specific power.
+         * 
+         * @param {number} [exponent] The exponent. Default: 2
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Calculates the product of that sequence.
          * 
          * @returns {(T|symbol)} The product or IS_EMPTY if that sequence is empty.
@@ -1055,7 +1068,8 @@ namespace Enumerable {
         /** @inheritdoc */
         public abs(handleAsInt?: boolean): IEnumerable<number> {
             return this.select((x: any) => {
-                return invokeForValidNumber(x, x => Math.abs(x), handleAsInt);
+                return invokeForValidNumber(x, x => Math.abs(x),
+                                            handleAsInt);
             });
         }
         /** @inheritdoc */
@@ -2088,6 +2102,20 @@ namespace Enumerable {
         public orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T> {
             return this.orderByDescending(x => x,
                                           comparer);
+        }
+        /** @inheritdoc */
+        public pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number> {
+            exponent = parseFloat(
+                toStringSafe(exponent).trim()
+            );
+            if (isNaN(exponent)) {
+                exponent = 2;
+            }
+
+            return this.select((x: any) => {
+                return invokeForValidNumber(x, x => Math.pow(x, exponent),
+                                            handleAsInt);
+            });
         }
         /** @inheritdoc */
         public product(): T | symbol {
