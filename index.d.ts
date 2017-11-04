@@ -521,11 +521,19 @@ declare namespace Enumerable {
         /**
          * Returns all elements of the collection separated by the given separator(s).
          *
-         * @param {U[]} {separators} One or more separator.
+         * @param {U[]} [separators] One or more separator.
          *
          * @return {IEnumerable<T|U>} The new sequence.
          */
         intersperse<U = T>(...separators: U[]): IEnumerable<T | U>;
+        /**
+         * Returns all elements of the collection separated by the given separator(s).
+         *
+         * @param {Sequence<U>} separators The separators.
+         *
+         * @return {IEnumerable<T|U>} The new sequence.
+         */
+        intersperseArray<U = T>(separators: Sequence<U>): IEnumerable<T | U>;
         /**
          * Returns the intersection between this and a second sequence.
          *
@@ -1068,6 +1076,8 @@ declare namespace Enumerable {
          * @see intersperseInner()
          */
         protected intersperseInner<U>(separators: U[]): Iterator<T | U>;
+        /** @inheritdoc */
+        intersperseArray<U = T>(separators: Sequence<U>): IEnumerable<T | U>;
         /** @inheritdoc */
         intersect(second: Sequence<T>, comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**

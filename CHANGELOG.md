@@ -1,6 +1,6 @@
 # Change Log (node-enumerable)
 
-## 3.4.0 (November 4th, 2017; methods)
+## 3.4.1 (November 4th, 2017; methods)
 
 * added `abs()` method
 * added `ceil()` method
