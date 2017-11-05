@@ -738,7 +738,7 @@ namespace Enumerable {
         lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                   defaultValue?: U): T | U;
         /**
-         * Handles current items as numbers and calculates the natural logarithm (base e) of a them.
+         * Handles current items as numbers and calculates the logarithm of them.
          * 
          * @param {number} [base] The custom base. Default: e
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).

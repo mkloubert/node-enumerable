@@ -608,12 +608,12 @@ Enumerable.create(0, 1, 2)
 ```javascript
 // abs()
 // 1, 22.57, 444, NaN, -333.85, NaN
-Enumerable.create(-1, 22.57, 444, true, -333.85, false);
+Enumerable.create(-1, 22.57, 444, true, -333.85, false)
           .abs();
 
 // ceil()
 // -1, 23, 444, NaN, -333, NaN
-Enumerable.create(-1, 22.47, 444, null, -333.85, false);
+Enumerable.create(-1, 22.47, 444, null, -333.85, false)
           .ceil();
 
 // cos()
@@ -628,17 +628,17 @@ Enumerable.create(11, 22, 33)
 
 // floor()
 // -1, 23, 444, NaN, -334, NaN
-Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, true);
+Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, true)
           .floor();
 
 // log()
 // 0, 1, 2, 3, 4
-Enumerable.create(1, 2, 4, 8, 16);
+Enumerable.create(1, 2, 4, 8, 16)
           .log(2);
 
 // pow()
 // 1, 4, 9, 16
-Enumerable.create(1, 2, 3, 4);
+Enumerable.create(1, 2, 3, 4)
           .pow(2);
 
 // product()
@@ -648,7 +648,7 @@ Enumerable.create(1, 2, 3, 4)
 
 // round()
 // -1, 23, 444, NaN, -334, 2, NaN
-Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, 1.5, true);
+Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, 1.5, true)
           .round();
 
 // sin()
@@ -663,7 +663,7 @@ Enumerable.create(1, 2, 3)
 
 // sqrt()
 // 1, 2, 3, 4
-Enumerable.create(1, 4, 9, 16);
+Enumerable.create(1, 4, 9, 16)
           .sqrt();
 
 // sum()
