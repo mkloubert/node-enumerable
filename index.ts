@@ -396,6 +396,15 @@ namespace Enumerable {
         contains<U>(item: U,
                     comparer?: EqualityComparer<T, U> | true): boolean;
         /**
+         * Handles current items as base numbers and calculates the cosine for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        cos(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Counts the elements of that sequence.
          * 
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -858,6 +867,15 @@ namespace Enumerable {
          */
         shuffle(sortValueProvider?: () => any): IOrderedEnumerable<T>;
         /**
+         * Handles current items as base numbers and calculates the sine for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        sin(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Returns the one and only element of that sequence.
          * 
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -926,6 +944,15 @@ namespace Enumerable {
          * @return {IEnumerable<T>} The new sequence.
          */
         takeWhile(predicate: Predicate<T>): IEnumerable<T>;
+        /**
+         * Handles current items as base numbers and calculates the tangent for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        tan(handleAsInt?: boolean): IEnumerable<number>;
         /**
          * Creates a new array from the items of that sequence.
          * 
@@ -1078,7 +1105,7 @@ namespace Enumerable {
         /** @inheritdoc */
         public abs(handleAsInt?: boolean): IEnumerable<number> {
             return this.select((x: any) => {
-                return invokeForValidNumber(x, x => Math.abs(x),
+                return invokeForValidNumber(x, y => Math.abs(y),
                                             handleAsInt);
             });
         }
@@ -1325,7 +1352,8 @@ namespace Enumerable {
         /** @inheritdoc */
         public ceil(): IEnumerable<number> {
             return this.select((x: any) => {
-                return invokeForValidNumber(x, x => Math.ceil(x));
+                return invokeForValidNumber(x,
+                                            y => Math.ceil(y));
             });
         }
         /** @inheritdoc */
@@ -1413,6 +1441,12 @@ namespace Enumerable {
         public contains<U>(item: U,
                            comparer?: EqualityComparer<T, U> | true): boolean {
             return this.indexOf<U>(item, comparer) > -1;
+        }
+        /** @inheritdoc */
+        public cos(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.cos(y),
+                                                         handleAsInt));
         }
         /** @inheritdoc */
         public count(predicate?: Predicate<T>): number {
@@ -1617,7 +1651,8 @@ namespace Enumerable {
         /** @inheritdoc */
         public floor(): IEnumerable<number> {
             return this.select((x: any) => {
-                return invokeForValidNumber(x, x => Math.floor(x));
+                return invokeForValidNumber(x,
+                                            y => Math.floor(y));
             });
         }
         /** @inheritdoc */
@@ -1986,7 +2021,7 @@ namespace Enumerable {
 
             return this.select(x => {
                 return invokeForValidNumber(x,
-                                            x => logFunc(x),
+                                            y => logFunc(y),
                                             handleAsInt);
             });
         }
@@ -2142,7 +2177,8 @@ namespace Enumerable {
             }
 
             return this.select((x: any) => {
-                return invokeForValidNumber(x, x => Math.pow(x, exponent),
+                return invokeForValidNumber(x,
+                                            y => Math.pow(y, exponent),
                                             handleAsInt);
             });
         }
@@ -2185,7 +2221,8 @@ namespace Enumerable {
         /** @inheritdoc */
         public round(): IEnumerable<number> {
             return this.select((x: any) => {
-                return invokeForValidNumber(x, x => Math.round(x));
+                return invokeForValidNumber(x,
+                                            y => Math.round(y));
             });
         }
         /** @inheritdoc */
@@ -2251,6 +2288,12 @@ namespace Enumerable {
         public shuffle(sortValueProvider?: () => any) {
             return this.rand
                        .apply(this, arguments);
+        }
+        /** @inheritdoc */
+        public sin(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.sin(y),
+                                                         handleAsInt));
         }
         /** @inheritdoc */
         public single(predicate?: Predicate<T>): T {
@@ -2393,6 +2436,12 @@ namespace Enumerable {
                     break;
                 }
             }
+        }
+        /** @inheritdoc */
+        public tan(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.tan(y),
+                                                         handleAsInt));
         }
         /** @inheritdoc */
         public toArray(): Array<T> {
@@ -3023,7 +3072,7 @@ namespace Enumerable {
     }  // fromString()
 
     function invokeForValidNumber(x: any, action: (n: number) => any,
-                             handleAsInt = false) {
+                                  handleAsInt = false) {
         if ('number' !== typeof x) {
             if (!handleAsInt) {
                 x = parseFloat( toStringSafe(x).trim() );

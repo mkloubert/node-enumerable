@@ -61,7 +61,7 @@ var Enumerable;
         /** @inheritdoc */
         abs(handleAsInt) {
             return this.select((x) => {
-                return invokeForValidNumber(x, x => Math.abs(x), handleAsInt);
+                return invokeForValidNumber(x, y => Math.abs(y), handleAsInt);
             });
         }
         /** @inheritdoc */
@@ -269,7 +269,7 @@ var Enumerable;
         /** @inheritdoc */
         ceil() {
             return this.select((x) => {
-                return invokeForValidNumber(x, x => Math.ceil(x));
+                return invokeForValidNumber(x, y => Math.ceil(y));
             });
         }
         /** @inheritdoc */
@@ -345,6 +345,10 @@ var Enumerable;
         /** @inheritdoc */
         contains(item, comparer) {
             return this.indexOf(item, comparer) > -1;
+        }
+        /** @inheritdoc */
+        cos(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.cos(y), handleAsInt));
         }
         /** @inheritdoc */
         count(predicate) {
@@ -513,7 +517,7 @@ var Enumerable;
         /** @inheritdoc */
         floor() {
             return this.select((x) => {
-                return invokeForValidNumber(x, x => Math.floor(x));
+                return invokeForValidNumber(x, y => Math.floor(y));
             });
         }
         /** @inheritdoc */
@@ -787,7 +791,7 @@ var Enumerable;
                     Math.log(base);
             }
             return this.select(x => {
-                return invokeForValidNumber(x, x => logFunc(x), handleAsInt);
+                return invokeForValidNumber(x, y => logFunc(y), handleAsInt);
             });
         }
         /** @inheritdoc */
@@ -908,7 +912,7 @@ var Enumerable;
                 exponent = 2;
             }
             return this.select((x) => {
-                return invokeForValidNumber(x, x => Math.pow(x, exponent), handleAsInt);
+                return invokeForValidNumber(x, y => Math.pow(y, exponent), handleAsInt);
             });
         }
         /** @inheritdoc */
@@ -946,7 +950,7 @@ var Enumerable;
         /** @inheritdoc */
         round() {
             return this.select((x) => {
-                return invokeForValidNumber(x, x => Math.round(x));
+                return invokeForValidNumber(x, y => Math.round(y));
             });
         }
         /** @inheritdoc */
@@ -1002,6 +1006,10 @@ var Enumerable;
         shuffle(sortValueProvider) {
             return this.rand
                 .apply(this, arguments);
+        }
+        /** @inheritdoc */
+        sin(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.sin(y), handleAsInt));
         }
         /** @inheritdoc */
         single(predicate) {
@@ -1118,6 +1126,10 @@ var Enumerable;
                     break;
                 }
             }
+        }
+        /** @inheritdoc */
+        tan(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.tan(y), handleAsInt));
         }
         /** @inheritdoc */
         toArray() {

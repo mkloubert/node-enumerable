@@ -353,6 +353,15 @@ declare namespace Enumerable {
          */
         contains<U>(item: U, comparer?: EqualityComparer<T, U> | true): boolean;
         /**
+         * Handles current items as base numbers and calculates the cosine for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        cos(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Counts the elements of that sequence.
          *
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -789,6 +798,15 @@ declare namespace Enumerable {
          */
         shuffle(sortValueProvider?: () => any): IOrderedEnumerable<T>;
         /**
+         * Handles current items as base numbers and calculates the sine for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        sin(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Returns the one and only element of that sequence.
          *
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -856,6 +874,15 @@ declare namespace Enumerable {
          * @return {IEnumerable<T>} The new sequence.
          */
         takeWhile(predicate: Predicate<T>): IEnumerable<T>;
+        /**
+         * Handles current items as base numbers and calculates the tangent for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        tan(handleAsInt?: boolean): IEnumerable<number>;
         /**
          * Creates a new array from the items of that sequence.
          *
@@ -1032,6 +1059,8 @@ declare namespace Enumerable {
         /** @inheritdoc */
         contains<U>(item: U, comparer?: EqualityComparer<T, U> | true): boolean;
         /** @inheritdoc */
+        cos(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
         count(predicate?: Predicate<T>): number;
         /** @inheritdoc */
         readonly current: IteratorResult<T>;
@@ -1178,6 +1207,8 @@ declare namespace Enumerable {
         /** @inheritdoc */
         shuffle(sortValueProvider?: () => any): any;
         /** @inheritdoc */
+        sin(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
         single(predicate?: Predicate<T>): T;
         /** @inheritdoc */
         singleOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
@@ -1205,6 +1236,8 @@ declare namespace Enumerable {
          * @see takeWhile()
          */
         protected takeWhileInner(predicate: Predicate<T>): IterableIterator<T>;
+        /** @inheritdoc */
+        tan(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         toArray(): Array<T>;
         /** @inheritdoc */

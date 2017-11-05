@@ -616,6 +616,11 @@ Enumerable.create(-1, 22.57, 444, true, -333.85, false);
 Enumerable.create(-1, 22.47, 444, null, -333.85, false);
           .ceil();
 
+// cos()
+// 981.63, 927.18, 838.67
+Enumerable.create(11, 22, 33)
+          .cos();
+
 // floor()
 // -1, 23, 444, NaN, -334, NaN
 Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, true);
@@ -641,10 +646,20 @@ Enumerable.create(1, 2, 3, 4)
 Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, 1.5, true);
           .round();
 
+// sin()
+// 17.45, 34.89, 52.33
+Enumerable.create(1, 2, 3)
+          .sin();
+
 // sum()
 // 10
 Enumerable.create(1, 2, 3, 4)
           .sum();
+
+// tan()
+// -2.61, 900.40, -509.52
+Enumerable.create(111, 222, 333)
+          .tan();
 ```
 
 ### More [[&uarr;](#examples-)]
