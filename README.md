@@ -626,6 +626,11 @@ Enumerable.create(11, 22, 33)
 Enumerable.create(11, 22, 33)
           .cosH();  // complement: arcCosH()
 
+// exp()
+// 2.72, 7.39, 20.09
+Enumerable.create(1, 2, 3)
+          .exp();
+
 // floor()
 // -1, 23, 444, NaN, -334, NaN
 Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, true)

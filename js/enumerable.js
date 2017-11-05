@@ -519,6 +519,10 @@ var Enumerable;
             }
         }
         /** @inheritdoc */
+        exp(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.exp(y), handleAsInt));
+        }
+        /** @inheritdoc */
         first(predicate) {
             predicate = toPredicateSafe(predicate);
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
@@ -978,6 +982,16 @@ var Enumerable;
             let i = Number.MIN_SAFE_INTEGER;
             return this.orderByDescending(() => {
                 return i++;
+            });
+        }
+        /** @inheritdoc */
+        root(power, handleAsInt) {
+            power = parseFloat(toStringSafe(power).trim());
+            if (isNaN(power)) {
+                power = 2;
+            }
+            return this.select(x => {
+                return invokeForValidNumber(x, y => Math.pow(y, 1 / power), handleAsInt);
             });
         }
         /** @inheritdoc */

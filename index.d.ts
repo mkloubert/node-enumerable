@@ -514,6 +514,15 @@ declare namespace Enumerable {
          */
         except(second: Sequence<T>, comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**
+         * Handles current items as numbers and calculates e (the base of natural logarithms) raised to each value.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        exp(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Returns the first element of that sequence.
          *
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -1216,6 +1225,8 @@ declare namespace Enumerable {
          * @see except()
          */
         protected exceptInner(second: Array<T>, comparer: EqualityComparer<T>): IterableIterator<T>;
+        /** @inheritdoc */
+        exp(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         first(predicate?: Predicate<T>): T;
         /** @inheritdoc */

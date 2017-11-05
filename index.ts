@@ -560,6 +560,15 @@ namespace Enumerable {
         except(second: Sequence<T>,
                comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**
+         * Handles current items as numbers and calculates e (the base of natural logarithms) raised to each value.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        exp(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Returns the first element of that sequence.
          * 
          * @param {Predicate<T>} [predicate] The optional predicate to use.
@@ -1759,6 +1768,12 @@ namespace Enumerable {
                     yield item;
                 }
             }
+        }
+        /** @inheritdoc */
+        public exp(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.exp(y),
+                                                         handleAsInt));
         }
         /** @inheritdoc */
         public first(predicate?: Predicate<T>): T {
