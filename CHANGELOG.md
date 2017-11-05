@@ -2,12 +2,15 @@
 
 ## 3.5.0 (November 5th, 2017; methods)
 
-* added `cos()` method
+* added `cos()` and `arcCos()` methods
+* added `cosH()` and `arcCosH()` methods
 * added `log()` method
 * added `pow()` method
 * added `shuffle()` method
-* added `sin()` method
-* added `tan()` method
+* added `sin()` and `arcSin()` methods
+* added `sinH()` and `arcSinH()` methods
+* added `tan()` and `arcTan()` methods
+* added `tanH()` and `arcTanH()` methods
 
 ## 3.4.1 (November 4th, 2017; methods)
 

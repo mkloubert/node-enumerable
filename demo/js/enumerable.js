@@ -99,6 +99,30 @@ var Enumerable;
             return false;
         }
         /** @inheritdoc */
+        arcCos(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.acos(y), handleAsInt));
+        }
+        /** @inheritdoc */
+        arcCosH(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.acosh(y), handleAsInt));
+        }
+        /** @inheritdoc */
+        arcSin(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.asin(y), handleAsInt));
+        }
+        /** @inheritdoc */
+        arcSinH(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.asinh(y), handleAsInt));
+        }
+        /** @inheritdoc */
+        arcTan(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.atan(y), handleAsInt));
+        }
+        /** @inheritdoc */
+        arcTanH(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.atanh(y), handleAsInt));
+        }
+        /** @inheritdoc */
         async(action, previousValue) {
             const ME = this;
             return new Promise((resolve, reject) => {
@@ -349,6 +373,10 @@ var Enumerable;
         /** @inheritdoc */
         cos(handleAsInt) {
             return this.select(x => invokeForValidNumber(x, y => Math.cos(y), handleAsInt));
+        }
+        /** @inheritdoc */
+        cosH(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.cosh(y), handleAsInt));
         }
         /** @inheritdoc */
         count(predicate) {
@@ -1041,6 +1069,10 @@ var Enumerable;
             return ARGS.defaultValue;
         }
         /** @inheritdoc */
+        sinH(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.sinh(y), handleAsInt));
+        }
+        /** @inheritdoc */
         skip(count) {
             count = parseInt(toStringSafe(count).trim());
             if (isNaN(count)) {
@@ -1130,6 +1162,10 @@ var Enumerable;
         /** @inheritdoc */
         tan(handleAsInt) {
             return this.select(x => invokeForValidNumber(x, y => Math.tan(y), handleAsInt));
+        }
+        /** @inheritdoc */
+        tanH(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.tanh(y), handleAsInt));
         }
         /** @inheritdoc */
         toArray() {

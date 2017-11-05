@@ -261,6 +261,60 @@ declare namespace Enumerable {
          */
         any(predicate?: Predicate<T>): boolean;
         /**
+         * Handles current items as base numbers and calculates the arc cosine for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcCos(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc hyperbolic cosine for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcCosH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc sine for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcSin(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc hyperbolic sine for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcSinH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc tangent for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcTan(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc hyperbolic tangent for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcTanH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Runs an async action for each item of that sequence.
          *
          * @param AsyncAction<T> action The action to invoke.
@@ -361,6 +415,15 @@ declare namespace Enumerable {
          * @return {IEnumerable<number>} The new sequence.
          */
         cos(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the hyperbolic cosine for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        cosH(handleAsInt?: boolean): IEnumerable<number>;
         /**
          * Counts the elements of that sequence.
          *
@@ -831,6 +894,15 @@ declare namespace Enumerable {
          */
         singleOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /**
+         * Handles current items as base numbers and calculates the hyperbolic sine for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        sinH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Skips a maximum number of items.
          *
          * @param {number} [count] The number of items to skip. Default: 1
@@ -883,6 +955,15 @@ declare namespace Enumerable {
          * @return {IEnumerable<number>} The new sequence.
          */
         tan(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the hyperbolic tangent for each item.
+         *
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        tanH(handleAsInt?: boolean): IEnumerable<number>;
         /**
          * Creates a new array from the items of that sequence.
          *
@@ -1027,6 +1108,18 @@ declare namespace Enumerable {
         /** @inheritdoc */
         any(predicate?: Predicate<T>): boolean;
         /** @inheritdoc */
+        arcCos(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        arcCosH(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        arcSin(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        arcSinH(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        arcTan(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        arcTanH(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
         async(action: AsyncAction<T>, previousValue?: any): Promise<any>;
         /** @inheritdoc */
         average(selector?: Selector<T, number>): number | symbol;
@@ -1060,6 +1153,8 @@ declare namespace Enumerable {
         contains<U>(item: U, comparer?: EqualityComparer<T, U> | true): boolean;
         /** @inheritdoc */
         cos(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        cosH(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         count(predicate?: Predicate<T>): number;
         /** @inheritdoc */
@@ -1213,6 +1308,8 @@ declare namespace Enumerable {
         /** @inheritdoc */
         singleOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /** @inheritdoc */
+        sinH(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
         skip(count?: number): IEnumerable<T>;
         /** @inheritdoc */
         skipLast(): IEnumerable<T>;
@@ -1238,6 +1335,8 @@ declare namespace Enumerable {
         protected takeWhileInner(predicate: Predicate<T>): IterableIterator<T>;
         /** @inheritdoc */
         tan(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        tanH(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         toArray(): Array<T>;
         /** @inheritdoc */

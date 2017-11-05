@@ -301,6 +301,60 @@ namespace Enumerable {
          */
         any(predicate?: Predicate<T>): boolean;
         /**
+         * Handles current items as base numbers and calculates the arc cosine for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcCos(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc hyperbolic cosine for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcCosH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc sine for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcSin(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc hyperbolic sine for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcSinH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc tangent for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcTan(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the arc hyperbolic tangent for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        arcTanH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Runs an async action for each item of that sequence.
          * 
          * @param AsyncAction<T> action The action to invoke.
@@ -404,6 +458,15 @@ namespace Enumerable {
          * @return {IEnumerable<number>} The new sequence.
          */
         cos(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the hyperbolic cosine for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        cosH(handleAsInt?: boolean): IEnumerable<number>;
         /**
          * Counts the elements of that sequence.
          * 
@@ -901,6 +964,15 @@ namespace Enumerable {
         singleOrDefault<U=symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                   defaultValue?: U): T | U;
         /**
+         * Handles current items as base numbers and calculates the hyperbolic sine for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        sinH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Skips a maximum number of items.
          * 
          * @param {number} [count] The number of items to skip. Default: 1
@@ -953,6 +1025,15 @@ namespace Enumerable {
          * @return {IEnumerable<number>} The new sequence.
          */
         tan(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Handles current items as base numbers and calculates the hyperbolic tangent for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        tanH(handleAsInt?: boolean): IEnumerable<number>;
         /**
          * Creates a new array from the items of that sequence.
          * 
@@ -1151,6 +1232,42 @@ namespace Enumerable {
             }
 
             return false;
+        }
+        /** @inheritdoc */
+        public arcCos(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.acos(y),
+                                                         handleAsInt));
+        }
+        /** @inheritdoc */
+        public arcCosH(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.acosh(y),
+                                                         handleAsInt));
+        }
+        /** @inheritdoc */
+        public arcSin(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.asin(y),
+                                                         handleAsInt));
+        }
+        /** @inheritdoc */
+        public arcSinH(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.asinh(y),
+                                                         handleAsInt));
+        }
+        /** @inheritdoc */
+        public arcTan(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.atan(y),
+                                                         handleAsInt));
+        }
+        /** @inheritdoc */
+        public arcTanH(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.atanh(y),
+                                                         handleAsInt));
         }
         /** @inheritdoc */
         public async(action: AsyncAction<T>, previousValue?: any): Promise<any> {
@@ -1446,6 +1563,12 @@ namespace Enumerable {
         public cos(handleAsInt?: boolean): IEnumerable<number> {
             return this.select(x => invokeForValidNumber(x,
                                                          y => Math.cos(y),
+                                                         handleAsInt));
+        }
+        /** @inheritdoc */
+        public cosH(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.cosh(y),
                                                          handleAsInt));
         }
         /** @inheritdoc */
@@ -2339,6 +2462,12 @@ namespace Enumerable {
             return ARGS.defaultValue;
         }
         /** @inheritdoc */
+        public sinH(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.sinh(y),
+                                                         handleAsInt));
+        }
+        /** @inheritdoc */
         public skip(count?: number): IEnumerable<T> {
             count = parseInt(toStringSafe(count).trim());
             if (isNaN(count)) {
@@ -2441,6 +2570,12 @@ namespace Enumerable {
         public tan(handleAsInt?: boolean): IEnumerable<number> {
             return this.select(x => invokeForValidNumber(x,
                                                          y => Math.tan(y),
+                                                         handleAsInt));
+        }
+        /** @inheritdoc */
+        public tanH(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.tanh(y),
                                                          handleAsInt));
         }
         /** @inheritdoc */
