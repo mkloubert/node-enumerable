@@ -36,7 +36,7 @@
      * [chunk](#chunk-)
      * [clone](#clone-)
      * [concat / concatArray](#concat--concatarray-)
-     * [defaultIfEmpty / defaultSequenceIfEmpty](#defaultifempty--defaultsequenceifempty-)
+     * [defaultIfEmpty / defaultArrayIfEmpty / defaultSequenceIfEmpty](#defaultifempty--defaultarrayifempty--defaultsequenceifempty-)
      * [intersperse / intersperseArray](#intersperse--interspersearray-)
      * [popFrom / shiftFrom](#popfrom--shiftfrom-)
      * [pushTo](#pushto-)
@@ -684,7 +684,7 @@ Enumerable.create(0, 0.5, -1)
 
 ### More [[&uarr;](#examples-)]
 
-#### Chunk [[&uarr;](#more-)]
+#### chunk [[&uarr;](#more-)]
 
 ```javascript
 let seq = Enumerable.range(0, 10);
@@ -721,7 +721,7 @@ Enumerable.create(0, 111, 222)
           .concatArray([ [ 'pz', 'tm' ], [ 'mk' ] ]);
 ```
 
-#### defaultIfEmpty / defaultSequenceIfEmpty [[&uarr;](#more-)]
+#### defaultIfEmpty / defaultArrayIfEmpty / defaultSequenceIfEmpty [[&uarr;](#more-)]
 
 ```javascript
 // 0, 1, 2
@@ -735,6 +735,7 @@ Enumerable.create()
 // 0, 11, 22
 Enumerable.create(0, 11, 22)
           .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
+// alt: defaultArrayIfEmpty()
           
 // 'pz', 'tm', 'mk'
 Enumerable.create()

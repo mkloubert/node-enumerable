@@ -1,5 +1,9 @@
 # Change Log (node-enumerable)
 
+## 3.6.0 (November 5th, 2017; methods)
+
+* added `defaultArrayIfEmpty()` method
+
 ## 3.5.2 (November 5th, 2017; methods)
 
 * added `cos()` and `arcCos()` methods

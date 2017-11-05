@@ -437,6 +437,10 @@ declare namespace Enumerable {
          */
         readonly current: IteratorResult<T>;
         /**
+         * Alias for defaultSequenceIfEmpty()
+         */
+        defaultArrayIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T>;
+        /**
          * Returns the items of that sequence or a default item list
          * if that sequence is empty.
          *
@@ -1168,6 +1172,8 @@ declare namespace Enumerable {
         count(predicate?: Predicate<T>): number;
         /** @inheritdoc */
         readonly current: IteratorResult<T>;
+        /** @inheritdoc */
+        defaultArrayIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T>;
         /** @inheritdoc */
         defaultIfEmpty(...defaultItems: Array<T>): IEnumerable<T>;
         /**

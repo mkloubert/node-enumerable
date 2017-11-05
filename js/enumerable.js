@@ -394,6 +394,11 @@ var Enumerable;
             return this._current;
         }
         /** @inheritdoc */
+        defaultArrayIfEmpty(defaultSequence) {
+            return this.defaultSequenceIfEmpty
+                .apply(this, arguments);
+        }
+        /** @inheritdoc */
         defaultIfEmpty(...defaultItems) {
             return from(this.defaultIfEmptyInner(defaultItems));
         }

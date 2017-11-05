@@ -480,6 +480,10 @@ namespace Enumerable {
          */
         readonly current: IteratorResult<T>;
         /**
+         * Alias for defaultSequenceIfEmpty()
+         */
+        defaultArrayIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T>;
+        /**
          * Returns the items of that sequence or a default item list
          * if that sequence is empty.
          * 
@@ -1596,6 +1600,11 @@ namespace Enumerable {
         /** @inheritdoc */
         public get current(): IteratorResult<T> {
             return this._current;
+        }
+        /** @inheritdoc */
+        public defaultArrayIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T> {
+            return this.defaultSequenceIfEmpty
+                       .apply(this, arguments);
         }
         /** @inheritdoc */
         public defaultIfEmpty(...defaultItems: Array<T>): IEnumerable<T> {
