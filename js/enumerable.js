@@ -1788,6 +1788,22 @@ var Enumerable;
         }
     }
     /**
+     * Returns a sequence of random numbers.
+     *
+     * @param {number} [count] The maximum number of items.
+     *                         If not defined, the sequence will become infinitely.
+     * @param {(randomValue: number, index: number) => number} [valueProvider] A custom function for providing a random number.
+     *
+     * @return {IEnumerable<number>} The sequence of random numbers.
+     */
+    function random(count, valueProvider) {
+        if (!valueProvider) {
+            valueProvider = (randVal) => randVal;
+        }
+        return build((cancel, index) => valueProvider(Math.random(), index), count);
+    }
+    Enumerable.random = random;
+    /**
      * Creates a range of numbers.
      *
      * @param {number} start The start value.

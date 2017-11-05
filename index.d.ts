@@ -1640,6 +1640,16 @@ declare namespace Enumerable {
      */
     function popFrom<T>(stack: PoppableStack<T>): IEnumerable<T>;
     /**
+     * Returns a sequence of random numbers.
+     *
+     * @param {number} [count] The maximum number of items.
+     *                         If not defined, the sequence will become infinitely.
+     * @param {(randomValue: number, index: number) => number} [valueProvider] A custom function for providing a random number.
+     *
+     * @return {IEnumerable<number>} The sequence of random numbers.
+     */
+    function random(count?: number, valueProvider?: (randomValue: number, index: number) => number): IEnumerable<number>;
+    /**
      * Creates a range of numbers.
      *
      * @param {number} start The start value.

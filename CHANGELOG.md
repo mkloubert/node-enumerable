@@ -4,6 +4,7 @@
 
 * added `defaultArrayIfEmpty()` method
 * added `exp()` method
+* added `random()` function
 * added `root()` method
 
 ## 3.5.2 (November 5th, 2017; methods)

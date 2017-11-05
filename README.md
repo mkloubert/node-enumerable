@@ -40,6 +40,7 @@
      * [intersperse / intersperseArray](#intersperse--interspersearray-)
      * [popFrom / shiftFrom](#popfrom--shiftfrom-)
      * [pushTo](#pushto-)
+     * [random](#random-)
      * [reset](#reset-)
 6. [Documentation](#documentation-)
 7. [License](#license-)
@@ -792,6 +793,21 @@ Enumerable.create(0, 1, 2)
           .pushTo(arr);
 
 // arr: [0, 1, 2]
+```
+
+#### random [[&uarr;](#more-)]
+
+```javascript
+for (let value of Enumerable.random(10)) {
+    // 10 random numbers
+    // between 0 and 1
+}
+
+for (let value of Enumerable.random(23979,
+                                    v => v * 5979)) {
+    // 23979 random numbers
+    // between 0 and 5979
+}
 ```
 
 #### reset [[&uarr;](#more-)]
