@@ -646,6 +646,11 @@ Enumerable.create(1, 2, 3, 4)
 Enumerable.create(1, 2, 3, 4)
           .product();
 
+// root()
+// 1, 2, 3, 4
+Enumerable.create(1, 8, 27, 128)
+          .root(3);
+
 // round()
 // -1, 23, 444, NaN, -334, 2, NaN
 Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, 1.5, true)

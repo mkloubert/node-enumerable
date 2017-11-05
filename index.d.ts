@@ -823,6 +823,16 @@ declare namespace Enumerable {
          */
         reverse(): IOrderedEnumerable<T>;
         /**
+         * Handles current items as numbers and calculates the n-th root for each item.
+         *
+         * @param {number} [power] The power. Default: 2
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         *
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        root(power?: number, handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Handles current items as float values and return their nearest values.
          *
          * @return {IEnumerable<number>} The new sequence.
@@ -1302,6 +1312,8 @@ declare namespace Enumerable {
         reset(): this;
         /** @inheritdoc */
         reverse(): IOrderedEnumerable<T>;
+        /** @inheritdoc */
+        root(power?: number, handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         round(): IEnumerable<number>;
         /** @inheritdoc */

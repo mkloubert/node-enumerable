@@ -3,6 +3,7 @@
 ## 3.6.0 (November 5th, 2017; methods)
 
 * added `defaultArrayIfEmpty()` method
+* added `root()` method
 
 ## 3.5.2 (November 5th, 2017; methods)
 
