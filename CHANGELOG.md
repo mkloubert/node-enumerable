@@ -9,6 +9,7 @@
 * added `shuffle()` method
 * added `sin()` and `arcSin()` methods
 * added `sinH()` and `arcSinH()` methods
+* added `sqrt()` method
 * added `tan()` and `arcTan()` methods
 * added `tanH()` and `arcTanH()` methods
 

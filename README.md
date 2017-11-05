@@ -661,6 +661,11 @@ Enumerable.create(1, 2, 3)
 Enumerable.create(1, 2, 3)
           .sinH();  // complement: arcSinH()
 
+// sqrt()
+// 1, 2, 3, 4
+Enumerable.create(1, 4, 9, 16);
+          .sqrt();
+
 // sum()
 // 10
 Enumerable.create(1, 2, 3, 4)

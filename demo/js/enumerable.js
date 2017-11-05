@@ -1128,6 +1128,10 @@ var Enumerable;
             }
         }
         /** @inheritdoc */
+        sqrt(handleAsInt) {
+            return this.select(x => invokeForValidNumber(x, y => Math.sqrt(y), handleAsInt));
+        }
+        /** @inheritdoc */
         sum() {
             return this.aggregate((acc, x) => Enumerable.IS_EMPTY !== acc ? (acc + x) : x, Enumerable.IS_EMPTY);
         }

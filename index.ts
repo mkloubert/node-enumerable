@@ -995,6 +995,15 @@ namespace Enumerable {
          */
         skipWhile(predicate: Predicate<T>): IEnumerable<T>;
         /**
+         * Handles current items as base numbers and calculates square root for each item.
+         * 
+         * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
+         *                                Default: (false)
+         * 
+         * @return {IEnumerable<number>} The new sequence.
+         */
+        sqrt(handleAsInt?: boolean): IEnumerable<number>;
+        /**
          * Calculates the sum of that sequence.
          * 
          * @returns {(T|symbol)} The sum or IS_EMPTY if that sequence is empty.
@@ -2530,6 +2539,12 @@ namespace Enumerable {
                     yield item;
                 }
             }
+        }
+        /** @inheritdoc */
+        public sqrt(handleAsInt?: boolean): IEnumerable<number> {
+            return this.select(x => invokeForValidNumber(x,
+                                                         y => Math.sqrt(y),
+                                                         handleAsInt));
         }
         /** @inheritdoc */
         public sum(): T | symbol {
