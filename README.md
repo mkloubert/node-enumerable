@@ -648,7 +648,7 @@ Enumerable.create(1, 2, 3, 4)
 
 // root()
 // 1, 2, 3, 4
-Enumerable.create(1, 8, 27, 128)
+Enumerable.create(1, 8, 27, 64)
           .root(3);
 
 // round()
