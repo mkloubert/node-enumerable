@@ -1,6 +1,6 @@
 # Change Log (node-enumerable)
 
-## 3.5.0 (November 5th, 2017; methods)
+## 3.5.1 (November 5th, 2017; methods)
 
 * added `cos()` and `arcCos()` methods
 * added `cosH()` and `arcCosH()` methods

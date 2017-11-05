@@ -301,7 +301,7 @@ namespace Enumerable {
          */
         any(predicate?: Predicate<T>): boolean;
         /**
-         * Handles current items as base numbers and calculates the arc cosine for each item.
+         * Handles current items as numbers and calculates the arc cosine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -310,7 +310,7 @@ namespace Enumerable {
          */
         arcCos(handleAsInt?: boolean): IEnumerable<number>;
         /**
-         * Handles current items as base numbers and calculates the arc hyperbolic cosine for each item.
+         * Handles current items as numbers and calculates the arc hyperbolic cosine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -319,7 +319,7 @@ namespace Enumerable {
          */
         arcCosH(handleAsInt?: boolean): IEnumerable<number>;
         /**
-         * Handles current items as base numbers and calculates the arc sine for each item.
+         * Handles current items as numbers and calculates the arc sine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -328,7 +328,7 @@ namespace Enumerable {
          */
         arcSin(handleAsInt?: boolean): IEnumerable<number>;
         /**
-         * Handles current items as base numbers and calculates the arc hyperbolic sine for each item.
+         * Handles current items as numbers and calculates the arc hyperbolic sine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -337,7 +337,7 @@ namespace Enumerable {
          */
         arcSinH(handleAsInt?: boolean): IEnumerable<number>;
         /**
-         * Handles current items as base numbers and calculates the arc tangent for each item.
+         * Handles current items as numbers and calculates the arc tangent for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -346,7 +346,7 @@ namespace Enumerable {
          */
         arcTan(handleAsInt?: boolean): IEnumerable<number>;
         /**
-         * Handles current items as base numbers and calculates the arc hyperbolic tangent for each item.
+         * Handles current items as numbers and calculates the arc hyperbolic tangent for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -450,7 +450,7 @@ namespace Enumerable {
         contains<U>(item: U,
                     comparer?: EqualityComparer<T, U> | true): boolean;
         /**
-         * Handles current items as base numbers and calculates the cosine for each item.
+         * Handles current items as numbers and calculates the cosine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -459,7 +459,7 @@ namespace Enumerable {
          */
         cos(handleAsInt?: boolean): IEnumerable<number>;
         /**
-         * Handles current items as base numbers and calculates the hyperbolic cosine for each item.
+         * Handles current items as numbers and calculates the hyperbolic cosine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -738,7 +738,7 @@ namespace Enumerable {
         lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                   defaultValue?: U): T | U;
         /**
-         * Handles current items as base numbers and calculates the natural logarithm (base e) of a them.
+         * Handles current items as numbers and calculates the natural logarithm (base e) of a them.
          * 
          * @param {number} [base] The custom base. Default: e
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
@@ -930,7 +930,7 @@ namespace Enumerable {
          */
         shuffle(sortValueProvider?: () => any): IOrderedEnumerable<T>;
         /**
-         * Handles current items as base numbers and calculates the sine for each item.
+         * Handles current items as numbers and calculates the sine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -964,7 +964,7 @@ namespace Enumerable {
         singleOrDefault<U=symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                   defaultValue?: U): T | U;
         /**
-         * Handles current items as base numbers and calculates the hyperbolic sine for each item.
+         * Handles current items as numbers and calculates the hyperbolic sine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -995,7 +995,7 @@ namespace Enumerable {
          */
         skipWhile(predicate: Predicate<T>): IEnumerable<T>;
         /**
-         * Handles current items as base numbers and calculates square root for each item.
+         * Handles current items as numbers and calculates square root for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -1026,7 +1026,7 @@ namespace Enumerable {
          */
         takeWhile(predicate: Predicate<T>): IEnumerable<T>;
         /**
-         * Handles current items as base numbers and calculates the tangent for each item.
+         * Handles current items as numbers and calculates the tangent for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
@@ -1035,7 +1035,7 @@ namespace Enumerable {
          */
         tan(handleAsInt?: boolean): IEnumerable<number>;
         /**
-         * Handles current items as base numbers and calculates the hyperbolic tangent for each item.
+         * Handles current items as numbers and calculates the hyperbolic tangent for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
          *                                Default: (false)
