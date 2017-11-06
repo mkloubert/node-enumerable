@@ -8,3 +8,5 @@ index.ts
 pushall.sh
 tsconfig.json
 typedoc.cmd
+.deploy/**
+mkloubert.github.io/**

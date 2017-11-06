@@ -1,6 +1,6 @@
 {
   "name": "node-enumerable",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "ES6 ready LINQ features written in TypeScript",
   "main": "index.js",
   "scripts": {
@@ -30,7 +30,8 @@
     "net",
     "browser",
     "browsers",
-    "web"
+    "web",
+    "dom"
   ],
   "author": "mkloubert",
   "license": "MIT",

@@ -1,0 +1,63 @@
+{
+    // s. https://github.com/mkloubert/vs-deploy
+    "deploy": {
+        "openOutputOnDeploy": false,
+        "openOutputOnStartup": false,
+        "showPopupOnSuccess": false,
+
+        "packages": [
+            {
+                "name": "GitHub",
+
+                "files": [
+                    "/demo/**",
+                    "/js/enumerable.js",
+                    "/CHANGELOG.md",
+                    "/index.d.ts",
+                    "/LICENSE.md",
+                    "/README.md"
+                ],
+
+                "targets": [ "GitHub Release" ]
+            },
+            {
+                "name": "index.js",
+                "description": "The NodeJS compatible generated file from 'index.ts'.",
+
+                "deployOnChange": {
+                    "files": [
+                        "/index.js"
+                    ],
+                    "useTargetList": true
+                },
+                "files": [
+                    "/index.js"
+                ],
+
+                "targets": [ "enumerable.js" ],
+
+                "sortOrder": 1
+            }
+        ],
+        
+        "targets": [
+            {
+                "name": "GitHub Release",
+                "type": "script",
+                "script": "./.deploy/github.js",
+                "deployed": [
+                    {
+                        "type": "script",
+                        "script": "./.deploy/github_pages.js"
+                    }
+                ]
+            },
+            {
+                "name": "enumerable.js",
+                "description": "Generates a browser compatible version of 'index.js' file.",
+                "type": "script",
+                "script": "./.deploy/copy_to_enumerableJS.js"
+            }
+        ]
+    }
+}

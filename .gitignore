@@ -4,4 +4,6 @@
 /node_modules
 /pushall.sh
 /typedoc.cmd
+/mkloubert.github.io/**
+/.deploy/releases/**
 docs

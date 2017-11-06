@@ -1,6 +1,10 @@
 # Change Log (node-enumerable)
 
-## 3.6.0 (November 5th, 2017; methods)
+## 3.7.0 (November 7th, 2017; methods)
+
+* added `consume()` method
+
+## 3.6.0 (November 6th, 2017; methods & functions)
 
 * added `defaultArrayIfEmpty()` method
 * added `exp()` method

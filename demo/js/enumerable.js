@@ -367,6 +367,11 @@ var Enumerable;
             }
         }
         /** @inheritdoc */
+        consume() {
+            for (let item of this) { }
+            return this;
+        }
+        /** @inheritdoc */
         contains(item, comparer) {
             return this.indexOf(item, comparer) > -1;
         }

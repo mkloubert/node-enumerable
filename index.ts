@@ -437,6 +437,13 @@ namespace Enumerable {
          */
         concatArray(sequences: ArrayLike<Sequence<T>>): IEnumerable<T>;
         /**
+         * Completely consumes the given sequence. This method uses immediate execution,
+         * and doesn't store any data during execution.
+         * 
+         * @chainable
+         */
+        consume(): this;
+        /**
          * Checks if that sequence contains an item.
          * 
          * @template U Type of the item to search for.
@@ -1585,6 +1592,12 @@ namespace Enumerable {
                     }
                 }
             }
+        }
+        /** @inheritdoc */
+        public consume(): this {
+            for (let item of this) { }
+
+            return this;
         }
         /** @inheritdoc */
         public contains<U>(item: U,

@@ -36,6 +36,7 @@
      * [chunk](#chunk-)
      * [clone](#clone-)
      * [concat / concatArray](#concat--concatarray-)
+     * [consume](#consume-)
      * [defaultIfEmpty / defaultArrayIfEmpty / defaultSequenceIfEmpty](#defaultifempty--defaultarrayifempty--defaultsequenceifempty-)
      * [intersperse / intersperseArray](#intersperse--interspersearray-)
      * [popFrom / shiftFrom](#popfrom--shiftfrom-)
@@ -730,6 +731,33 @@ Enumerable.create(0, 1, 2)
 // 0, 111, 222, 'pz', 'tm', 'mk'
 Enumerable.create(0, 111, 222)
           .concatArray([ [ 'pz', 'tm' ], [ 'mk' ] ]);
+```
+
+#### consume [[&uarr;](#more-)]
+
+```javascript
+function createIteratorAndStorage(size) {
+    let storage = [];
+
+    return {
+        iterator: makeIterator(size, storage),
+        storage: storage,
+    };
+}
+
+function *makeIterator(size, storage) {
+    for (let i = 0; i < size; i++) {
+        yield i;
+
+        storage.push(i);
+    }
+}
+
+const OBJ = createIteratorAndStorage(100);
+d
+const SEQ = Enumerable.from(OBJ.iterator);
+SEQ.consume();  // enumerates the 'iterator' in OBJ
+                // and fills the 'storage' in OBJ
 ```
 
 #### defaultIfEmpty / defaultArrayIfEmpty / defaultSequenceIfEmpty [[&uarr;](#more-)]
