@@ -28,10 +28,14 @@ import Helpers = require('../helpers');
 Helpers.execute(
     'Testing strings...',
     (ctx) => {
-        let arr1: any[] = ['Marcel', 'Bill', 'Albert'];
-        let arr2: any[] = ['Kloubert', 'Gates', 'Einstein', 'Adenauer'];
+        let arr1: string[] = ['Marcel', 'Bill', 'Albert'];
+        let arr2: string[] = ['Kloubert', 'Gates', 'Einstein', 'Adenauer'];
 
-        let expected: any[] = ["Marcel Kloubert", "Bill Gates", "Albert Einstein"];
+        let expected: string[] = [
+            arr1[0] + ' ' + arr2[0],
+            arr1[1] + ' ' + arr2[1],
+            arr1[2] + ' ' + arr2[2],
+        ];
 
         Helpers.executeForSequences(arr1, (seq) => {
             let zippers = [
@@ -66,10 +70,14 @@ Helpers.execute(
 Helpers.execute(
     'Testing numbers...',
     (ctx) => {
-        let arr1: any[] = [23, 9, 1979];
-        let arr2: any[] = [5, 9, 19, 79];
+        let arr1: number[] = [23, 9, 1979];
+        let arr2: number[] = [5, 9, 19, 79];
 
-        let expected: any[] = [115, 81, 37601];
+        let expected: number[] = [
+            arr1[0] * arr2[0],
+            arr1[1] * arr2[1],
+            arr1[2] * arr2[2],
+        ];
 
         Helpers.executeForSequences(arr1, (seq) => {
             let zippers = [

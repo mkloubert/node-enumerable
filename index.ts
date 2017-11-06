@@ -1142,12 +1142,12 @@ namespace Enumerable {
          * @template TResult The result type.
          * 
          * @param {Sequence<U>} second The other sequence.
-         * @param {(x: T, y: U, index: number) => TResult} resultSelector The selector for the result item.
+         * @param {ZipSelector<T,U,TResult>} resultSelector The selector for the result item.
          * 
          * @returns {IEnumerable<TResult>} The "zipped" sequence.
          */
-        zip<U, TResult>(second: Sequence<U>,
-                        resultSelector: (x: T, y: U, index: number) => TResult): IEnumerable<TResult>;
+        zip<U = T, TResult = any>(second: Sequence<U>,
+                                  resultSelector: ZipSelector<T, U, TResult>): IEnumerable<TResult>;
     }  // IEnumerable<T>
 
     /**
@@ -1210,6 +1210,17 @@ namespace Enumerable {
          */
         thenDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
     }  // IOrderedEnumerable<T>
+
+    /**
+     * A result selector for a 'zip' method / function.
+     * 
+     * @param {T} x The "left" value.
+     * @param {U} y The "other" value.
+     * @param {number} index The zero based index.
+     * 
+     * @return {TResult} The "zipped" result,
+     */
+    export type ZipSelector<T, U = T, TResult = any> = (x: T, y: U, index: number) => TResult;
 
 
     /**
@@ -2881,8 +2892,12 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
-        public zip<U, TResult>(second: Sequence<U>,
-                               resultSelector: (x: T, y: U, index: number) => TResult): IEnumerable<TResult> {
+        public zip<U = T, TResult = any>(second: Sequence<U>,
+                                         resultSelector: ZipSelector<T, U, TResult>): IEnumerable<TResult> {
+            if (!resultSelector) {
+                resultSelector = (x: any, y: any) => x + y;
+            }
+
             return from(this.zipInner(from(second),
                                       resultSelector));
         }
@@ -2891,21 +2906,17 @@ namespace Enumerable {
          * @see zip()
          */
         protected *zipInner<U, TResult>(second: Iterator<U>,
-                                        resultSelector: (x: T, y: U, index: number) => TResult) {
-            if (!resultSelector) {
-                resultSelector = (x: any, y: any) => x + y;
-            }
-
+                                        resultSelector: ZipSelector<T, U, TResult>) {
             let i = -1;
             do
             {
-                const ITEM_THIS = this.next();
-                if (!ITEM_THIS || ITEM_THIS.done) {
+                const ITEM_THIS = getNextIteratorResultSafe(this);
+                if (ITEM_THIS.done) {
                     break;
                 }
 
-                const ITEM_SECOND = second.next();
-                if (!ITEM_SECOND || ITEM_SECOND.done) {
+                const ITEM_SECOND = getNextIteratorResultSafe(second);
+                if (ITEM_SECOND.done) {
                     break;
                 }
 
@@ -3755,15 +3766,12 @@ namespace Enumerable {
     }
 
     function getNextIteratorResultSafe<T>(iterator: Iterator<T>, defaultValue?: any): IteratorResult<T> {
-        let result = iterator.next();
-        if (!result) {
-            result = {
-                done: true,
-                value: defaultValue,
-            };
-        }
+        const RESULT = iterator.next();
 
-        return result;
+        return RESULT || {
+            done: true,
+            value: defaultValue,
+        };
     }
 
     function isNullOrUndefined(val: any): boolean {

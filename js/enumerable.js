@@ -1360,23 +1360,23 @@ var Enumerable;
         }
         /** @inheritdoc */
         zip(second, resultSelector) {
+            if (!resultSelector) {
+                resultSelector = (x, y) => x + y;
+            }
             return from(this.zipInner(from(second), resultSelector));
         }
         /**
          * @see zip()
          */
         *zipInner(second, resultSelector) {
-            if (!resultSelector) {
-                resultSelector = (x, y) => x + y;
-            }
             let i = -1;
             do {
-                const ITEM_THIS = this.next();
-                if (!ITEM_THIS || ITEM_THIS.done) {
+                const ITEM_THIS = getNextIteratorResultSafe(this);
+                if (ITEM_THIS.done) {
                     break;
                 }
-                const ITEM_SECOND = second.next();
-                if (!ITEM_SECOND || ITEM_SECOND.done) {
+                const ITEM_SECOND = getNextIteratorResultSafe(second);
+                if (ITEM_SECOND.done) {
                     break;
                 }
                 yield resultSelector(ITEM_THIS.value, ITEM_SECOND.value, ++i);
@@ -2080,14 +2080,11 @@ var Enumerable;
         };
     }
     function getNextIteratorResultSafe(iterator, defaultValue) {
-        let result = iterator.next();
-        if (!result) {
-            result = {
-                done: true,
-                value: defaultValue,
-            };
-        }
-        return result;
+        const RESULT = iterator.next();
+        return RESULT || {
+            done: true,
+            value: defaultValue,
+        };
     }
     function isNullOrUndefined(val) {
         return null === val ||

@@ -4,6 +4,7 @@
 
 * added `consume()` method
 * added `eachAll()` and `forAll()` methods
+* code cleanups and improvements
 
 ## 3.6.0 (November 6th, 2017; methods & functions)
 
