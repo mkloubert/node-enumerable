@@ -618,12 +618,12 @@ Enumerable.create(-1, 22.47, 444, null, -333.85, false)
           .ceil();
 
 // cos()
-// 981.63, 927.18, 838.67
+// 0.004, -0.99996, -0.01
 Enumerable.create(11, 22, 33)
           .cos();  // complement: arcCos()
 
 // cosH()
-// 29.94, 1.79, 107.32
+// 29937.07, 1792456423.07, 107321789892958.03
 Enumerable.create(11, 22, 33)
           .cosH();  // complement: arcCosH()
 
@@ -663,7 +663,7 @@ Enumerable.create(-1, 22.47, 444.0, undefined, -333.85, 1.5, true)
           .round();
 
 // sin()
-// 17.45, 34.89, 52.33
+// 0.84, 0.91, 0.14
 Enumerable.create(1, 2, 3)
           .sin();  // complement: arcSin()
 
@@ -683,12 +683,12 @@ Enumerable.create(1, 2, 3, 4)
           .sum();
 
 // tan()
-// -2.61, 900.40, -509.52
+// 1.72, -1.76, -0.01
 Enumerable.create(111, 222, 333)
           .tan();  // complement: arcTan()
 
 // tanH()
-// 0, 462.12, -761.59
+// 0, 0.46, -0.76
 Enumerable.create(0, 0.5, -1)
           .tanH();  // complement: arcTanH()
 ```
