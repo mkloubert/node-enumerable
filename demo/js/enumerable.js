@@ -41,6 +41,95 @@ var Enumerable;
      */
     Enumerable.NOT_FOUND = Symbol('NOT_FOUND');
     /**
+     * Represents a list of errors.
+     */
+    class AggregateError extends Error {
+        /**
+         * Initializes a new instance of that class.
+         *
+         * @param {any[]} [errors] The occurred errors.
+         */
+        constructor(errors) {
+            super();
+            this._errors = (errors || []).filter(e => {
+                return !isNullOrUndefined(e);
+            });
+        }
+        /**
+         * Gets the errors.
+         */
+        get errors() {
+            return this._errors;
+        }
+        /** @inheritdoc */
+        get stack() {
+            return this.errors.map((e, i) => {
+                const TITLE = "STACK #" + (i + 1);
+                const LINE = repeat('=', TITLE.length + 5).joinToString();
+                return `${TITLE}\n${LINE}\n${toStringSafe(e['stack'])}`;
+            }).join("\n\n");
+        }
+        /** @inheritdoc */
+        toString() {
+            return this.errors.map((e, i) => {
+                const TITLE = "ERROR #" + (i + 1);
+                const LINE = repeat('=', TITLE.length + 5).joinToString();
+                return `${TITLE}\n${LINE}\n${e}`;
+            }).join("\n\n");
+        }
+    }
+    Enumerable.AggregateError = AggregateError;
+    /**
+     * A error wrapper for a function.
+     */
+    class FunctionError extends Error {
+        /**
+         * Initializes a new instance of that class.
+         *
+         * @param {any} [err] The underlying, inner error.
+         * @param {Function} [func] The underlying function.
+         * @param {number} [index] The (zero based) index.
+         */
+        constructor(err, func, index) {
+            super();
+            this._error = err;
+            this._function = func;
+            this._index = index;
+        }
+        /**
+         * Gets the (zero based) index.
+         */
+        get index() {
+            return this._index;
+        }
+        /**
+         * Gets the inner error.
+         */
+        get innerError() {
+            return this._error;
+        }
+        /** @inheritdoc */
+        get stack() {
+            if (this.innerError) {
+                return this.innerError['stack'];
+            }
+        }
+        /** @inheritdoc */
+        toString() {
+            let title = 'ACTION ERROR';
+            if (!isNaN(this.index)) {
+                title += ' #' + this.index;
+            }
+            const LINE = repeat('=', title.length + 5).joinToString();
+            let content = '';
+            if (this.innerError) {
+                content += this.innerError;
+            }
+            return `${title}\n${LINE}\n${content}`;
+        }
+    }
+    Enumerable.FunctionError = FunctionError;
+    /**
      * A basic sequence.
      */
     class EnumerableBase {
@@ -479,6 +568,11 @@ var Enumerable;
                 .apply(this, arguments);
         }
         /** @inheritdoc */
+        eachAll(action) {
+            return this.forAll
+                .apply(this, arguments);
+        }
+        /** @inheritdoc */
         elementAt(index) {
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
             const ITEM = this.elementAtOrDefault(index, ELEMENT_NOT_FOUND);
@@ -561,6 +655,26 @@ var Enumerable;
             return this.select((x) => {
                 return invokeForValidNumber(x, y => Math.floor(y));
             });
+        }
+        /** @inheritdoc */
+        forAll(action) {
+            const ERRORS = [];
+            let i = -1;
+            for (let item of this) {
+                ++i;
+                try {
+                    if (action) {
+                        action(item, i);
+                    }
+                }
+                catch (e) {
+                    ERRORS.push(new FunctionError(e, action, i));
+                }
+            }
+            if (ERRORS.length > 0) {
+                throw new AggregateError(ERRORS);
+            }
+            return this;
         }
         /** @inheritdoc */
         forEach(action) {

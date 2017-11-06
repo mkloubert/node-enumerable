@@ -533,6 +533,10 @@ namespace Enumerable {
          */
         each(func: EachAction<T>): this;
         /**
+         * Alias for forAll()
+         */
+        eachAll(func: EachAction<T>): this;
+        /**
          * Returns an element at a specific index.
          * 
          * @param {number} index The zero based index.
@@ -611,13 +615,22 @@ namespace Enumerable {
          */
         floor(): IEnumerable<number>;
         /**
+         * Invokes a function for each element of that sequence and continues
+         * even if an error is thrown. All occurred errors will be thrown at the end.
+         * 
+         * @param {EachAction<T>} func The function to invoke.
+         * 
+         * @throws At least on error was thrown while the execution.
+         * 
+         * @chainable
+         */
+        forAll(func: EachAction<T>): this;
+        /**
          * Invokes a function for each element of that sequence.
          * 
-         * @template TResult Type of the result.
+         * @param {EachAction<T>} func The function to invoke.
          * 
-         * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
-         * 
-         * @returns this
+         * @chainable
          */
         forEach(func: EachAction<T>): this;
         /**
@@ -1200,6 +1213,128 @@ namespace Enumerable {
 
 
     /**
+     * Represents a list of errors.
+     */
+    export class AggregateError extends Error {
+        /**
+         * Stores the errors.
+         */
+        protected _errors: any[];
+
+        /**
+         * Initializes a new instance of that class.
+         * 
+         * @param {any[]} [errors] The occurred errors. 
+         */
+        constructor(errors?: any[]) {
+            super();
+
+            this._errors = (errors || []).filter(e => {
+                return !isNullOrUndefined(e);
+            });
+        }
+
+        /**
+         * Gets the errors.
+         */
+        public get errors(): any[] {
+            return this._errors;
+        }
+
+        /** @inheritdoc */
+        public get stack(): string {
+            return this.errors.map((e, i) => {
+                const TITLE = "STACK #" + (i + 1);
+                const LINE = repeat('=', TITLE.length + 5).joinToString();
+
+                return `${TITLE}\n${LINE}\n${toStringSafe(e['stack'])}`;
+            }).join("\n\n");
+        }
+
+        /** @inheritdoc */
+        public toString(): string {
+            return this.errors.map((e, i) => {
+                const TITLE = "ERROR #" + (i + 1);
+                const LINE = repeat('=', TITLE.length + 5).joinToString();
+
+                return `${TITLE}\n${LINE}\n${e}`;
+            }).join("\n\n");
+        }
+    }
+
+    /**
+     * A error wrapper for a function.
+     */
+    export class FunctionError extends Error {
+        /**
+         * Stores the inner error.
+         */
+        protected _error: any;
+        /**
+         * Stores the underlying function.
+         */
+        protected _function: Function;
+        /**
+         * Stores the (zero based) index.
+         */
+        protected _index: number;
+
+        /**
+         * Initializes a new instance of that class.
+         * 
+         * @param {any} [err] The underlying, inner error.
+         * @param {Function} [func] The underlying function.
+         * @param {number} [index] The (zero based) index.
+         */
+        constructor(err?: any,
+                    func?: Function, index?: number) {
+            super();
+
+            this._error = err;
+            this._function = func;
+            this._index = index;
+        }
+
+        /**
+         * Gets the (zero based) index.
+         */
+        public get index(): number {
+            return this._index;
+        }
+
+        /**
+         * Gets the inner error.
+         */
+        public get innerError(): any {
+            return this._error;
+        }
+
+        /** @inheritdoc */
+        public get stack(): string {
+            if (this.innerError) {
+                return this.innerError['stack'];
+            }
+        }
+
+        /** @inheritdoc */
+        public toString(): string {
+            let title = 'ACTION ERROR';
+            if (!isNaN(this.index)) {
+                title += ' #' + this.index;
+            }
+
+            const LINE = repeat('=', title.length + 5).joinToString();
+
+            let content = '';
+            if (this.innerError) {
+                content += this.innerError;
+            }
+
+            return `${title}\n${LINE}\n${content}`;
+        }
+    }
+
+    /**
      * A basic sequence.
      */
     export abstract class EnumerableBase<T> implements IEnumerable<T> {
@@ -1726,6 +1861,11 @@ namespace Enumerable {
                        .apply(this, arguments);
         }
         /** @inheritdoc */
+        public eachAll(action: EachAction<T>): this {
+            return this.forAll
+                       .apply(this, arguments);
+        }
+        /** @inheritdoc */
         public elementAt(index: number): T {
             const ELEMENT_NOT_FOUND = Symbol('ELEMENT_NOT_FOUND');
 
@@ -1833,6 +1973,33 @@ namespace Enumerable {
                 return invokeForValidNumber(x,
                                             y => Math.floor(y));
             });
+        }
+        /** @inheritdoc */
+        public forAll(action: EachAction<T>): this {
+            const ERRORS: any[] = [];
+
+            let i = -1;
+            for (let item of this) {
+                ++i;
+
+                try {
+                    if (action) {
+                        action(item, i);
+                    }
+                }
+                catch (e) {
+                    ERRORS.push(
+                        new FunctionError(e,
+                                          action, i)
+                    );
+                }
+            }
+
+            if (ERRORS.length > 0) {
+                throw new AggregateError(ERRORS);
+            }
+
+            return this;
         }
         /** @inheritdoc */
         public forEach(action: EachAction<T>): this {

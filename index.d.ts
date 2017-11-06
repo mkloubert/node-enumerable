@@ -489,6 +489,10 @@ declare namespace Enumerable {
          */
         each(func: EachAction<T>): this;
         /**
+         * Alias for forAll()
+         */
+        eachAll(func: EachAction<T>): this;
+        /**
          * Returns an element at a specific index.
          *
          * @param {number} index The zero based index.
@@ -564,13 +568,22 @@ declare namespace Enumerable {
          */
         floor(): IEnumerable<number>;
         /**
+         * Invokes a function for each element of that sequence and continues
+         * even if an error is thrown. All occurred errors will be thrown at the end.
+         *
+         * @param {EachAction<T>} func The function to invoke.
+         *
+         * @throws At least on error was thrown while the execution.
+         *
+         * @chainable
+         */
+        forAll(func: EachAction<T>): this;
+        /**
          * Invokes a function for each element of that sequence.
          *
-         * @template TResult Type of the result.
+         * @param {EachAction<T>} func The function to invoke.
          *
-         * @param {(item: T, index: number, lastResult: TResult) => TResult} func The function to invoke.
-         *
-         * @returns this
+         * @chainable
          */
         forEach(func: EachAction<T>): this;
         /**
@@ -1121,6 +1134,66 @@ declare namespace Enumerable {
         thenDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
     }
     /**
+     * Represents a list of errors.
+     */
+    class AggregateError extends Error {
+        /**
+         * Stores the errors.
+         */
+        protected _errors: any[];
+        /**
+         * Initializes a new instance of that class.
+         *
+         * @param {any[]} [errors] The occurred errors.
+         */
+        constructor(errors?: any[]);
+        /**
+         * Gets the errors.
+         */
+        readonly errors: any[];
+        /** @inheritdoc */
+        readonly stack: string;
+        /** @inheritdoc */
+        toString(): string;
+    }
+    /**
+     * A error wrapper for a function.
+     */
+    class FunctionError extends Error {
+        /**
+         * Stores the inner error.
+         */
+        protected _error: any;
+        /**
+         * Stores the underlying function.
+         */
+        protected _function: Function;
+        /**
+         * Stores the (zero based) index.
+         */
+        protected _index: number;
+        /**
+         * Initializes a new instance of that class.
+         *
+         * @param {any} [err] The underlying, inner error.
+         * @param {Function} [func] The underlying function.
+         * @param {number} [index] The (zero based) index.
+         */
+        constructor(err?: any, func?: Function, index?: number);
+        /**
+         * Gets the (zero based) index.
+         */
+        readonly index: number;
+        /**
+         * Gets the inner error.
+         */
+        readonly innerError: any;
+        /** @inheritdoc */
+        readonly stack: string;
+        /** @inheritdoc */
+        toString(): string;
+    }
+    /**
      * A basic sequence.
      */
     abstract class EnumerableBase<T> implements IEnumerable<T> {
@@ -1225,6 +1298,8 @@ declare namespace Enumerable {
         /** @inheritdoc */
         each(action: EachAction<T>): this;
         /** @inheritdoc */
+        eachAll(action: EachAction<T>): this;
+        /** @inheritdoc */
         elementAt(index: number): T;
         /** @inheritdoc */
         elementAtOrDefault<U = symbol>(index: number, defaultValue?: U): T | U;
@@ -1244,6 +1319,8 @@ declare namespace Enumerable {
         flatten<U = T>(): IEnumerable<U>;
         /** @inheritdoc */
         floor(): IEnumerable<number>;
+        /** @inheritdoc */
+        forAll(action: EachAction<T>): this;
         /** @inheritdoc */
         forEach(action: EachAction<T>): this;
         /**

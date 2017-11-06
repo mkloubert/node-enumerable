@@ -38,6 +38,7 @@
      * [concat / concatArray](#concat--concatarray-)
      * [consume](#consume-)
      * [defaultIfEmpty / defaultArrayIfEmpty / defaultSequenceIfEmpty](#defaultifempty--defaultarrayifempty--defaultsequenceifempty-)
+     * [forAll](#forall-)
      * [intersperse / intersperseArray](#intersperse--interspersearray-)
      * [popFrom / shiftFrom](#popfrom--shiftfrom-)
      * [pushTo](#pushto-)
@@ -779,6 +780,35 @@ Enumerable.create(0, 11, 22)
 // 'pz', 'tm', 'mk'
 Enumerable.create()
           .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
+```
+
+#### forAll [[&uarr;](#more-)]
+
+```javascript
+let arr = [];
+
+try {
+    // alt: eachAll()
+    Enumerable.range(0, 5).forAll(x => {
+        if (x % 2 === 0) {
+            throw 'Error in value ' + x;
+        }
+
+        arr.push(x);
+    });
+}
+catch (e) {
+    // access the list of errors by
+    // 'e.errors'
+
+    // e.errors[0] = 'Error in value 0';
+    // e.errors[1] = 'Error in value 2';
+    // e.errors[2] = 'Error in value 3';
+}
+
+// arr[0] === 1
+// arr[1] === 3
+// arr[2] === 5
 ```
 
 #### intersperse / intersperseArray [[&uarr;](#more-)]
