@@ -2,6 +2,7 @@
 
 ## 3.7.0 (November 7th, 2017; methods)
 
+* added `assert()` and `assertAll()` methods
 * added `consume()` method
 * added `eachAll()` and `forAll()` methods
 * code cleanups and improvements

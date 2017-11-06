@@ -33,6 +33,7 @@
    * [Count](#count-)
    * [Math](#math-)
    * [More](#more-)
+     * [assert](#assert--assertall-)
      * [chunk](#chunk-)
      * [clone](#clone-)
      * [concat / concatArray](#concat--concatarray-)
@@ -696,6 +697,23 @@ Enumerable.create(0, 0.5, -1)
 ```
 
 ### More [[&uarr;](#examples-)]
+
+#### assert [[&uarr;](#more-)]
+
+```javascript
+let seq1 = Enumerable.range(0, 10);
+seq1.assert((x) => {
+    return x % 2 !== 1;
+});  // will throw an exception
+     // at second element (1)
+
+let seq2 = Enumerable.range(0, 10);
+seq2.assertAll((x) => {
+    return x % 2 !== 1;
+});  // will throw an aggregated exception
+     // at the end
+     // for all odd values
+```
 
 #### chunk [[&uarr;](#more-)]
 

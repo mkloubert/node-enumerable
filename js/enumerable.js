@@ -212,6 +212,36 @@ var Enumerable;
             return this.select(x => invokeForValidNumber(x, y => Math.atanh(y), handleAsInt));
         }
         /** @inheritdoc */
+        assert(predicate, errMsg) {
+            predicate = toPredicateSafe(predicate);
+            errMsg = toItemMessageSafe(errMsg);
+            let i = -1;
+            for (let item of this) {
+                ++i;
+                if (!predicate(item)) {
+                    throw errMsg(item, i);
+                }
+            }
+            return this;
+        }
+        /** @inheritdoc */
+        assertAll(predicate, errMsg) {
+            predicate = toPredicateSafe(predicate);
+            errMsg = toItemMessageSafe(errMsg);
+            const ERRORS = [];
+            let i = -1;
+            for (let item of this) {
+                ++i;
+                if (!predicate(item)) {
+                    ERRORS.push(errMsg(item, i));
+                }
+            }
+            if (ERRORS.length > 0) {
+                throw new AggregateError(ERRORS);
+            }
+            return this;
+        }
+        /** @inheritdoc */
         async(action, previousValue) {
             const ME = this;
             return new Promise((resolve, reject) => {
@@ -2115,6 +2145,18 @@ var Enumerable;
             comparer = (x, y) => x === y;
         }
         return comparer;
+    }
+    function toItemMessageSafe(msgOrProvider) {
+        if (isNullOrUndefined(msgOrProvider)) {
+            msgOrProvider = (item, index) => `Condition failed at index ${index}`;
+        }
+        if ('function' !== typeof msgOrProvider) {
+            const MSG = msgOrProvider;
+            msgOrProvider = () => MSG;
+        }
+        return (item, index) => {
+            return toStringSafe(msgOrProvider(item, index));
+        };
     }
     function toPredicateSafe(predicate, defaultValue = true) {
         if (isNullOrUndefined(predicate)) {

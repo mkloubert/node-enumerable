@@ -112,6 +112,10 @@ declare namespace Enumerable {
      */
     type EqualityComparer<T, U = T> = (x: T, y: U) => boolean;
     /**
+     * An item message (provider).
+     */
+    type ItemMessage<T = any> = string | ((item: T, index?: number) => any);
+    /**
      * Saves joined values.
      *
      * @template TOuter Type of the outer value.
@@ -314,6 +318,30 @@ declare namespace Enumerable {
          * @return {IEnumerable<number>} The new sequence.
          */
         arcTanH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Asserts that all elements of that sequence meet a given condition,
+         * otherwise an error is throw at first fail.
+         *
+         * @param {Predicate<T>} predicate The predicate / condition.
+         * @param {string|((item: T, index: number) => any)} [errMsg] The custom error message to return.
+         *
+         * @chainable
+         *
+         * @throws One element failed.
+         */
+        assert(predicate: Predicate<T>, errMsg?: ItemMessage<T>): this;
+        /**
+         * Asserts that all elements of that sequence meet a given condition,
+         * otherwise an error is throw at the end.
+         *
+         * @param {Predicate<T>} predicate The predicate / condition.
+         * @param {string|((item: T, index: number) => any)} [errMsg] The custom error message to return.
+         *
+         * @chainable
+         *
+         * @throws At least one element failed.
+         */
+        assertAll(predicate: Predicate<T>, errMsg?: ItemMessage<T>): this;
         /**
          * Runs an async action for each item of that sequence.
          *
@@ -1070,11 +1098,11 @@ declare namespace Enumerable {
          * @template TResult The result type.
          *
          * @param {Sequence<U>} second The other sequence.
-         * @param {(x: T, y: U, index: number) => TResult} resultSelector The selector for the result item.
+         * @param {ZipSelector<T,U,TResult>} resultSelector The selector for the result item.
          *
          * @returns {IEnumerable<TResult>} The "zipped" sequence.
          */
-        zip<U, TResult>(second: Sequence<U>, resultSelector: (x: T, y: U, index: number) => TResult): IEnumerable<TResult>;
+        zip<U = T, TResult = any>(second: Sequence<U>, resultSelector: ZipSelector<T, U, TResult>): IEnumerable<TResult>;
     }
     /**
      * Describes a grouping.
@@ -1133,6 +1161,16 @@ declare namespace Enumerable {
          */
         thenDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
     }
+    /**
+     * A result selector for a 'zip' method / function.
+     *
+     * @param {T} x The "left" value.
+     * @param {U} y The "other" value.
+     * @param {number} index The zero based index.
+     *
+     * @return {TResult} The "zipped" result,
+     */
+    type ZipSelector<T, U = T, TResult = any> = (x: T, y: U, index: number) => TResult;
     /**
      * Represents a list of errors.
      */
@@ -1231,6 +1269,10 @@ declare namespace Enumerable {
         arcTan(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         arcTanH(handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        assert(predicate: Predicate<T>, errMsg?: ItemMessage<T>): this;
+        /** @inheritdoc */
+        assertAll(predicate: Predicate<T>, errMsg?: ItemMessage<T>): this;
         /** @inheritdoc */
         async(action: AsyncAction<T>, previousValue?: any): Promise<any>;
         /** @inheritdoc */
@@ -1478,11 +1520,11 @@ declare namespace Enumerable {
          */
         protected whereInner(predicate: Predicate<T>): IterableIterator<T>;
         /** @inheritdoc */
-        zip<U, TResult>(second: Sequence<U>, resultSelector: (x: T, y: U, index: number) => TResult): IEnumerable<TResult>;
+        zip<U = T, TResult = any>(second: Sequence<U>, resultSelector: ZipSelector<T, U, TResult>): IEnumerable<TResult>;
         /**
          * @see zip()
          */
-        protected zipInner<U, TResult>(second: Iterator<U>, resultSelector: (x: T, y: U, index: number) => TResult): IterableIterator<TResult>;
+        protected zipInner<U, TResult>(second: Iterator<U>, resultSelector: ZipSelector<T, U, TResult>): IterableIterator<TResult>;
     }
     /**
      * Wraps a sequence.

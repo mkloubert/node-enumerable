@@ -142,6 +142,11 @@ namespace Enumerable {
     export type EqualityComparer<T, U = T> = (x: T, y: U) => boolean;
 
     /**
+     * An item message (provider).
+     */
+    export type ItemMessage<T = any> = string | ((item: T, index?: number) => any);
+
+    /**
      * Saves joined values.
      * 
      * @template TOuter Type of the outer value.
@@ -354,6 +359,32 @@ namespace Enumerable {
          * @return {IEnumerable<number>} The new sequence.
          */
         arcTanH(handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Asserts that all elements of that sequence meet a given condition,
+         * otherwise an error is throw at first fail.
+         * 
+         * @param {Predicate<T>} predicate The predicate / condition.
+         * @param {string|((item: T, index: number) => any)} [errMsg] The custom error message to return.
+         * 
+         * @chainable
+         * 
+         * @throws One element failed.
+         */
+        assert(predicate: Predicate<T>,
+               errMsg?: ItemMessage<T>): this;
+        /**
+         * Asserts that all elements of that sequence meet a given condition,
+         * otherwise an error is throw at the end.
+         * 
+         * @param {Predicate<T>} predicate The predicate / condition.
+         * @param {string|((item: T, index: number) => any)} [errMsg] The custom error message to return.
+         * 
+         * @chainable
+         * 
+         * @throws At least one element failed.
+         */
+        assertAll(predicate: Predicate<T>,
+                  errMsg?: ItemMessage<T>): this;
         /**
          * Runs an async action for each item of that sequence.
          * 
@@ -1453,6 +1484,48 @@ namespace Enumerable {
             return this.select(x => invokeForValidNumber(x,
                                                          y => Math.atanh(y),
                                                          handleAsInt));
+        }
+        /** @inheritdoc */
+        public assert(predicate: Predicate<T>, errMsg?: ItemMessage<T>) {
+            predicate = toPredicateSafe(predicate);
+            errMsg = toItemMessageSafe(errMsg);
+
+            let i = -1;
+            for (let item of this) {
+                ++i;
+
+                if (!predicate(item)) {
+                    throw errMsg(item, i);
+                }
+            }
+
+            return this;
+        }
+        /** @inheritdoc */
+        public assertAll(predicate: Predicate<T>, errMsg?: ItemMessage<T>) {
+            predicate = toPredicateSafe(predicate);
+            errMsg = toItemMessageSafe(errMsg);
+
+            const ERRORS: string[] = [];
+
+            let i = -1;
+            for (let item of this) {
+                ++i;
+
+                if (!predicate(item)) {
+                    ERRORS.push(
+                        errMsg(item, i)
+                    );
+                }
+            }
+
+            if (ERRORS.length > 0) {
+                throw new AggregateError(
+                    ERRORS
+                );
+            }
+
+            return this;
         }
         /** @inheritdoc */
         public async(action: AsyncAction<T>, previousValue?: any): Promise<any> {
@@ -3810,6 +3883,24 @@ namespace Enumerable {
         }
 
         return comparer;
+    }
+
+    function toItemMessageSafe<T>(msgOrProvider: ItemMessage<T>): (item: T, index: number) => string {
+        if (isNullOrUndefined(msgOrProvider)) {
+            msgOrProvider = (item, index) => `Condition failed at index ${index}`;
+        }
+
+        if ('function' !== typeof msgOrProvider) {
+            const MSG = msgOrProvider;
+
+            msgOrProvider = () => MSG;
+        }
+
+        return (item, index) => {
+            return toStringSafe(
+                (<Function>msgOrProvider)(item, index)
+            );
+        };
     }
 
     function toPredicateSafe<T>(predicate: Predicate<T> | boolean, defaultValue = true): Predicate<T> {
