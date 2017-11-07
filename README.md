@@ -47,6 +47,7 @@
      * [pushTo](#pushto-)
      * [random](#random-)
      * [reset](#reset-)
+     * [trace](#trace-)
 6. [Documentation](#documentation-)
 7. [License](#license-)
 8. [Tests](#tests-)
@@ -954,6 +955,18 @@ seq.reset()
    .each(x => {
              console.log(x * 2);
          });
+```
+
+#### trace [[&uarr;](#more-)]
+
+```javascript
+// write items via 'console.trace()'
+Enumerable.create(0, 1, 2)
+          .trace();
+
+// with formatter
+Enumerable.create(1.2, 2.3, 3.45)
+          .trace(x => 'Item: ' + x);
 ```
 
 ## Documentation [[&uarr;](#table-of-contents)]

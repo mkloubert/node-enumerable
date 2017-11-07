@@ -1196,6 +1196,14 @@ namespace Enumerable {
          */
         toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (item: T, index: number) => TKey): TResult;
         /**
+         * Traces the elements of that sequence.
+         * 
+         * @param {Selector<T, any>} [formatter] The custom formatter to use.
+         * 
+         * @return {IEnumerable<T>} The new, piped sequence.
+         */
+        trace(formatter?: Selector<T, any>): IEnumerable<T>;
+        /**
          * Produces the union of that sequence and another.
          * 
          * @param {Sequence<T>} second The other sequence.
@@ -3052,6 +3060,24 @@ namespace Enumerable {
             }
 
             return OBJ;
+        }
+        /** @inheritdoc */
+        public trace(formatter?: Selector<T, any>): IEnumerable<T> {
+            if (!formatter) {
+                formatter = (item) => {
+                    if (isNullOrUndefined(item)) {
+                        return item;
+                    }
+
+                    return '' + item;
+                };
+            }
+
+            return this.pipe(x => {
+                console.trace(
+                    formatter(x)
+                );
+            });
         }
         /** @inheritdoc */
         public union(second: Sequence<T>,

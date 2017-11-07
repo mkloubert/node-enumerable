@@ -1428,6 +1428,20 @@ var Enumerable;
             return OBJ;
         }
         /** @inheritdoc */
+        trace(formatter) {
+            if (!formatter) {
+                formatter = (item) => {
+                    if (isNullOrUndefined(item)) {
+                        return item;
+                    }
+                    return '' + item;
+                };
+            }
+            return this.pipe(x => {
+                console.trace(formatter(x));
+            });
+        }
+        /** @inheritdoc */
         union(second, comparer) {
             return this.concat(second)
                 .distinct(comparer);

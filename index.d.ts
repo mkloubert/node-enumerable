@@ -1122,6 +1122,14 @@ declare namespace Enumerable {
          */
         toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (item: T, index: number) => TKey): TResult;
         /**
+         * Traces the elements of that sequence.
+         *
+         * @param {Selector<T, any>} [formatter] The custom formatter to use.
+         *
+         * @return {IEnumerable<T>} The new, piped sequence.
+         */
+        trace(formatter?: Selector<T, any>): IEnumerable<T>;
+        /**
          * Produces the union of that sequence and another.
          *
          * @param {Sequence<T>} second The other sequence.
@@ -1581,6 +1589,8 @@ declare namespace Enumerable {
         toLookup<TKey extends PropertyKey, U = any>(keySelector: Selector<T, TKey>, keyEqualityComparer?: EqualityComparer<TKey>): U;
         /** @inheritdoc */
         toObject<TResult = any, TKey extends PropertyKey = number>(keySelector?: (item: T, index: number) => TKey): TResult;
+        /** @inheritdoc */
+        trace(formatter?: Selector<T, any>): IEnumerable<T>;
         /** @inheritdoc */
         union(second: Sequence<T>, comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /** @inheritdoc */

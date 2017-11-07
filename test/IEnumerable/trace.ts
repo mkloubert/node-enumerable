@@ -29,7 +29,7 @@ const MAX_ARRAY_SIZE = 100;
 
 
 Helpers.execute(
-    'Testing numbers...',
+    'Testing without formatter...',
     (ctx) => {
         for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
             if (0 === i % 10) {
@@ -41,17 +41,57 @@ Helpers.execute(
                 EXPECTED.push(j);
             }
 
-            const ACTUAL1: number[] = [];
-            const SEQ = Enumerable.from(EXPECTED).pipe(x => {
-                ACTUAL1.push(x);
-            });
+            const SEQ = Enumerable.from(EXPECTED);
 
-            const ACTUAL2: number[] = [];
-            for (let item of SEQ) {
-                ACTUAL2.push( item );
+            const ACTUAL1: number[] = [];
+            for (let item of SEQ.trace()) {
+                ACTUAL1.push( item );
             }
 
-            for (let ACTUAL of [ ACTUAL1, ACTUAL2 ]) {
+            for (let ACTUAL of [ ACTUAL1 ]) {
+                Assert.equal( ACTUAL.length, EXPECTED.length );
+                Assert.strictEqual( ACTUAL.length, EXPECTED.length );
+                Assert.equal( '' + ACTUAL.length, EXPECTED.length );
+                Assert.equal( ACTUAL.length, '' + EXPECTED.length );
+                Assert.equal( '' + ACTUAL.length, '' + EXPECTED.length );
+                Assert.strictEqual( '' + ACTUAL.length, '' + EXPECTED.length );
+
+                for (let j = 0; j < ACTUAL.length; j++) {
+                    const A = ACTUAL[j];
+                    const E = EXPECTED[j];
+
+                    Assert.equal(A, E);
+                    Assert.strictEqual(A, E);
+                    Assert.equal('' + A, E);
+                    Assert.equal(A, '' + E);
+                    Assert.equal('' + A, '' + E);
+                    Assert.strictEqual('' + A, '' + E);
+                }
+            }
+        }
+    });
+
+Helpers.execute(
+    'Testing with formatter...',
+    (ctx) => {
+        for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
+            if (0 === i % 10) {
+                ctx.log(`Testing with ${i} elements...`);
+            }
+
+            const EXPECTED: number[] = [];
+            for (let j = 0; j < i; j++) {
+                EXPECTED.push(j);
+            }
+
+            const SEQ = Enumerable.from(EXPECTED);
+
+            const ACTUAL1: number[] = [];
+            for (let item of SEQ.trace(x => 'Item: ' + x)) {
+                ACTUAL1.push( item );
+            }
+
+            for (let ACTUAL of [ ACTUAL1 ]) {
                 Assert.equal( ACTUAL.length, EXPECTED.length );
                 Assert.strictEqual( ACTUAL.length, EXPECTED.length );
                 Assert.equal( '' + ACTUAL.length, EXPECTED.length );

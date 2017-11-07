@@ -7,6 +7,7 @@
 * added `isNullOrEmpty()`, `isUndefinedNullOrEmpty()` and `isUndefinedOrEmpty()` functions
 * added `pipe()` method
 * added `prepend()` and `prependArray()` methods
+* added `trace()` method
 
 ## 3.7.1 (November 7th, 2017; methods)
 
