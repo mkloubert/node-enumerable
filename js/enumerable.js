@@ -886,6 +886,10 @@ var Enumerable;
             }
         }
         /** @inheritdoc */
+        isEmpty() {
+            return this.length() < 1;
+        }
+        /** @inheritdoc */
         join(inner, outerKeySelector, innerKeySelector, resultSelector, keyEqualityComparer) {
             if (!outerKeySelector && !innerKeySelector) {
                 outerKeySelector = (i) => i;
@@ -1927,6 +1931,18 @@ var Enumerable;
     } // isEnumerable()
     Enumerable.isEnumerable = isEnumerable;
     /**
+     * Checks if a sequence is (null) or empty.
+     *
+     * @param {IEnumerable<T>} seq The sequence to check.
+     *
+     * @return {boolean} Is (null) or empty.
+     */
+    function isNullOrEmpty(seq) {
+        return null === seq ||
+            ('undefined' !== typeof seq && seq.isEmpty());
+    } // isNullOrEmpty<T>()
+    Enumerable.isNullOrEmpty = isNullOrEmpty;
+    /**
      * Checks if a value can be used as enumerable (sequence).
      *
      * @param {any} val The value to check.
@@ -1949,6 +1965,31 @@ var Enumerable;
         return false;
     } // isSequence()
     Enumerable.isSequence = isSequence;
+    /**
+     * Checks if a sequence is (undefined) / (null) or empty.
+     *
+     * @param {IEnumerable<T>} seq The sequence to check.
+     *
+     * @return {boolean} Is (undefined), (null) or empty.
+     */
+    function isUndefinedNullOrEmpty(seq) {
+        return 'undefined' === typeof seq ||
+            null === seq ||
+            seq.isEmpty();
+    } // isUndefinedNullOrEmpty<T>()
+    Enumerable.isUndefinedNullOrEmpty = isUndefinedNullOrEmpty;
+    /**
+     * Checks if a sequence is (undefined) or empty.
+     *
+     * @param {IEnumerable<T>} seq The sequence to check.
+     *
+     * @return {boolean} Is (undefined) or empty.
+     */
+    function isUndefinedOrEmpty(seq) {
+        return 'undefined' === typeof seq ||
+            (null !== seq && seq.isEmpty());
+    } // isUndefinedOrEmpty<T>()
+    Enumerable.isUndefinedOrEmpty = isUndefinedOrEmpty;
     /**
      * Checks if a value represents the NOT_FOUND symbol.
      *

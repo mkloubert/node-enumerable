@@ -615,6 +615,21 @@ Enumerable.create(11, 22, 33, 44)
                       // based sequence here
                       //
                       // a generator based sequence will behave as count()
+
+// (false)
+Enumerable.create(111, 222, 333)
+          .isEmpty();
+
+// all are (false)
+Enumerable.isNullOrEmpty(
+    Enumerable.create(1111, 2222, 3333)
+);
+Enumerable.isUndefinedNullOrEmpty(
+    Enumerable.create(11111, 22222, 33333)
+);
+Enumerable.isUndefinedNullOrEmpty(
+    Enumerable.create(0, true, false)
+);
 ```
 
 ### Math [[&uarr;](#math-)]

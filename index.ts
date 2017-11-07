@@ -747,6 +747,13 @@ namespace Enumerable {
         intersect(second: Sequence<T>,
                   comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /**
+         * Checks if that sequence is empty or not
+         * by using the length() method.
+         * 
+         * @return {boolean} Is Empty or not.
+         */
+        isEmpty(): boolean;
+        /**
          * Correlates the elements of that sequence and another based on matching keys.
          * 
          * @param {Sequence<TInner>} inner The other sequence.
@@ -2351,6 +2358,10 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
+        public isEmpty(): boolean {
+            return this.length() < 1;
+        }
+        /** @inheritdoc */
         public join<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, TInner>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
@@ -3655,6 +3666,18 @@ namespace Enumerable {
     }  // isEnumerable()
 
     /**
+     * Checks if a sequence is (null) or empty.
+     * 
+     * @param {IEnumerable<T>} seq The sequence to check.
+     * 
+     * @return {boolean} Is (null) or empty.
+     */
+    export function isNullOrEmpty<T>(seq: IEnumerable<T>): seq is (null | IEnumerable<T>) {
+        return null === seq ||
+               ('undefined' !== typeof seq && seq.isEmpty());
+    }  // isNullOrEmpty<T>()
+
+    /**
      * Checks if a value can be used as enumerable (sequence).
      * 
      * @param {any} val The value to check.
@@ -3679,6 +3702,31 @@ namespace Enumerable {
 
         return false;
     }  // isSequence()
+
+    /**
+     * Checks if a sequence is (undefined) / (null) or empty.
+     * 
+     * @param {IEnumerable<T>} seq The sequence to check.
+     * 
+     * @return {boolean} Is (undefined), (null) or empty.
+     */
+    export function isUndefinedNullOrEmpty<T>(seq: IEnumerable<T>): seq is (undefined | null | IEnumerable<T>) {
+        return 'undefined' === typeof seq ||
+               null === seq ||
+               seq.isEmpty();
+    }  // isUndefinedNullOrEmpty<T>()
+
+    /**
+     * Checks if a sequence is (undefined) or empty.
+     * 
+     * @param {IEnumerable<T>} seq The sequence to check.
+     * 
+     * @return {boolean} Is (undefined) or empty.
+     */
+    export function isUndefinedOrEmpty<T>(seq: IEnumerable<T>): seq is (undefined | IEnumerable<T>) {
+        return 'undefined' === typeof seq ||
+               (null !== seq && seq.isEmpty());
+    }  // isUndefinedOrEmpty<T>()
 
     /**
      * Checks if a value represents the NOT_FOUND symbol.
