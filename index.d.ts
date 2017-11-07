@@ -857,6 +857,15 @@ declare namespace Enumerable {
          */
         orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
         /**
+         * Executes the given action on each element in the source sequence
+         * and yields it.
+         *
+         * @param {EachAction<T>} action The action to invoke.
+         *
+         * @return {IEnumerable<T>} The new sequence.
+         */
+        pipe(action: EachAction<T>): IEnumerable<T>;
+        /**
          * Handles current items as base numbers and take them to a specific power.
          *
          * @param {number} [exponent] The exponent. Default: 2
@@ -1486,6 +1495,12 @@ declare namespace Enumerable {
         orderByDescending<U>(selector: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T>;
         /** @inheritdoc */
         orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
+        /** @inheritdoc */
+        pipe(action: EachAction<T>): IEnumerable<T>;
+        /**
+         * @see pipe()
+         */
+        protected pipeInner(action: EachAction<T>): Iterator<T>;
         /** @inheritdoc */
         pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */

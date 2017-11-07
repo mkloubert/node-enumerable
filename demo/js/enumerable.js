@@ -1110,6 +1110,23 @@ var Enumerable;
             return this.orderByDescending(x => x, comparer);
         }
         /** @inheritdoc */
+        pipe(action) {
+            return from(this.pipeInner(action));
+        }
+        /**
+         * @see pipe()
+         */
+        *pipeInner(action) {
+            let i = -1;
+            for (let item of this) {
+                ++i;
+                if (action) {
+                    action(item, i);
+                }
+                yield item;
+            }
+        }
+        /** @inheritdoc */
         pow(exponent, handleAsInt) {
             exponent = parseFloat(toStringSafe(exponent).trim());
             if (isNaN(exponent)) {

@@ -928,6 +928,15 @@ namespace Enumerable {
          */
         orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
         /**
+         * Executes the given action on each element in the source sequence
+         * and yields it.
+         * 
+         * @param {EachAction<T>} action The action to invoke.
+         * 
+         * @return {IEnumerable<T>} The new sequence.
+         */
+        pipe(action: EachAction<T>): IEnumerable<T>;
+        /**
          * Handles current items as base numbers and take them to a specific power.
          * 
          * @param {number} [exponent] The exponent. Default: 2
@@ -2653,6 +2662,25 @@ namespace Enumerable {
         public orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T> {
             return this.orderByDescending(x => x,
                                           comparer);
+        }
+        /** @inheritdoc */
+        public pipe(action: EachAction<T>): IEnumerable<T> {
+            return from( this.pipeInner(action) );
+        }
+        /**
+         * @see pipe()
+         */
+        protected *pipeInner(action: EachAction<T>): Iterator<T> {
+            let i = -1;
+            for (let item of this) {
+                ++i;
+
+                if (action) {
+                    action(item, i);
+                }
+
+                yield item;
+            }
         }
         /** @inheritdoc */
         public pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number> {

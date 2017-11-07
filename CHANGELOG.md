@@ -5,6 +5,7 @@
 * added `append()` and `appendArray()` methods
 * added `isEmpty()` method
 * added `isNullOrEmpty()`, `isUndefinedNullOrEmpty()` and `isUndefinedOrEmpty()` functions
+* added `pipe()` method
 * added `prepend()` and `prependArray()` methods
 
 ## 3.7.1 (November 7th, 2017; methods)

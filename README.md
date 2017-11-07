@@ -41,6 +41,7 @@
      * [defaultIfEmpty / defaultArrayIfEmpty](#defaultifempty--defaultarrayifempty-)
      * [forAll](#forall-)
      * [intersperse / intersperseArray](#intersperse--interspersearray-)
+     * [pipe](#pipe-)
      * [popFrom / shiftFrom](#popfrom--shiftfrom-)
      * [prepend / prependArray](#prepend--prependarray-)
      * [pushTo](#pushto-)
@@ -864,6 +865,23 @@ Enumerable.range(0, 3)
 // -- or --
 Enumerable.range(0, 3)
           .intersperseArray( ['-'] );
+```
+
+#### pipe [[&uarr;](#more-)]
+
+```javascript
+let arr1 = [];
+let arr2 = [];
+
+let seq = Enumerable.create(1, 2, 3).pipe((x) => {
+    arr1.push(x * 10);
+});
+for (let item of seq) {
+    arr2.push(item);
+}
+
+// arr1 = [10, 20, 30]
+// arr2 = [1, 2, 3]
 ```
 
 #### popFrom / shiftFrom [[&uarr;](#more-)]
