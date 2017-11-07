@@ -1,11 +1,11 @@
 # Change Log (node-enumerable)
 
-## 3.7.0 (November 7th, 2017; methods)
+## 3.7.1 (November 7th, 2017; methods)
 
 * added `assert()` and `assertAll()` methods
 * added `consume()` method
 * added `eachAll()` and `forAll()` methods
-* added `length` method
+* added `length()` method
 * code cleanups and improvements
 
 ## 3.6.0 (November 6th, 2017; methods & functions)

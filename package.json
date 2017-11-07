@@ -1,6 +1,6 @@
 {
   "name": "node-enumerable",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "description": "ES6 ready LINQ features written in TypeScript",
   "main": "index.js",
   "scripts": {
