@@ -1,5 +1,10 @@
 # Change Log (node-enumerable)
 
+## 3.8.0 (November 8th, 2017; methods)
+
+* added `append()` and `appendArray()` methods
+* added `prepend()` and `prependArray()` methods
+
 ## 3.7.1 (November 7th, 2017; methods)
 
 * added `assert()` and `assertAll()` methods

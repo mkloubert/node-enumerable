@@ -42,6 +42,7 @@
      * [forAll](#forall-)
      * [intersperse / intersperseArray](#intersperse--interspersearray-)
      * [popFrom / shiftFrom](#popfrom--shiftfrom-)
+     * [prepend / prependArray](#prepend--prependarray-)
      * [pushTo](#pushto-)
      * [random](#random-)
      * [reset](#reset-)
@@ -754,11 +755,11 @@ for (let child of father.clone(3)) {
 ```javascript
 // 0, 1, 2, 'PZ', 'TM', 'MK'
 Enumerable.create(0, 1, 2)
-          .concat(['PZ'], ['TM', 'MK']);
+          .concat(['PZ'], ['TM', 'MK']);  // alt: append()
 
 // 0, 111, 222, 'pz', 'tm', 'mk'
 Enumerable.create(0, 111, 222)
-          .concatArray([ [ 'pz', 'tm' ], [ 'mk' ] ]);
+          .concatArray([ [ 'pz', 'tm' ], [ 'mk' ] ]);  // alt: appendArray()
 ```
 
 #### consume [[&uarr;](#more-)]
@@ -868,6 +869,18 @@ for (let item of Enumerable.shiftFrom(arr2)) {
     // [2] 333
 }
 // arr2 is empty now
+```
+
+#### prepend / prependArray [[&uarr;](#more-)]
+
+```javascript
+// 'PZ', 'TM', 'MK', 0, 1, 2
+Enumerable.create(0, 1, 2)
+          .prepend(['PZ'], ['TM', 'MK']);
+
+// 'pz', 'tm', 'mk', 0, 111, 222
+Enumerable.create(0, 111, 222)
+          .prependArray([ [ 'pz', 'tm' ], [ 'mk' ] ]);
 ```
 
 #### pushTo [[&uarr;](#more-)]

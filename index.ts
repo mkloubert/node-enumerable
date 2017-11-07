@@ -306,6 +306,14 @@ namespace Enumerable {
          */
         any(predicate?: Predicate<T>): boolean;
         /**
+         * Alias for concat()
+         */
+        append<U = T>(...args: Sequence<U>[]): IEnumerable<T | U>;
+        /**
+         * Alias for concatArray()
+         */
+        appendArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U>;
+        /**
          * Handles current items as numbers and calculates the arc cosine for each item.
          * 
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
@@ -453,20 +461,20 @@ namespace Enumerable {
          * Concats the items of that sequences with other ones
          * to a new sequence.
          * 
-         * @param {...Sequence<T>[]} args The other sequences.
+         * @param {...Sequence<U>[]} args The other sequences.
          * 
-         * @memberof IEnumerable<T> The concated sequence.
+         * @memberof IEnumerable<T|U> The concated sequence.
          */
-        concat(...args: Sequence<T>[]): IEnumerable<T>;
+        concat<U = T>(...args: Sequence<U>[]): IEnumerable<T | U>;
         /**
          * Concats the items of that sequences with other ones
          * to a new sequence.
          * 
-         * @param {...Sequence<T>[]} sequences The other sequences.
+         * @param {...Sequence<U>[]} sequences The other sequences.
          * 
-         * @memberof IEnumerable<T> The concated sequence.
+         * @memberof IEnumerable<T|U> The concated sequence.
          */
-        concatArray(sequences: ArrayLike<Sequence<T>>): IEnumerable<T>;
+        concatArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U>;
         /**
          * Completely consumes the given sequence. This method uses immediate execution,
          * and doesn't store any data during execution.
@@ -922,6 +930,22 @@ namespace Enumerable {
          * @return {IEnumerable<number>} The new sequence.
          */
         pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number>;
+        /**
+         * Prepends the itms of other sequences to the ones of that sequence.
+         * 
+         * @param {...Sequence<T>[]} args The other sequences.
+         * 
+         * @memberof IEnumerable<T|U> The concated sequence.
+         */
+        prepend<U = T>(...args: Sequence<T | U>[]): IEnumerable<T | U>;
+        /**
+         * Prepends the itms of other sequences to the ones of that sequence.
+         * 
+         * @param {...Sequence<T>[]} sequences The other sequences.
+         * 
+         * @memberof IEnumerable<T|U> The concated sequence.
+         */
+        prependArray<U = T>(sequences: ArrayLike<Sequence<T | U>>): IEnumerable<T | U>;
         /**
          * Calculates the product of that sequence.
          * 
@@ -1458,6 +1482,16 @@ namespace Enumerable {
             return false;
         }
         /** @inheritdoc */
+        public append<U = T>(...args: Sequence<U>[]): IEnumerable<T | U> {
+            return this.concat
+                       .apply(this, arguments);
+        }
+        /** @inheritdoc */
+        public appendArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U> {
+            return this.concatArray
+                       .apply(this, arguments);
+        }
+        /** @inheritdoc */
         public arcCos(handleAsInt?: boolean): IEnumerable<number> {
             return this.select(x => invokeForValidNumber(x,
                                                          y => Math.acos(y),
@@ -1795,17 +1829,17 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
-        public concat(...args: Sequence<T>[]): IEnumerable<T> {
+        public concat<U = T>(...args: Sequence<U>[]): IEnumerable<T | U> {
             return this.concatArray(args);
         }
         /** @inheritdoc */
-        public concatArray(sequences: ArrayLike<Sequence<T>>): IEnumerable<T> {
+        public concatArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U> {
             return from(this.concatArrayInner(sequences));
         }
         /**
          * @see concatArray()
          */
-        protected *concatArrayInner(sequences: ArrayLike<Sequence<T>>): IterableIterator<T> {
+        protected *concatArrayInner<U>(sequences: ArrayLike<Sequence<U>>): IterableIterator<T | U> {
             for (let item of this) {
                 yield item;
             }
@@ -2623,6 +2657,32 @@ namespace Enumerable {
                                             y => Math.pow(y, exponent),
                                             handleAsInt);
             });
+        }
+        /** @inheritdoc */
+        public prepend<U = T>(...args: Sequence<U>[]): IEnumerable<T | U> {
+            return this.prependArray(args);
+        }
+        /** @inheritdoc */
+        public prependArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U> {
+            return from(this.prependArrayInner(sequences));
+        }
+        /**
+         * @see concatArray()
+         */
+        protected *prependArrayInner<U>(sequences: ArrayLike<Sequence<U>>): IterableIterator<T | U> {
+            if (sequences) {
+                for (let i = 0; i < sequences.length; i++) {
+                    const SEQ = sequences[i];
+
+                    for (let item of from(SEQ)) {
+                        yield item;
+                    }
+                }
+            }
+
+            for (let item of this) {
+                yield item;
+            }
         }
         /** @inheritdoc */
         public product(): T | symbol {

@@ -265,6 +265,14 @@ declare namespace Enumerable {
          */
         any(predicate?: Predicate<T>): boolean;
         /**
+         * Alias for concat()
+         */
+        append<U = T>(...args: Sequence<U>[]): IEnumerable<T | U>;
+        /**
+         * Alias for concatArray()
+         */
+        appendArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U>;
+        /**
          * Handles current items as numbers and calculates the arc cosine for each item.
          *
          * @param {boolean} [handleAsInt] Handle as integer values (true) or floats (false).
@@ -408,20 +416,20 @@ declare namespace Enumerable {
          * Concats the items of that sequences with other ones
          * to a new sequence.
          *
-         * @param {...Sequence<T>[]} args The other sequences.
+         * @param {...Sequence<U>[]} args The other sequences.
          *
-         * @memberof IEnumerable<T> The concated sequence.
+         * @memberof IEnumerable<T|U> The concated sequence.
          */
-        concat(...args: Sequence<T>[]): IEnumerable<T>;
+        concat<U = T>(...args: Sequence<U>[]): IEnumerable<T | U>;
         /**
          * Concats the items of that sequences with other ones
          * to a new sequence.
          *
-         * @param {...Sequence<T>[]} sequences The other sequences.
+         * @param {...Sequence<U>[]} sequences The other sequences.
          *
-         * @memberof IEnumerable<T> The concated sequence.
+         * @memberof IEnumerable<T|U> The concated sequence.
          */
-        concatArray(sequences: ArrayLike<Sequence<T>>): IEnumerable<T>;
+        concatArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U>;
         /**
          * Completely consumes the given sequence. This method uses immediate execution,
          * and doesn't store any data during execution.
@@ -852,6 +860,22 @@ declare namespace Enumerable {
          */
         pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number>;
         /**
+         * Prepends the itms of other sequences to the ones of that sequence.
+         *
+         * @param {...Sequence<T>[]} args The other sequences.
+         *
+         * @memberof IEnumerable<T|U> The concated sequence.
+         */
+        prepend<U = T>(...args: Sequence<T | U>[]): IEnumerable<T | U>;
+        /**
+         * Prepends the itms of other sequences to the ones of that sequence.
+         *
+         * @param {...Sequence<T>[]} sequences The other sequences.
+         *
+         * @memberof IEnumerable<T|U> The concated sequence.
+         */
+        prependArray<U = T>(sequences: ArrayLike<Sequence<T | U>>): IEnumerable<T | U>;
+        /**
          * Calculates the product of that sequence.
          *
          * @returns {(T|symbol)} The product or IS_EMPTY if that sequence is empty.
@@ -1266,6 +1290,10 @@ declare namespace Enumerable {
         /** @inheritdoc */
         any(predicate?: Predicate<T>): boolean;
         /** @inheritdoc */
+        append<U = T>(...args: Sequence<U>[]): IEnumerable<T | U>;
+        /** @inheritdoc */
+        appendArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U>;
+        /** @inheritdoc */
         arcCos(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         arcCosH(handleAsInt?: boolean): IEnumerable<number>;
@@ -1304,13 +1332,13 @@ declare namespace Enumerable {
          */
         protected cloneInner<U>(count: number, itemSelector: Selector<T, U>): IterableIterator<any>;
         /** @inheritdoc */
-        concat(...args: Sequence<T>[]): IEnumerable<T>;
+        concat<U = T>(...args: Sequence<U>[]): IEnumerable<T | U>;
         /** @inheritdoc */
-        concatArray(sequences: ArrayLike<Sequence<T>>): IEnumerable<T>;
+        concatArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U>;
         /**
          * @see concatArray()
          */
-        protected concatArrayInner(sequences: ArrayLike<Sequence<T>>): IterableIterator<T>;
+        protected concatArrayInner<U>(sequences: ArrayLike<Sequence<U>>): IterableIterator<T | U>;
         /** @inheritdoc */
         consume(): this;
         /** @inheritdoc */
@@ -1451,6 +1479,14 @@ declare namespace Enumerable {
         orderDescending(comparer?: Comparer<T>): IOrderedEnumerable<T>;
         /** @inheritdoc */
         pow(exponent?: number, handleAsInt?: boolean): IEnumerable<number>;
+        /** @inheritdoc */
+        prepend<U = T>(...args: Sequence<U>[]): IEnumerable<T | U>;
+        /** @inheritdoc */
+        prependArray<U = T>(sequences: ArrayLike<Sequence<U>>): IEnumerable<T | U>;
+        /**
+         * @see concatArray()
+         */
+        protected prependArrayInner<U>(sequences: ArrayLike<Sequence<U>>): IterableIterator<T | U>;
         /** @inheritdoc */
         product(): T | symbol;
         /** @inheritdoc */

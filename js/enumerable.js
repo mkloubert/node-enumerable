@@ -188,6 +188,16 @@ var Enumerable;
             return false;
         }
         /** @inheritdoc */
+        append(...args) {
+            return this.concat
+                .apply(this, arguments);
+        }
+        /** @inheritdoc */
+        appendArray(sequences) {
+            return this.concatArray
+                .apply(this, arguments);
+        }
+        /** @inheritdoc */
         arcCos(handleAsInt) {
             return this.select(x => invokeForValidNumber(x, y => Math.acos(y), handleAsInt));
         }
@@ -1104,6 +1114,30 @@ var Enumerable;
             return this.select((x) => {
                 return invokeForValidNumber(x, y => Math.pow(y, exponent), handleAsInt);
             });
+        }
+        /** @inheritdoc */
+        prepend(...args) {
+            return this.prependArray(args);
+        }
+        /** @inheritdoc */
+        prependArray(sequences) {
+            return from(this.prependArrayInner(sequences));
+        }
+        /**
+         * @see concatArray()
+         */
+        *prependArrayInner(sequences) {
+            if (sequences) {
+                for (let i = 0; i < sequences.length; i++) {
+                    const SEQ = sequences[i];
+                    for (let item of from(SEQ)) {
+                        yield item;
+                    }
+                }
+            }
+            for (let item of this) {
+                yield item;
+            }
         }
         /** @inheritdoc */
         product() {
