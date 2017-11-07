@@ -33,7 +33,7 @@
    * [Count](#count-)
    * [Math](#math-)
    * [More](#more-)
-     * [assert](#assert--assertall-)
+     * [assert](#assert-)
      * [chunk](#chunk-)
      * [clone](#clone-)
      * [concat / concatArray](#concat--concatarray-)
