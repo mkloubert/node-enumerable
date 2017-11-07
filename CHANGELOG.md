@@ -5,6 +5,7 @@
 * added `assert()` and `assertAll()` methods
 * added `consume()` method
 * added `eachAll()` and `forAll()` methods
+* added `length` method
 * code cleanups and improvements
 
 ## 3.6.0 (November 6th, 2017; methods & functions)

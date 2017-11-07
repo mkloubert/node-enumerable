@@ -802,6 +802,14 @@ namespace Enumerable {
         lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T,
                                   defaultValue?: U): T | U;
         /**
+         * Returns the length of the underlying collection.
+         * If the underlying object does NOT contain a 'length' property, like a generator, it will
+         * behave the same way as 'count' method.
+         * 
+         * @return {number} The length.
+         */
+        length(): number;
+        /**
          * Handles current items as numbers and calculates the logarithm of them.
          * 
          * @param {number} [base] The custom base. Default: e
@@ -2437,6 +2445,10 @@ namespace Enumerable {
             return ARGS.defaultValue;
         }
         /** @inheritdoc */
+        public length(): number {
+            return this.count();
+        }
+        /** @inheritdoc */
         public log(base?: number, handleAsInt?: boolean): IEnumerable<number> {
             let logFunc: (n: number) => number;
 
@@ -3110,6 +3122,10 @@ namespace Enumerable {
         /** @inheritdoc */
         public get canReset(): boolean {
             return true;
+        }
+        /** @inheritdoc */
+        public length(): number {
+            return this._array.length;
         }
         /** @inheritdoc */
         public next(): IteratorResult<T> {

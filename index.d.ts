@@ -735,6 +735,14 @@ declare namespace Enumerable {
          */
         lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /**
+         * Returns the length of the underlying collection.
+         * If the underlying object does NOT contain a 'length' property, like a generator, it will
+         * behave the same way as 'count' method.
+         *
+         * @return {number} The length.
+         */
+        length(): number;
+        /**
          * Handles current items as numbers and calculates the logarithm of them.
          *
          * @param {number} [base] The custom base. Default: e
@@ -1414,6 +1422,8 @@ declare namespace Enumerable {
         /** @inheritdoc */
         lastOrDefault<U = symbol>(predicateOrDefaultValue?: Predicate<T> | T, defaultValue?: U): T | U;
         /** @inheritdoc */
+        length(): number;
+        /** @inheritdoc */
         log(base?: number, handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
         makeResettable(): IEnumerable<T>;
@@ -1584,6 +1594,8 @@ declare namespace Enumerable {
         constructor(arr?: ArrayLike<T>);
         /** @inheritdoc */
         readonly canReset: boolean;
+        /** @inheritdoc */
+        length(): number;
         /** @inheritdoc */
         next(): IteratorResult<T>;
         /** @inheritdoc */

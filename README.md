@@ -38,7 +38,7 @@
      * [clone](#clone-)
      * [concat / concatArray](#concat--concatarray-)
      * [consume](#consume-)
-     * [defaultIfEmpty / defaultArrayIfEmpty / defaultSequenceIfEmpty](#defaultifempty--defaultarrayifempty--defaultsequenceifempty-)
+     * [defaultIfEmpty / defaultArrayIfEmpty](#defaultifempty--defaultarrayifempty-)
      * [forAll](#forall-)
      * [intersperse / intersperseArray](#intersperse--interspersearray-)
      * [popFrom / shiftFrom](#popfrom--shiftfrom-)
@@ -600,11 +600,20 @@ let lookup = Enumerable.create('Bill', 'Marcel', 'barney', 'Albert', 'Konrad')
 ```javascript
 // 3
 Enumerable.create(0, 1, 2)
-          .count();
+          .count();  // a second call will return 0
+                     // if reset() method is not called
           
 // 2
 Enumerable.create(0, 1, 2)
           .count((x) => x > 0);
+
+// 4
+Enumerable.create(11, 22, 33, 44)
+          .length();  // a second call will return
+                      // the same value, because we have an array
+                      // based sequence here
+                      //
+                      // a generator based sequence will behave as count()
 ```
 
 ### Math [[&uarr;](#math-)]
@@ -779,7 +788,7 @@ SEQ.consume();  // enumerates the 'iterator' in OBJ
                 // and fills the 'storage' in OBJ
 ```
 
-#### defaultIfEmpty / defaultArrayIfEmpty / defaultSequenceIfEmpty [[&uarr;](#more-)]
+#### defaultIfEmpty / defaultArrayIfEmpty [[&uarr;](#more-)]
 
 ```javascript
 // 0, 1, 2
@@ -787,17 +796,17 @@ Enumerable.create(0, 1, 2)
           .defaultIfEmpty('PZ', 'TM', 'MK');
           
 // 'PZ', 'TM', 'MK'
-Enumerable.create()
+Enumerable.empty()
           .defaultIfEmpty('PZ', 'TM', 'MK');
 
 // 0, 11, 22
 Enumerable.create(0, 11, 22)
-          .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
-// alt: defaultArrayIfEmpty()
-          
+          .defaultArrayIfEmpty(['pz', 'tm', 'mk']);
+// alt: defaultSequenceIfEmpty()
+
 // 'pz', 'tm', 'mk'
-Enumerable.create()
-          .defaultSequenceIfEmpty(['pz', 'tm', 'mk']);
+Enumerable.empty()
+          .defaultArrayIfEmpty(['pz', 'tm', 'mk']);
 ```
 
 #### forAll [[&uarr;](#more-)]

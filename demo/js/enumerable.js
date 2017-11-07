@@ -966,6 +966,10 @@ var Enumerable;
             return ARGS.defaultValue;
         }
         /** @inheritdoc */
+        length() {
+            return this.count();
+        }
+        /** @inheritdoc */
         log(base, handleAsInt) {
             let logFunc;
             base = parseFloat(toStringSafe(base).trim());
@@ -1500,6 +1504,10 @@ var Enumerable;
         /** @inheritdoc */
         get canReset() {
             return true;
+        }
+        /** @inheritdoc */
+        length() {
+            return this._array.length;
         }
         /** @inheritdoc */
         next() {

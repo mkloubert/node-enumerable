@@ -33,7 +33,7 @@ interface ExpectedAndActual {
 }
 
 Helpers.execute(
-    'Testing numbers...',
+    'Testing numbers (array)...',
     (ctx) => {
         for (let i = 0; i < MAX_ARRAY_SIZE; i++) {
             if (0 === i % 10) {
@@ -47,41 +47,12 @@ Helpers.execute(
             }
 
             let cnt1 = Enumerable.from(arr)
-                                 .count();
+                                 .length();
 
             Assert.strictEqual(cnt1, arr.length);
             Assert.notStrictEqual('' + cnt1, arr.length);
             Assert.notStrictEqual(cnt1, '' + arr.length);
             Assert.strictEqual('' + cnt1, '' + arr.length);
-
-            let cnt2a = Enumerable.from(arr)
-                                  .count(x => false);
-
-            Assert.strictEqual(cnt2a, 0);
-            Assert.notStrictEqual('' + cnt2a, 0);
-            Assert.notStrictEqual(cnt2a, '0');
-            Assert.strictEqual('' + cnt2a, '0');
-
-
-            let expected3 = Math.ceil(arr.length / 2);
-
-            let cnt3a = Enumerable.from(arr)
-                                  .count(x => x % 2 === 0);
-
-            Assert.strictEqual(cnt3a, expected3);
-            Assert.notStrictEqual('' + cnt3a, expected3);
-            Assert.notStrictEqual(cnt3a, '' + expected3);
-            Assert.strictEqual('' + cnt3a, '' + expected3);
-
-            let expected4 = Math.floor(arr.length / 2);
-
-            let cnt4a = Enumerable.from(arr)
-                                  .count(x => x % 2 !== 0);
-
-            Assert.strictEqual(cnt4a, expected4);
-            Assert.notStrictEqual('' + cnt4a, expected4);
-            Assert.notStrictEqual(cnt4a, '' + expected4);
-            Assert.strictEqual('' + cnt4a, '' + expected4);
         }
     });
 
@@ -105,21 +76,18 @@ Helpers.execute(
 
             VALUES_TO_CHECK.push({
                 expected: ARR.length,
-                actual: SEQ.count(),
+                actual: SEQ.length(),
             });
 
-            // pointer of sequence should
-            // be at the end now
             VALUES_TO_CHECK.push({
-                expected: 0,
-                actual: SEQ.count(),
+                expected: ARR.length,
+                actual: SEQ.length(),
             });
 
-            // reset and start from the beginning
             SEQ.reset();
             VALUES_TO_CHECK.push({
                 expected: ARR.length,
-                actual: SEQ.count(),
+                actual: SEQ.length(),
             });
 
             for (let vtc of VALUES_TO_CHECK) {
@@ -152,21 +120,18 @@ Helpers.execute(
 
             VALUES_TO_CHECK.push({
                 expected: str.length,
-                actual: SEQ.count(),
+                actual: SEQ.length(),
             });
 
-            // pointer of sequence should
-            // be at the end now
             VALUES_TO_CHECK.push({
-                expected: 0,
-                actual: SEQ.count(),
+                expected: str.length,
+                actual: SEQ.length(),
             });
 
-            // reset and start from the beginning
             SEQ.reset();
             VALUES_TO_CHECK.push({
                 expected: str.length,
-                actual: SEQ.count(),
+                actual: SEQ.length(),
             });
 
             for (let vtc of VALUES_TO_CHECK) {
