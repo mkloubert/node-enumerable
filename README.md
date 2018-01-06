@@ -800,7 +800,7 @@ function *makeIterator(size, storage) {
 }
 
 const OBJ = createIteratorAndStorage(100);
-d
+
 const SEQ = Enumerable.from(OBJ.iterator);
 SEQ.consume();  // enumerates the 'iterator' in OBJ
                 // and fills the 'storage' in OBJ
