@@ -696,7 +696,7 @@ namespace Enumerable {
          * 
          * @return {IEnumerable<TResult>} The new sequence.
          */
-        groupJoin<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, IEnumerable<TInner>>>(
+        groupJoin<TInner = T, TOuterKey = any, TInnerKey = any, TResult = JoinedItems<T, IEnumerable<TInner>>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
             innerKeySelector?: Selector<TInner, TInnerKey>,
@@ -765,7 +765,7 @@ namespace Enumerable {
          * 
          * @return {IEnumerable<TResult>} The new sequence.
          */
-        join<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, TInner>>(
+        join<TInner = T, TOuterKey = any, TInnerKey = any, TResult = JoinedItems<T, TInner>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
             innerKeySelector?: Selector<TInner, TInnerKey>,
@@ -2232,7 +2232,7 @@ namespace Enumerable {
             }
         }
         /** @inheritdoc */
-        public groupJoin<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, IEnumerable<TInner>>>(
+        public groupJoin<TInner = T, TOuterKey = any, TInnerKey = any, TResult = JoinedItems<T, IEnumerable<TInner>>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
             innerKeySelector?: Selector<TInner, TInnerKey>,
@@ -2379,7 +2379,7 @@ namespace Enumerable {
             return this.length() < 1;
         }
         /** @inheritdoc */
-        public join<TInner = T, TOuterKey = TInnerKey | T, TInnerKey = TOuterKey | TInner, TResult = JoinedItems<T, TInner>>(
+        public join<TInner = T, TOuterKey = any, TInnerKey = any, TResult = JoinedItems<T, TInner>>(
             inner: Sequence<TInner>,
             outerKeySelector?: Selector<T, TOuterKey>,
             innerKeySelector?: Selector<TInner, TInnerKey>,
@@ -3998,7 +3998,7 @@ namespace Enumerable {
         }
         else if (paramCount < 2) {
             if ('function' === typeof predicateOrDefaultValue) {
-                predicate = predicateOrDefaultValue;
+                predicate = <Predicate<T>>predicateOrDefaultValue;
                 defVal = NOT_FOUND;
             }
             else {

@@ -1,5 +1,10 @@
 # Change Log (node-enumerable)
 
+## 4.0.0 (February 3rd, 2019; Node 8 and TypeScript 3)
+
+* updated for [Node.js 8+](https://nodejs.org/)
+* updated for [TypeScript 3.3+](https://www.typescriptlang.org/)
+
 ## 3.8.0 (November 7th, 2017; methods)
 
 * added `append()` and `appendArray()` methods
