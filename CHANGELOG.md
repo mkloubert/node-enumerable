@@ -1,6 +1,6 @@
 # Change Log (node-enumerable)
 
-## 5.0.0 (July 14th, 2019; ES2017 and TypeScript 3.5+)
+## 5.0.1 (July 14th, 2019; ES2017 and TypeScript 3.5+)
 
 * updated for [ES2017](https://en.wikipedia.org/wiki/ECMAScript#8th_Edition_-_ECMAScript_2017)
 * updated for [TypeScript 3.5+](https://www.typescriptlang.org/)
