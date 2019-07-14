@@ -11,13 +11,13 @@ declare namespace Enumerable {
      *
      * @param {AsyncActionContext<T>} context The underlying context.
      */
-    type AsyncAction<T> = (context: AsyncActionContext<T>) => void;
+    type AsyncAction<T = any> = (context: AsyncActionContext<T>) => void;
     /**
      * A context for an async action.
      *
      * @template T Type of the underlying item.
      */
-    interface AsyncActionContext<T> {
+    interface AsyncActionContext<T = any> {
         /**
          * Cancels the whole operation.
          *
@@ -77,7 +77,7 @@ declare namespace Enumerable {
      *
      * @return {TResult} The result.
      */
-    type CancelableFactory<TResult> = (cancel: (flag?: boolean) => void, index: number) => TResult;
+    type CancelableFactory<TResult = any> = (cancel: (flag?: boolean) => void, index: number) => TResult;
     /**
      * Compares to values.
      *
@@ -89,7 +89,7 @@ declare namespace Enumerable {
      *
      * @return {number} The "sort" value.
      */
-    type Comparer<T, U = T> = (x: T, y: U) => number;
+    type Comparer<T = any, U = T> = (x: T, y: U) => number;
     /**
      * A forEach action.
      *
@@ -98,7 +98,7 @@ declare namespace Enumerable {
      * @param {T} item The current item.
      * @param {number} index The zero based index of the current item.
      */
-    type EachAction<T> = (item: T, index: number) => void;
+    type EachAction<T = any> = (item: T, index: number) => void;
     /**
      * Checks if two values are equal.
      *
@@ -110,7 +110,7 @@ declare namespace Enumerable {
      *
      * @return {boolean} Are equal or not.
      */
-    type EqualityComparer<T, U = T> = (x: T, y: U) => boolean;
+    type EqualityComparer<T = any, U = T> = (x: T, y: U) => boolean;
     /**
      * An item message (provider).
      */
@@ -121,7 +121,7 @@ declare namespace Enumerable {
      * @template TOuter Type of the outer value.
      * @template TInner Type of the inner value.
      */
-    interface JoinedItems<TOuter, TInner> {
+    interface JoinedItems<TOuter = any, TInner = any> {
         /**
          * The inner value.
          */
@@ -134,7 +134,7 @@ declare namespace Enumerable {
     /**
      * A collection that can be popped.
      */
-    interface PoppableStack<T> {
+    interface PoppableStack<T = any> {
         /**
          * The length of the stack.
          */
@@ -155,7 +155,7 @@ declare namespace Enumerable {
      *
      * @return {boolean} Item satisfies the condition or not.
      */
-    type Predicate<T> = (item: T) => boolean;
+    type Predicate<T = any> = (item: T) => boolean;
     /**
      * A selector.
      *
@@ -166,17 +166,17 @@ declare namespace Enumerable {
      *
      * @return {U} The new item.
      */
-    type Selector<T, U> = (item: T) => U;
+    type Selector<T = any, U = any> = (item: T) => U;
     /**
      * Possible sequence types.
      *
      * @template T Type of the items.
      */
-    type Sequence<T> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
+    type Sequence<T = any> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
     /**
      * A collection that can be shifted.
      */
-    interface ShiftableStack<T> {
+    interface ShiftableStack<T = any> {
         /**
          * The length of the stack.
          */
@@ -193,7 +193,7 @@ declare namespace Enumerable {
      *
      * @template T The type of the items.
      */
-    interface Stack<T> {
+    interface Stack<T = any> {
         /**
          * Pushes one or more item to the stack.
          *
@@ -220,7 +220,7 @@ declare namespace Enumerable {
      *
      * @template T Type of the items.
      */
-    interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
+    interface IEnumerable<T = any> extends Iterable<T>, Iterator<T> {
         /**
          * Handles current items as numbers and returns their absolute values.
          *
@@ -1166,7 +1166,7 @@ declare namespace Enumerable {
      * @template T Type of the items.
      * @template TKey Type of the key.
      */
-    interface IGrouping<TKey, T> extends IEnumerable<T> {
+    interface IGrouping<TKey = any, T = any> extends IEnumerable<T> {
         /**
          * Gets the key.
          */
@@ -1175,7 +1175,7 @@ declare namespace Enumerable {
     /**
      * Describes an ordered sequence.
      */
-    interface IOrderedEnumerable<T> extends IEnumerable<T> {
+    interface IOrderedEnumerable<T = any> extends IEnumerable<T> {
         /**
          * Performs a subsequent ordering of the elements in that sequence in ascending order,
          * using the values itself as keys.
@@ -1226,7 +1226,7 @@ declare namespace Enumerable {
      *
      * @return {TResult} The "zipped" result,
      */
-    type ZipSelector<T, U = T, TResult = any> = (x: T, y: U, index: number) => TResult;
+    type ZipSelector<T = any, U = T, TResult = any> = (x: T, y: U, index: number) => TResult;
     /**
      * Represents a list of errors.
      */
@@ -1290,7 +1290,7 @@ declare namespace Enumerable {
     /**
      * A basic sequence.
      */
-    abstract class EnumerableBase<T> implements IEnumerable<T> {
+    abstract class EnumerableBase<T = any> implements IEnumerable<T> {
         /**
          * Stores the current iterator result.
          */
@@ -1611,7 +1611,7 @@ declare namespace Enumerable {
      *
      * @template T Type of the items.
      */
-    class EnumerableWrapper<T> extends EnumerableBase<T> {
+    class EnumerableWrapper<T = any> extends EnumerableBase<T> {
         /**
          * The wrapped sequence.
          */
@@ -1634,7 +1634,7 @@ declare namespace Enumerable {
     /**
      * A sequence based on an Iterator<T>.
      */
-    class IteratorEnumerable<T> extends EnumerableBase<T> {
+    class IteratorEnumerable<T = any> extends EnumerableBase<T> {
         /**
          * Stores the inner iterator.
          */
@@ -1651,7 +1651,7 @@ declare namespace Enumerable {
     /**
      * A sequence based on an array.
      */
-    class ArrayEnumerable<T> extends EnumerableBase<T> {
+    class ArrayEnumerable<T = any> extends EnumerableBase<T> {
         /**
          * Stores the underlying array.
          */
@@ -1677,7 +1677,7 @@ declare namespace Enumerable {
      * @template T Type of the items.
      * @template TKey Type of the key.
      */
-    class Grouping<TKey, T> extends EnumerableWrapper<T> implements IGrouping<TKey, T> {
+    class Grouping<TKey = any, T = any> extends EnumerableWrapper<T> implements IGrouping<TKey, T> {
         /**
          * Stores the key.
          */
@@ -1698,7 +1698,7 @@ declare namespace Enumerable {
      * @template T Type of the items.
      * @template U Type of the sort keys.
      */
-    class OrderedEnumerable<T, U = T> extends EnumerableWrapper<T> implements IOrderedEnumerable<T> {
+    class OrderedEnumerable<T = any, U = T> extends EnumerableWrapper<T> implements IOrderedEnumerable<T> {
         /**
          * Stores the items in the original order.
          */
@@ -1764,7 +1764,7 @@ declare namespace Enumerable {
      *
      * @returns {IEnumerable<T>}
      */
-    function build<T>(factory: CancelableFactory<T>, count?: number): IEnumerable<T>;
+    function build<T = any>(factory: CancelableFactory<T>, count?: number): IEnumerable<T>;
     /**
      * Builds a flatten sequence of sequences.
      *
@@ -1774,7 +1774,7 @@ declare namespace Enumerable {
      *
      * @returns {IEnumerable<T>} The flatten list of items.
      */
-    function buildMany<T>(factory: CancelableFactory<Sequence<T>>, count?: number): IEnumerable<T>;
+    function buildMany<T = any>(factory: CancelableFactory<Sequence<T>>, count?: number): IEnumerable<T>;
     /**
      * Creates a new sequence from a list of items.
      *
@@ -1800,7 +1800,7 @@ declare namespace Enumerable {
      *
      * @return {IEnumerable<T>} The new sequence.
      */
-    function from<T>(seq?: Sequence<T>): IEnumerable<T>;
+    function from<T = any>(seq?: Sequence<T>): IEnumerable<T>;
     /**
      * Creates a new sequence from the string representation of a value.
      *
@@ -1832,7 +1832,7 @@ declare namespace Enumerable {
      *
      * @return {boolean} Is (null) or empty.
      */
-    function isNullOrEmpty<T>(seq: IEnumerable<T>): seq is (null | IEnumerable<T>);
+    function isNullOrEmpty<T = any>(seq: IEnumerable<T>): seq is (null | IEnumerable<T>);
     /**
      * Checks if a value can be used as enumerable (sequence).
      *
@@ -1848,7 +1848,7 @@ declare namespace Enumerable {
      *
      * @return {boolean} Is (undefined), (null) or empty.
      */
-    function isUndefinedNullOrEmpty<T>(seq: IEnumerable<T>): seq is (undefined | null | IEnumerable<T>);
+    function isUndefinedNullOrEmpty<T = any>(seq: IEnumerable<T>): seq is (undefined | null | IEnumerable<T>);
     /**
      * Checks if a sequence is (undefined) or empty.
      *
@@ -1856,7 +1856,7 @@ declare namespace Enumerable {
      *
      * @return {boolean} Is (undefined) or empty.
      */
-    function isUndefinedOrEmpty<T>(seq: IEnumerable<T>): seq is (undefined | IEnumerable<T>);
+    function isUndefinedOrEmpty<T = any>(seq: IEnumerable<T>): seq is (undefined | IEnumerable<T>);
     /**
      * Checks if a value represents the NOT_FOUND symbol.
      *
@@ -1872,7 +1872,7 @@ declare namespace Enumerable {
      *
      * @return {IEnumerable<T>} The new sequence.
      */
-    function popFrom<T>(stack: PoppableStack<T>): IEnumerable<T>;
+    function popFrom<T = any>(stack: PoppableStack<T>): IEnumerable<T>;
     /**
      * Returns a sequence of random numbers.
      *
@@ -1900,7 +1900,7 @@ declare namespace Enumerable {
      *
      * @returns {IEnumerable<number>} The new sequence.
      */
-    function repeat<T>(item: T, count?: number): IEnumerable<T>;
+    function repeat<T = any>(item: T, count?: number): IEnumerable<T>;
     /**
      * Creates a sequence from a stack by shifting its elements.
      *
@@ -1908,7 +1908,7 @@ declare namespace Enumerable {
      *
      * @return {IEnumerable<T>} The new sequence.
      */
-    function shiftFrom<T>(stack: ShiftableStack<T>): IEnumerable<T>;
+    function shiftFrom<T = any>(stack: ShiftableStack<T>): IEnumerable<T>;
     /**
      * Returns a sorted sequence.
      *
@@ -1921,7 +1921,7 @@ declare namespace Enumerable {
      *
      * @return {IOrderedEnumerable<T>} The sorted sequence.
      */
-    function sort<T, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T>;
+    function sort<T = any, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T>;
     /**
      * Returns a sorted sequence (descending).
      *
@@ -1934,6 +1934,6 @@ declare namespace Enumerable {
      *
      * @return {IOrderedEnumerable<T>} The sorted sequence.
      */
-    function sortDesc<T, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T>;
+    function sortDesc<T = any, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T>;
 }
 export = Enumerable;

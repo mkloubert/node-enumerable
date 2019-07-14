@@ -1,7 +1,7 @@
 {
   "name": "node-enumerable",
-  "version": "4.0.2",
-  "description": "ES6 ready LINQ features written in TypeScript",
+  "version": "5.0.0",
+  "description": "ES2017 ready LINQ features written in TypeScript",
   "main": "index.js",
   "scripts": {
     "build": "(\"node_modules/.bin/tsc\" -p ./) && (\"node_modules/.bin/tsc\" -d)",
@@ -22,6 +22,7 @@
     "generator",
     "generators",
     "es6",
+    "es2017",
     "typescript",
     "ecmascript",
     "2015",
@@ -41,9 +42,9 @@
   },
   "homepage": "https://github.com/mkloubert/node-enumerable#readme",
   "devDependencies": {
-    "@types/node": "^8.10.38",
+    "@types/node": "^10.14.12",
     "typedoc": "^0.14.2",
-    "typedoc-plugin-markdown": "^1.1.25",
-    "typescript": "^3.3.1"
+    "typedoc-plugin-markdown": "^2.0.9",
+    "typescript": "^3.5.3"
   }
 }

@@ -3,7 +3,7 @@
 
 # node-enumerable
 
-[ES6](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015) ready [LINQ](https://en.wikipedia.org/wiki/Language_Integrated_Query) library written in [TypeScript](https://www.typescriptlang.org/).
+[ES2017](https://en.wikipedia.org/wiki/ECMAScript#8th_Edition_-_ECMAScript_2017) ready [LINQ](https://en.wikipedia.org/wiki/Language_Integrated_Query) library written in [TypeScript](https://www.typescriptlang.org/).
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9BX9ZJCAJHQ8U) [![](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fnode-enumerable)
 
@@ -54,7 +54,7 @@
 
 ## Requirements [[&uarr;](#table-of-contents)]
 
-* an [ES6](https://en.wikipedia.org/wiki/ECMAScript#6th_Edition_-_ECMAScript_2015) compatible environment like [modern browsers](https://en.wikipedia.org/wiki/ECMAScript#Implementations) or [NodeJS](https://nodejs.org/en/)
+* an [ES2017](https://en.wikipedia.org/wiki/ECMAScript#8th_Edition_-_ECMAScript_2017) compatible environment like [modern browsers](https://en.wikipedia.org/wiki/ECMAScript#Implementations) or [NodeJS](https://nodejs.org/en/)
 * [TypeScript](https://www.typescriptlang.org/) 2.3 or later (ONLY when using [defintion files](https://github.com/mkloubert/node-enumerable/blob/master/index.d.ts))
 
 ## Installation [[&uarr;](#table-of-contents)]

@@ -35,14 +35,14 @@ namespace Enumerable {
      * 
      * @param {AsyncActionContext<T>} context The underlying context.
      */
-    export type AsyncAction<T> = (context: AsyncActionContext<T>) => void;
+    export type AsyncAction<T = any> = (context: AsyncActionContext<T>) => void;
 
     /**
      * A context for an async action.
      * 
      * @template T Type of the underlying item.
      */
-    export interface AsyncActionContext<T> {
+    export interface AsyncActionContext<T = any> {
         /**
          * Cancels the whole operation.
          * 
@@ -103,7 +103,7 @@ namespace Enumerable {
      * 
      * @return {TResult} The result.
      */
-    export type CancelableFactory<TResult> = (cancel: (flag?: boolean) => void, index: number) => TResult;
+    export type CancelableFactory<TResult = any> = (cancel: (flag?: boolean) => void, index: number) => TResult;
 
     /**
      * Compares to values.
@@ -116,7 +116,7 @@ namespace Enumerable {
      * 
      * @return {number} The "sort" value.
      */
-    export type Comparer<T, U = T> = (x: T, y: U) => number;
+    export type Comparer<T = any, U = T> = (x: T, y: U) => number;
 
     /**
      * A forEach action.
@@ -126,7 +126,7 @@ namespace Enumerable {
      * @param {T} item The current item.
      * @param {number} index The zero based index of the current item.
      */
-    export type EachAction<T> = (item: T, index: number) => void;
+    export type EachAction<T = any> = (item: T, index: number) => void;
 
     /**
      * Checks if two values are equal.
@@ -139,7 +139,7 @@ namespace Enumerable {
      * 
      * @return {boolean} Are equal or not.
      */
-    export type EqualityComparer<T, U = T> = (x: T, y: U) => boolean;
+    export type EqualityComparer<T = any, U = T> = (x: T, y: U) => boolean;
 
     /**
      * An item message (provider).
@@ -152,7 +152,7 @@ namespace Enumerable {
      * @template TOuter Type of the outer value.
      * @template TInner Type of the inner value.
      */
-    export interface JoinedItems<TOuter, TInner> {
+    export interface JoinedItems<TOuter = any, TInner = any> {
         /**
          * The inner value.
          */
@@ -166,7 +166,7 @@ namespace Enumerable {
     /**
      * A collection that can be popped.
      */
-    export interface PoppableStack<T> {
+    export interface PoppableStack<T = any> {
         /**
          * The length of the stack.
          */
@@ -188,7 +188,7 @@ namespace Enumerable {
      * 
      * @return {boolean} Item satisfies the condition or not.
      */
-    export type Predicate<T> = (item: T) => boolean;
+    export type Predicate<T = any> = (item: T) => boolean;
 
     /**
      * A selector.
@@ -200,19 +200,19 @@ namespace Enumerable {
      * 
      * @return {U} The new item.
      */
-    export type Selector<T, U> = (item: T) => U;
+    export type Selector<T = any, U = any> = (item: T) => U;
 
     /**
      * Possible sequence types.
      * 
      * @template T Type of the items.
      */
-    export type Sequence<T> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
+    export type Sequence<T = any> = ArrayLike<T> | Iterable<T> | Iterator<T> | IArguments;
 
     /**
      * A collection that can be shifted.
      */
-    export interface ShiftableStack<T> {
+    export interface ShiftableStack<T = any> {
         /**
          * The length of the stack.
          */
@@ -230,7 +230,7 @@ namespace Enumerable {
      * 
      * @template T The type of the items.
      */
-    export interface Stack<T> {
+    export interface Stack<T = any> {
         /**
          * Pushes one or more item to the stack.
          * 
@@ -259,7 +259,7 @@ namespace Enumerable {
      * 
      * @template T Type of the items.
      */
-    export interface IEnumerable<T> extends Iterable<T>, Iterator<T> {
+    export interface IEnumerable<T = any> extends Iterable<T>, Iterator<T> {
         /**
          * Handles current items as numbers and returns their absolute values.
          * 
@@ -1243,7 +1243,7 @@ namespace Enumerable {
      * @template T Type of the items.
      * @template TKey Type of the key.
      */
-    export interface IGrouping<TKey, T> extends IEnumerable<T> {
+    export interface IGrouping<TKey = any, T = any> extends IEnumerable<T> {
         /**
          * Gets the key.
          */
@@ -1253,7 +1253,7 @@ namespace Enumerable {
     /**
      * Describes an ordered sequence.
      */
-    export interface IOrderedEnumerable<T> extends IEnumerable<T> {
+    export interface IOrderedEnumerable<T = any> extends IEnumerable<T> {
         /**
          * Performs a subsequent ordering of the elements in that sequence in ascending order,
          * using the values itself as keys.
@@ -1307,7 +1307,7 @@ namespace Enumerable {
      * 
      * @return {TResult} The "zipped" result,
      */
-    export type ZipSelector<T, U = T, TResult = any> = (x: T, y: U, index: number) => TResult;
+    export type ZipSelector<T = any, U = T, TResult = any> = (x: T, y: U, index: number) => TResult;
 
 
     /**
@@ -1435,7 +1435,7 @@ namespace Enumerable {
     /**
      * A basic sequence.
      */
-    export abstract class EnumerableBase<T> implements IEnumerable<T> {
+    export abstract class EnumerableBase<T = any> implements IEnumerable<T> {
         /**
          * Stores the current iterator result.
          */
@@ -3142,7 +3142,7 @@ namespace Enumerable {
      * 
      * @template T Type of the items.
      */
-    export class EnumerableWrapper<T> extends EnumerableBase<T> {
+    export class EnumerableWrapper<T = any> extends EnumerableBase<T> {
         /**
          * The wrapped sequence.
          */
@@ -3181,7 +3181,7 @@ namespace Enumerable {
     /**
      * A sequence based on an Iterator<T>.
      */
-    export class IteratorEnumerable<T> extends EnumerableBase<T> {
+    export class IteratorEnumerable<T = any> extends EnumerableBase<T> {
         /**
          * Stores the inner iterator.
          */
@@ -3224,7 +3224,7 @@ namespace Enumerable {
     /**
      * A sequence based on an array.
      */
-    export class ArrayEnumerable<T> extends EnumerableBase<T> {
+    export class ArrayEnumerable<T = any> extends EnumerableBase<T> {
         /**
          * Stores the underlying array.
          */
@@ -3294,7 +3294,7 @@ namespace Enumerable {
      * @template T Type of the items.
      * @template TKey Type of the key.
      */
-    export class Grouping<TKey, T> extends EnumerableWrapper<T> implements IGrouping<TKey, T> {
+    export class Grouping<TKey = any, T = any> extends EnumerableWrapper<T> implements IGrouping<TKey, T> {
         /**
          * Stores the key.
          */
@@ -3324,7 +3324,7 @@ namespace Enumerable {
      * @template T Type of the items.
      * @template U Type of the sort keys.
      */
-    export class OrderedEnumerable<T, U = T> extends EnumerableWrapper<T> implements IOrderedEnumerable<T> {
+    export class OrderedEnumerable<T = any, U = T> extends EnumerableWrapper<T> implements IOrderedEnumerable<T> {
         /**
          * Stores the items in the original order.
          */
@@ -3528,14 +3528,14 @@ namespace Enumerable {
      * 
      * @returns {IEnumerable<T>} 
      */
-    export function build<T>(factory: CancelableFactory<T>,
+    export function build<T = any>(factory: CancelableFactory<T>,
                              count?: number): IEnumerable<T> {
         count = parseInt(toStringSafe(count).trim());
 
         return from(buildInner(factory, count));
     }  // build<T>()
 
-    function *buildInner<T>(factory: CancelableFactory<T>,
+    function *buildInner<T = any>(factory: CancelableFactory<T>,
                             count: number) {
         let i = -1;
         let run = true;
@@ -3573,14 +3573,14 @@ namespace Enumerable {
      * 
      * @returns {IEnumerable<T>} The flatten list of items. 
      */
-    export function buildMany<T>(factory: CancelableFactory<Sequence<T>>,
+    export function buildMany<T = any>(factory: CancelableFactory<Sequence<T>>,
                                  count?: number): IEnumerable<T> {
         count = parseInt(toStringSafe(count).trim());
 
         return from(buildManyInner(factory, count));
     }  // buildMany<T>()
 
-    function *buildManyInner<T>(factory: CancelableFactory<Sequence<T>>,
+    function *buildManyInner<T = any>(factory: CancelableFactory<Sequence<T>>,
                                 count: number) {
         let i = -1;
         let run = true;
@@ -3644,7 +3644,7 @@ namespace Enumerable {
      * 
      * @return {IEnumerable<T>} The new sequence.
      */
-    export function from<T>(seq?: Sequence<T>): IEnumerable<T> {
+    export function from<T = any>(seq?: Sequence<T>): IEnumerable<T> {
         if (isNullOrUndefined(seq)) {
             seq = [];
         }
@@ -3726,7 +3726,7 @@ namespace Enumerable {
      * 
      * @return {boolean} Is (null) or empty.
      */
-    export function isNullOrEmpty<T>(seq: IEnumerable<T>): seq is (null | IEnumerable<T>) {
+    export function isNullOrEmpty<T = any>(seq: IEnumerable<T>): seq is (null | IEnumerable<T>) {
         return null === seq ||
                ('undefined' !== typeof seq && seq.isEmpty());
     }  // isNullOrEmpty<T>()
@@ -3764,7 +3764,7 @@ namespace Enumerable {
      * 
      * @return {boolean} Is (undefined), (null) or empty.
      */
-    export function isUndefinedNullOrEmpty<T>(seq: IEnumerable<T>): seq is (undefined | null | IEnumerable<T>) {
+    export function isUndefinedNullOrEmpty<T = any>(seq: IEnumerable<T>): seq is (undefined | null | IEnumerable<T>) {
         return 'undefined' === typeof seq ||
                null === seq ||
                seq.isEmpty();
@@ -3777,7 +3777,7 @@ namespace Enumerable {
      * 
      * @return {boolean} Is (undefined) or empty.
      */
-    export function isUndefinedOrEmpty<T>(seq: IEnumerable<T>): seq is (undefined | IEnumerable<T>) {
+    export function isUndefinedOrEmpty<T = any>(seq: IEnumerable<T>): seq is (undefined | IEnumerable<T>) {
         return 'undefined' === typeof seq ||
                (null !== seq && seq.isEmpty());
     }  // isUndefinedOrEmpty<T>()
@@ -3800,13 +3800,13 @@ namespace Enumerable {
      * 
      * @return {IEnumerable<T>} The new sequence.
      */
-    export function popFrom<T>(stack: PoppableStack<T>): IEnumerable<T> {
+    export function popFrom<T = any>(stack: PoppableStack<T>): IEnumerable<T> {
         return from(
             popFromInner(stack)
         );
     }  // popFrom()
 
-    function *popFromInner<T>(stack: PoppableStack<T>) {
+    function *popFromInner<T = any>(stack: PoppableStack<T>) {
         if (stack) {
             while (stack.length > 0) {
                 yield stack.pop();
@@ -3874,13 +3874,13 @@ namespace Enumerable {
      * 
      * @returns {IEnumerable<number>} The new sequence.
      */
-    export function repeat<T>(item: T, count?: number): IEnumerable<T> {
+    export function repeat<T = any>(item: T, count?: number): IEnumerable<T> {
         count = parseInt(toStringSafe(count).trim());
 
         return from(repeatInner(item, count));
     }  // repeat<T>()
 
-    function *repeatInner<T>(item: T, count: number) {
+    function *repeatInner<T = any>(item: T, count: number) {
         while (true) {
             if (!isNaN(count)) {
                 if (count-- < 1) {
@@ -3899,13 +3899,13 @@ namespace Enumerable {
      * 
      * @return {IEnumerable<T>} The new sequence.
      */
-    export function shiftFrom<T>(stack: ShiftableStack<T>): IEnumerable<T> {
+    export function shiftFrom<T = any>(stack: ShiftableStack<T>): IEnumerable<T> {
         return from(
             shiftFromInner(stack)
         );
     }  // shiftFrom()
 
-    function *shiftFromInner<T>(stack: ShiftableStack<T>) {
+    function *shiftFromInner<T = any>(stack: ShiftableStack<T>) {
         if (stack) {
             while (stack.length > 0) {
                 yield stack.shift();
@@ -3925,7 +3925,7 @@ namespace Enumerable {
      * 
      * @return {IOrderedEnumerable<T>} The sorted sequence.
      */
-    export function sort<T, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T> {
+    export function sort<T = any, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T> {
         if (!selector) {
             return from(items).order(<any>comparer);
         }
@@ -3945,7 +3945,7 @@ namespace Enumerable {
      * 
      * @return {IOrderedEnumerable<T>} The sorted sequence.
      */
-    export function sortDesc<T, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T> {
+    export function sortDesc<T = any, U = T>(items: Sequence<T>, selector?: Selector<T, U>, comparer?: Comparer<U>): IOrderedEnumerable<T> {
         if (!selector) {
             return from(items).orderDescending(<any>comparer);
         }
@@ -3954,25 +3954,7 @@ namespace Enumerable {
     }
 
 
-    function asArray<T>(arr: ArrayLike<T>): Array<T> {
-        if (!arr) {
-            return <any>arr;
-        }
-
-        if (Array.isArray(arr)) {
-            return arr;
-        }
-
-        const NEW_ARRAY: Array<T> = [];
-
-        for (let i = 0; i < arr.length; i++) {
-            NEW_ARRAY.push(arr[i]);
-        }
-
-        return NEW_ARRAY;
-    }
-
-    function createGroupArrayForSequence<T, TKey>(seq: IEnumerable<T>,
+    function createGroupArrayForSequence<T = any, TKey = any>(seq: IEnumerable<T>,
                                                   keySelector: Selector<T, TKey>) {
         return seq.groupBy(keySelector).select(grp => {
             return {
@@ -3988,7 +3970,7 @@ namespace Enumerable {
         }
     }
 
-    function getOrDefaultArguments<T, U>(predicateOrDefaultValue: Predicate<T> | T, defaultValue: U,
+    function getOrDefaultArguments<T = any, U = T>(predicateOrDefaultValue: Predicate<T> | T, defaultValue: U,
                                          paramCount: number) {
         let predicate: Predicate<T>;
         let defVal: any;
@@ -4016,7 +3998,7 @@ namespace Enumerable {
         };
     }
 
-    function getNextIteratorResultSafe<T>(iterator: Iterator<T>, defaultValue?: any): IteratorResult<T> {
+    function getNextIteratorResultSafe<T = any>(iterator: Iterator<T>, defaultValue?: any): IteratorResult<T> {
         const RESULT = iterator.next();
 
         return RESULT || {
@@ -4030,7 +4012,7 @@ namespace Enumerable {
                'undefined' === typeof val;
     }
 
-    function toComparerSafe<T, U>(comparer: Comparer<T, U>): Comparer<T, U> {
+    function toComparerSafe<T = any, U = T>(comparer: Comparer<T, U>): Comparer<T, U> {
         if (!comparer) {
             comparer = (x: any, y: any) => {
                 if (x === y) {
@@ -4052,7 +4034,7 @@ namespace Enumerable {
         return comparer;
     }
 
-    function toEqualityComparerSafe<T, U>(comparer: EqualityComparer<T, U> | true): EqualityComparer<T, U> {
+    function toEqualityComparerSafe<T = any, U = T>(comparer: EqualityComparer<T, U> | true): EqualityComparer<T, U> {
         if (!comparer) {
             comparer = (x: any, y: any) => x == y; 
         }
@@ -4063,7 +4045,7 @@ namespace Enumerable {
         return comparer;
     }
 
-    function toItemMessageSafe<T>(msgOrProvider: ItemMessage<T>): (item: T, index: number) => string {
+    function toItemMessageSafe<T = any>(msgOrProvider: ItemMessage<T>): (item: T, index: number) => string {
         if (isNullOrUndefined(msgOrProvider)) {
             msgOrProvider = (item, index) => `Condition failed at index ${index}`;
         }
@@ -4081,7 +4063,7 @@ namespace Enumerable {
         };
     }
 
-    function toPredicateSafe<T>(predicate: Predicate<T> | boolean, defaultValue = true): Predicate<T> {
+    function toPredicateSafe<T = any>(predicate: Predicate<T> | boolean, defaultValue = true): Predicate<T> {
         if (isNullOrUndefined(predicate)) {
             predicate = () => !!defaultValue;
         }

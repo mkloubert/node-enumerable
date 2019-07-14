@@ -4,9 +4,9 @@
         "noImplicitAny": true,
         "noImplicitThis": true,
         "strictNullChecks": false,
-        "target": "es6",
+        "target": "es2017",
         "lib": [
-            "es6", "dom"
+            "es2017", "dom"
         ],
         "sourceMap": true,
         "rootDir": "."

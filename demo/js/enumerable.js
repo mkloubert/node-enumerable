@@ -2173,19 +2173,6 @@ var Enumerable;
         return from(items).orderByDescending(selector, comparer);
     }
     Enumerable.sortDesc = sortDesc;
-    function asArray(arr) {
-        if (!arr) {
-            return arr;
-        }
-        if (Array.isArray(arr)) {
-            return arr;
-        }
-        const NEW_ARRAY = [];
-        for (let i = 0; i < arr.length; i++) {
-            NEW_ARRAY.push(arr[i]);
-        }
-        return NEW_ARRAY;
-    }
     function createGroupArrayForSequence(seq, keySelector) {
         return seq.groupBy(keySelector).select(grp => {
             return {
