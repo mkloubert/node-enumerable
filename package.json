@@ -1,10 +1,10 @@
 {
   "name": "node-enumerable",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "description": "ES2017 ready LINQ features written in TypeScript",
   "main": "index.js",
   "scripts": {
-    "build": "(\"node_modules/.bin/tsc\" -p ./) && (\"node_modules/.bin/tsc\" -d)",
+    "build": "tsc -p ./tsconfig.json",
     "test": "node ./test/index.js"
   },
   "repository": {
@@ -42,9 +42,13 @@
   },
   "homepage": "https://github.com/mkloubert/node-enumerable#readme",
   "devDependencies": {
-    "@types/node": "^10.14.12",
-    "typedoc": "^0.14.2",
-    "typedoc-plugin-markdown": "^2.0.9",
-    "typescript": "^3.5.3"
+    "@types/node": "^12.0.0",
+    "typedoc": "^0.19.2",
+    "typedoc-plugin-markdown": "^3.1.1",
+    "typescript": "^4.1.3"
+  },
+  "engines": {
+    "node": ">=12.0.0",
+    "npm": ">=6.9.0"
   }
 }

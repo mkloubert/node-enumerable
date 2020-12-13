@@ -4,9 +4,10 @@
         "noImplicitAny": true,
         "noImplicitThis": true,
         "strictNullChecks": false,
-        "target": "es2017",
+        "declaration": true,
+        "target": "es2019",
         "lib": [
-            "es2017", "dom"
+            "es2019", "dom"
         ],
         "sourceMap": true,
         "rootDir": "."

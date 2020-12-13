@@ -58,8 +58,8 @@ Helpers.execute(
                 Assert.strictEqual('' + actual.length, '' + expected.length);
 
                 for (let i = 0; i < actual.length; i++) {
-                    let x = actual[i];
-                    let y = expected[i];
+                    let x: number = actual[i];
+                    let y: number = expected[i];
 
                     Assert.equal(x, y);
                     Assert.strictEqual(x, y);

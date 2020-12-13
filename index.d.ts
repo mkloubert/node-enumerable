@@ -1244,9 +1244,9 @@ declare namespace Enumerable {
         /**
          * Gets the errors.
          */
-        readonly errors: any[];
+        get errors(): any[];
         /** @inheritdoc */
-        readonly stack: string;
+        get stack(): string;
         /** @inheritdoc */
         toString(): string;
     }
@@ -1277,13 +1277,13 @@ declare namespace Enumerable {
         /**
          * Gets the (zero based) index.
          */
-        readonly index: number;
+        get index(): number;
         /**
          * Gets the inner error.
          */
-        readonly innerError: any;
+        get innerError(): any;
         /** @inheritdoc */
-        readonly stack: string;
+        get stack(): string;
         /** @inheritdoc */
         toString(): string;
     }
@@ -1338,7 +1338,7 @@ declare namespace Enumerable {
         /** @inheritdoc */
         average(selector?: Selector<T, number>): number | symbol;
         /** @inheritdoc */
-        readonly canReset: boolean;
+        get canReset(): boolean;
         /** @inheritdoc */
         cast<U>(type?: string): IEnumerable<U>;
         /** @inheritdoc */
@@ -1348,13 +1348,13 @@ declare namespace Enumerable {
         /**
          * @see chunk()
          */
-        protected chunkInner(size: number): IterableIterator<IEnumerable<T>>;
+        protected chunkInner(size: number): Generator<IEnumerable<T>, void, unknown>;
         /** @inheritdoc */
         clone<U = T>(count?: number, itemSelector?: Selector<T, U>): IEnumerable<IEnumerable<U>>;
         /**
          * @see concatArray()
          */
-        protected cloneInner<U>(count: number, itemSelector: Selector<T, U>): IterableIterator<any>;
+        protected cloneInner<U>(count: number, itemSelector: Selector<T, U>): Generator<any, void, unknown>;
         /** @inheritdoc */
         concat<U = T>(...args: Sequence<U>[]): IEnumerable<T | U>;
         /** @inheritdoc */
@@ -1374,7 +1374,7 @@ declare namespace Enumerable {
         /** @inheritdoc */
         count(predicate?: Predicate<T>): number;
         /** @inheritdoc */
-        readonly current: IteratorResult<T>;
+        get current(): IteratorResult<T>;
         /** @inheritdoc */
         defaultArrayIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T>;
         /** @inheritdoc */
@@ -1382,13 +1382,13 @@ declare namespace Enumerable {
         /**
          * @see defaultIfEmpty()
          */
-        protected defaultIfEmptyInner(defaultItems: Array<T>): IterableIterator<T>;
+        protected defaultIfEmptyInner(defaultItems: Array<T>): Generator<T, void, unknown>;
         /** @inheritdoc */
         defaultSequenceIfEmpty(defaultSequence: Sequence<T>): IEnumerable<T>;
         /**
          * @see defaultIfEmpty()
          */
-        protected defaultSequenceIfEmptyInner(defaultSequence: Sequence<T>): IterableIterator<T>;
+        protected defaultSequenceIfEmptyInner(defaultSequence: Sequence<T>): Generator<T, void, unknown>;
         /** @inheritdoc */
         distinct(comparer?: EqualityComparer<T> | true): IEnumerable<T>;
         /** @inheritdoc */
@@ -1396,7 +1396,7 @@ declare namespace Enumerable {
         /**
          * @see distinct()
          */
-        protected distinctByInner<U>(selector: Selector<T, U>, comparer: EqualityComparer<U>): IterableIterator<T>;
+        protected distinctByInner<U>(selector: Selector<T, U>, comparer: EqualityComparer<U>): Generator<T, void, unknown>;
         /** @inheritdoc */
         each(action: EachAction<T>): this;
         /** @inheritdoc */
@@ -1410,7 +1410,7 @@ declare namespace Enumerable {
         /**
          * @see except()
          */
-        protected exceptInner(second: Array<T>, comparer: EqualityComparer<T>): IterableIterator<T>;
+        protected exceptInner(second: Array<T>, comparer: EqualityComparer<T>): Generator<T, void, unknown>;
         /** @inheritdoc */
         exp(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
@@ -1434,15 +1434,15 @@ declare namespace Enumerable {
         /**
          * @see groupBy()
          */
-        protected groupByInner<TKey>(keySelector: Selector<T, TKey>, keyEqualityComparer: EqualityComparer<TKey>): IterableIterator<Grouping<TKey, T>>;
+        protected groupByInner<TKey>(keySelector: Selector<T, TKey>, keyEqualityComparer: EqualityComparer<TKey>): Generator<Grouping<TKey, T>, void, unknown>;
         /** @inheritdoc */
         groupJoin<TInner = T, TOuterKey = any, TInnerKey = any, TResult = JoinedItems<T, IEnumerable<TInner>>>(inner: Sequence<TInner>, outerKeySelector?: Selector<T, TOuterKey>, innerKeySelector?: Selector<TInner, TInnerKey>, resultSelector?: (outer: T, inner: IEnumerable<TInner>) => TResult, keyEqualityComparer?: EqualityComparer<TOuterKey, TInnerKey> | true): IEnumerable<TResult>;
         /**
          * @see groupJoin()
          */
-        protected groupJoinInner<TInner, TOuterKey, TInnerKey, TResult>(inner: IEnumerable<TInner>, outerKeySelector: Selector<T, TOuterKey>, innerKeySelector: Selector<TInner, TInnerKey>, resultSelector: (outer: T, inner: IEnumerable<TInner>) => TResult, keyEqualityComparer: EqualityComparer<TOuterKey, TInnerKey>): IterableIterator<TResult>;
+        protected groupJoinInner<TInner, TOuterKey, TInnerKey, TResult>(inner: IEnumerable<TInner>, outerKeySelector: Selector<T, TOuterKey>, innerKeySelector: Selector<TInner, TInnerKey>, resultSelector: (outer: T, inner: IEnumerable<TInner>) => TResult, keyEqualityComparer: EqualityComparer<TOuterKey, TInnerKey>): Generator<TResult, void, unknown>;
         /** @inheritdoc */
-        readonly index: number;
+        get index(): number;
         /** @inheritdoc */
         indexOf<U>(item: U, comparer?: EqualityComparer<T, U> | true): number;
         /** @inheritdoc */
@@ -1458,7 +1458,7 @@ declare namespace Enumerable {
         /**
          * @see intersect()
          */
-        protected intersectInner(second: Array<T>, comparer: EqualityComparer<T>): IterableIterator<T>;
+        protected intersectInner(second: Array<T>, comparer: EqualityComparer<T>): Generator<T, void, unknown>;
         /** @inheritdoc */
         isEmpty(): boolean;
         /** @inheritdoc */
@@ -1466,7 +1466,7 @@ declare namespace Enumerable {
         /**
          * @see join()
          */
-        protected joinInner<TInner, TOuterKey, TInnerKey, TResult>(inner: IEnumerable<TInner>, outerKeySelector: Selector<T, TOuterKey>, innerKeySelector: Selector<TInner, TInnerKey>, resultSelector: (outer: T, inner: TInner) => TResult, keyEqualityComparer: EqualityComparer<TOuterKey, TInnerKey>): IterableIterator<TResult>;
+        protected joinInner<TInner, TOuterKey, TInnerKey, TResult>(inner: IEnumerable<TInner>, outerKeySelector: Selector<T, TOuterKey>, innerKeySelector: Selector<TInner, TInnerKey>, resultSelector: (outer: T, inner: TInner) => TResult, keyEqualityComparer: EqualityComparer<TOuterKey, TInnerKey>): Generator<TResult, void, unknown>;
         /** @inheritdoc */
         joinToString(separator?: any): string;
         /** @inheritdoc */
@@ -1560,13 +1560,13 @@ declare namespace Enumerable {
         /**
          * @see skipLast()
          */
-        protected skipLastInner(): IterableIterator<T>;
+        protected skipLastInner(): Generator<T, void, unknown>;
         /** @inheritdoc */
         skipWhile(predicate: Predicate<T>): IEnumerable<T>;
         /**
          * @see takeWhile()
          */
-        protected skipWhileInner(predicate: Predicate<T>): IterableIterator<T>;
+        protected skipWhileInner(predicate: Predicate<T>): Generator<T, void, unknown>;
         /** @inheritdoc */
         sqrt(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
@@ -1578,7 +1578,7 @@ declare namespace Enumerable {
         /**
          * @see takeWhile()
          */
-        protected takeWhileInner(predicate: Predicate<T>): IterableIterator<T>;
+        protected takeWhileInner(predicate: Predicate<T>): Generator<T, void, unknown>;
         /** @inheritdoc */
         tan(handleAsInt?: boolean): IEnumerable<number>;
         /** @inheritdoc */
@@ -1604,7 +1604,7 @@ declare namespace Enumerable {
         /**
          * @see zip()
          */
-        protected zipInner<U, TResult>(second: Iterator<U>, resultSelector: ZipSelector<T, U, TResult>): IterableIterator<TResult>;
+        protected zipInner<U, TResult>(second: Iterator<U>, resultSelector: ZipSelector<T, U, TResult>): Generator<TResult, void, unknown>;
     }
     /**
      * Wraps a sequence.
@@ -1623,11 +1623,11 @@ declare namespace Enumerable {
          */
         constructor(seq?: IEnumerable<T>);
         /** @inheritdoc */
-        readonly canReset: boolean;
+        get canReset(): boolean;
         /** @inheritdoc */
-        readonly current: IteratorResult<T>;
+        get current(): IteratorResult<T, any>;
         /** @inheritdoc */
-        next(): IteratorResult<T>;
+        next(): IteratorResult<T, any>;
         /** @inheritdoc */
         reset(): this;
     }
@@ -1663,7 +1663,7 @@ declare namespace Enumerable {
          */
         constructor(arr?: ArrayLike<T>);
         /** @inheritdoc */
-        readonly canReset: boolean;
+        get canReset(): boolean;
         /** @inheritdoc */
         length(): number;
         /** @inheritdoc */
@@ -1690,7 +1690,7 @@ declare namespace Enumerable {
          */
         constructor(key: TKey, seq: IEnumerable<T>);
         /** @inheritdoc */
-        readonly key: TKey;
+        get key(): TKey;
     }
     /**
      * An ordered sequence.
@@ -1722,11 +1722,11 @@ declare namespace Enumerable {
         /**
          * Gets the comparer.
          */
-        readonly comparer: Comparer<U, U>;
+        get comparer(): Comparer<U, U>;
         /**
          * Gets the selector.
          */
-        readonly selector: (x: T) => any;
+        get selector(): (x: T) => any;
         /** @inheritdoc */
         then(comparer?: Comparer<T>): IOrderedEnumerable<T>;
         /** @inheritdoc */

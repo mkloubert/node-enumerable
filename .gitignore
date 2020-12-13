@@ -6,4 +6,5 @@
 /typedoc.cmd
 /mkloubert.github.io/**
 /.deploy/releases/**
+/test/**/*.d.ts
 docs

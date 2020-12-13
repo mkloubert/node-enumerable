@@ -54,8 +54,8 @@
 
 ## Requirements [[&uarr;](#table-of-contents)]
 
-* an [ES2017](https://en.wikipedia.org/wiki/ECMAScript#8th_Edition_-_ECMAScript_2017) compatible environment like [modern browsers](https://en.wikipedia.org/wiki/ECMAScript#Implementations) or [NodeJS](https://nodejs.org/en/)
-* [TypeScript](https://www.typescriptlang.org/) 2.3 or later (ONLY when using [defintion files](https://github.com/mkloubert/node-enumerable/blob/master/index.d.ts))
+* a [ES2019](https://en.wikipedia.org/wiki/ECMAScript#10th_Edition_%E2%80%93_ECMAScript_2019) compatible environment like [modern browsers](https://en.wikipedia.org/wiki/ECMAScript#Implementations) or [NodeJS](https://nodejs.org/en/)
+* [TypeScript](https://www.typescriptlang.org/) 4.1 or later (ONLY when using [defintion files](https://github.com/mkloubert/node-enumerable/blob/master/index.d.ts))
 
 ## Installation [[&uarr;](#table-of-contents)]
 
@@ -68,6 +68,8 @@ npm install node-enumerable --save
 ```
 
 inside project folder to install the module.
+
+The module requires at least [Node.js 12+](https://nodejs.org/uk/blog/release/v12.0.0/).
 
 ### Browser [[&uarr;](#installation-)]
 

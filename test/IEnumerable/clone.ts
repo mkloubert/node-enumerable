@@ -75,8 +75,8 @@ Helpers.execute(
                     Assert.strictEqual('' + arr2.length, '' + arr.length);
 
                     for (let k = 0; k < arr2.length; k++) {
-                        let x = arr[k];
-                        let y = arr2[k];
+                        let x: any = arr[k];
+                        let y: number = arr2[k];
 
                         Assert.equal(x, y);
                         Assert.strictEqual(x, y);
@@ -135,8 +135,8 @@ Helpers.execute(
                     Assert.strictEqual('' + arr2.length, '' + arr.length);
 
                     for (let k = 0; k < arr2.length; k++) {
-                        let x = arr[k];
-                        let y = arr2[k];
+                        let x: any = arr[k];
+                        let y: number = arr2[k];
 
                         Assert.equal(x, y);
                         Assert.strictEqual(x, y);
