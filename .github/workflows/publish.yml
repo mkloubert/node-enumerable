@@ -1,11 +1,12 @@
 name: Publish
+
 on:
   push:
     branches:
       - master
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.0.0
@@ -18,4 +19,4 @@ jobs:
       - run: npm run test
       - run: npm run publish
         env:
-            VSCE_TOKEN: ${{secrets.VSCE_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
